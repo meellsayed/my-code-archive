@@ -1,0 +1,226 @@
+============================================================= SQL VS NOSQL & MONGODB(Mapping chart)    =============================================
+https://www.ibm.com/think/topics/sql-vs-nosql#:~:text=When%20to%20use%20NoSQL,flexible%20and%20offers%20high%20performance.  =>//SQL VS NOSQL
+https://www.ibm.com/topics/cap-theorem  =>//CAP
+https://www.ibm.com/topics/mongodb     =>//MONGODB
+https://aws.amazon.com/what-is/database-sharding/  => //database-sharding
+============================================================= RUN MONGODB IN SHELL & introduce compass ================================================
+How to use mongosh
+databases  
+	show: show dbs
+	create: use school 
+	drop: db.dropDatabase("school")
+collections 
+	show: show collections  
+	create implicit : db.users.insertOne({name:"Elwan", gender:"male" , age:25 , confirmEmail: false , salary:500.50 , fav:['football','basketball']}) ;
+	create explicit : db.createCollection("users")
+	create with validation:  db.createCollection("users" , {validator:{$and:[{userName:{$type:"string"}]}}
+        capped table: db.createCollection("blog" , {capped:true , size:5000, max:2})
+	check capped: db.collectionName.isCapped()
+        convert to capped: db.runCommand('convertToCapped':'blogs' , size:5000  , max:5)
+        DROP: db.collectionName.drop()
+==========================================================
+insert 
+	insertOne:db.collectionName.insertOne({name:"Elwan"})
+        insertMany:db.collectionName.insertMany([{name:"maged"} , {name:"Mohamed"}]
+find
+	findOne:db.collection.findOne({})	
+	find:db.collection.find({})
+                Query with Filters
+		$eq	Equals	        		{ age: { $eq: 30 } }
+		$ne	Not equals			{ age: { $ne: 30 } }
+		$gt	Greater than			{ age: { $gt: 25 } }
+		$lt	Less than			{ age: { $lt: 35 } }
+		$gte	Greater than or equal		{ age: { $gte: 30 } }
+		$lte	Less than or equal		{ age: { $lte: 30 } }
+		$in	Matches any in an array		{ name: { $in: ["Alice", "Bob"] } }
+		$nin	Matches none in an array	{ name: { $nin: ["Alice", "Bob"] } }
+	Combine Filters with Logical Operators	(AND , OR , not , nor)
+		db.myCollection.find({ age: { $gt: 25 }, profession: "Designer" })
+		db.myCollection.find({ $and: [ { age: { $gt: 25 } }, { profession: "Designer" } ] })
+                db.myCollection.find({ $or: [ { age: { $lt: 25 } }, { profession: "Manager" } ] })
+	        db.myCollection.find({ age: { $not: { $gt: 30 } } })
+                db.myCollection.find({$nor: [{ age: { $gt: 30 } },{ profession: "Engineer" }]})
+
+	Project/limit/skip Specific Fields
+		db.myCollection.find({ age: { $gt: 25 } }, { name: 1, _id: 0 }.skip(1).limit(2).sort({name:1, age:-1}).count()
+ 	Element Operators
+             	  	 db.myCollection.find({ age: { $exists: true } })
+		         db.myCollection.find({ name: { $type: "string" } })
+ -------------------------------------Data types---------------------------------------              
+		type           	ALIAS	Description
+		"double"	1	64-bit floating point
+		"string"	2	String
+		"object"	3	Embedded document
+		"array"	        4       Array
+		"binary"	5	Binary data
+		"objectId"	7	ObjectId
+		"bool"	        8       Boolean
+		"date"		9	Date
+		"null"		10	Null
+		"int"		16	32-bit integer
+		"long"		18	64-bit integer
+--------------------------------------------------------------------------
+		db.myCollection.find({ scores: { $elemMatch: { $gt: 80, $lt: 90 } } })
+ 		size-all //self-study
+	 Evaluation Operators: $regex, $expr      //later in course  
+===============================================================================================
+                
+update
+	db. collection.updateOne({name:'new omr},{$set:{age:30}}); // to update one
+	db. collection.updateMany({name:'new lolo'},{$set:{age:30}}); // to update many
+delete
+	db. collection.deleteOne({name:'lolo'}) // to delete one
+	db. collection.deleteMany({name:'lolo'}) // to delete many
+====================================================================
+indexes
+	db.users.createIndex({name:1})
+	db.users.find().explain('executionStats')
+	db.users.getIndexes()
+	db.users.dropIndex({name:1})	
+        db.users.createIndex({age:1,name:1}) // compound index
+        db.users.createIndex({createdAt:1},{expireAfterSeconds:10});
+==========================================================================
+Aggregate & lookup  // later in course
+================================================================================== MONGODB WITH NODE.JS============================================================
+1-Install node.js/mongoDB driver :  npm install mongodb@6.11   // https://www.mongodb.com/docs/drivers/node/current/quick-start/connect-to-mongodb/
+2-connect on DB  
+3-check DB connection client.connect()
+4- create user model
+5-crud on user
+========================================================================== MONGOOSE AND NODE.JS
+0-ODM
+1-Install node.js/mongoose driver :  npm install mongoose  
+2-connect on DB 
+3-check DB connection mongoose.connect
+4-create quick user model
+==============================5- model parts mongoose
+create user model 
+	Data-types:https://mongoosejs.com/docs/schematypes.html 
+		String
+        	Number
+		Date
+		Buffer
+		Boolean
+		Mixed
+		ObjectId
+		Array
+		Decimal128
+		Map
+		Schema
+		UUID
+		BigInt
+	Schema Options
+		Option           	Description
+		collection	Explicitly specify the collection name
+		timestamps	Automatically adds createdAt and updatedAt
+		versionKey	Disable __v version key (false)
+		strict	              Controls enforcement of schema structure
+		autoIndex	Automatically creates indexes (default: true)
+
+	Features for Attributes
+		[required , default , unique , trim , min , max , match]
+	
+	validation 
+		Built-in Validators:[required , default , unique , trim , min , max , match  , maxlength  ,minlength]
+		Custom Validators:{validate:{validator:function() , or asyncfunction(){}} , message}
+		skip validate
+			    { runValidators: true } // Enforce validation on update options
+			     validateBeforeSave: false  //create save options
+===============================================================================
+5-run-crud on user 
+	create : create ,  create([{}])  , insertMany([{}])
+        select: find , finOne , finById   //.select  .sort  .skip  .limit
+        update: updateOne() , updateMany , findOneAndUpdate , finByIdAndUpdate , findOneAndReplace
+        delete: deleteOne  deleteMany findOneAndDelete  findByIdAndDelete findOneAndRemove
+
+relation 
+	populate 
+	lookup
+			
+
+
+===========================================================================Aggregate
+1-
+{
+  $match: { <field>: <value>, <field2>: { <operator>: <value> } } //  where condition
+}
+ex:
+{
+    $match: { product: "Laptop" , price:{$gt:5000} }
+}
+2- to include or exclude fiels (1 , 0)  and rename 
+{
+  $project: {
+    age: 0, //exclude
+    gender: 1, // include
+    amount:"$quantity" //aliases
+    totla:{$multiply:["$quantity" , "$price"]} // generate new fields
+
+  }
+}
+3-What is $group?
+The $group stage groups documents together based on a specified key and performs aggregate calculations, such as sum, avg, min, max, and count.
+It works like the GROUP BY clause in SQL
+
+{
+$group:{
+_id:"$fieldToGroupONIt",
+newField:{$sum:["$price"]}
+
+}
+}
+
+4-$unwind
+db.elec.aggregate([
+    {
+      $unwind: {
+        path: "$tags",
+        includeArrayIndex: "tagIndex",
+        preserveNullAndEmptyArrays: true
+      }
+    }
+]);
+  
+5- $sort: { 
+    age:1//ASC
+    gender:-1//DESC
+   }
+
+/////////////////////////////////////////////////////EXAMPLE
+db.orders.insertMany([
+  { _id: 1, product: "Laptop", price: 1200, quantity: 4, date: "2024-12-01" },
+  { _id: 2, product: "Phone", price: 800, quantity: 10, date: "2024-12-02" },
+  { _id: 3, product: "Tablet", price: 600, quantity: 5, date: "2024-12-02" },
+  { _id: 4, product: "Laptop", price: 1200, quantity: 2, date: "2024-12-03" },
+  { _id: 5, product: "Phone", price: 800, quantity: 8, date: "2024-12-03" },
+]);
+
+based on this data let's do 
+0-Stage 0: Match orders on a specific date $match
+1-Stage 1: Add a calculated field for revenue $addFields
+2-Stage 2: Group by product and calculate total revenue $group
+3-Stage 3: Sort by total revenue in descending order  $sort
+
+//////////////////////////////////////////////////LOOKUP
+
+{
+  $lookup: {
+    from: "<foreignCollection>",
+    localField: "<fieldInCurrentCollection>",
+    foreignField: "<fieldInForeignCollection>",
+    as: "<outputField>"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

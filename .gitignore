@@ -1,0 +1,30 @@
+# Node
+**/node_modules/
+
+# Build
+**/dist/
+**/build/
+**/.next/
+**/.nuxt/
+**/coverage/
+
+# **/Assignmentes/
+# **/Assignment*/
+**/secrit/
+**/folder/
+
+
+# Logs
+**/*.log
+
+# Environment
+# **/.env
+# **/.env.*
+
+# IDE
+**/.vscode/
+**/.idea/
+
+# OS
+**/.DS_Store
+**/Thumbs.db

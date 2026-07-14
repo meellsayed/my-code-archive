@@ -1,0 +1,21 @@
+{
+  "name": "week_9",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "dev2": "node --watch --no-warnings index.js",
+    "dev3": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongodb": "7.2",
+    "mongoose": "^9.7.1",
+    "morgan": "^1.11.0"
+  }
+}

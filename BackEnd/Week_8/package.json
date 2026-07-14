@@ -1,0 +1,22 @@
+{
+  "name": "week_8",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Mohamed Elsayed",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mysql2": "^3.22.4",
+    "sequelize": "^6.37.8"
+  },
+  "devDependencies": {
+    "eslint": "^10.4.1"
+  }
+}

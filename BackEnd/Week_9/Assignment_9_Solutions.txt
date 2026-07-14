@@ -1,0 +1,446 @@
+Assignment 9 - MongoDB Solutions (with Explanation)
+=====================================================
+
+
+===========================================================================
+Question 1: Create an explicit collection named "books" with a validation
+            rule to ensure that each document has a non-empty "title" field.
+===========================================================================
+
+/* الشرح:
+   - الـ Explicit Collection يعني بنعمل الـ collection يدويًا قبل ما نحط فيها بيانات
+     باستخدام الأمر db.createCollection()
+   - بنضيف validator عشان نتحكم في شكل البيانات الداخلة
+   - استخدمنا $jsonSchema وهو معيار عالمي للتحقق من شكل الـ JSON
+   - required: ["title"]  =>  يعني الـ title لازم يكون موجود في كل document
+   - bsonType: "string"   =>  يعني لازم يكون نص
+   - minLength: 1         =>  يعني ما يكونش فاضي (non-empty)
+   - لو حد حاول يضيف document من غير title أو بـ title فاضي, MongoDB هترفض العملية
+*/
+
+db.createCollection("books", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["title"],
+      properties: {
+        title: {
+          bsonType: "string",
+          minLength: 1,
+          description: "title must be a non-empty string"
+        }
+      }
+    }
+  }
+})
+
+
+===========================================================================
+Question 2: Create an implicit collection by inserting data directly into
+            a new collection named "authors".
+===========================================================================
+
+/* الشرح:
+   - الـ Implicit Collection يعني MongoDB بتعمل الـ collection أوتوماتيك
+     من غير ما نعمل createCollection()
+   - بمجرد ما نكتب db.authors.insertOne() وهي مش موجودة,
+     MongoDB بتعملها فورًا وتحط فيها البيانات
+   - ده الأسلوب الأسرع والأبسط لما ما تكونش محتاج validation rules
+*/
+
+db.authors.insertOne({
+  name: "Author1",
+  nationality: "British"
+})
+
+
+===========================================================================
+Question 3: Create a capped collection named "logs" with a size limit of 1MB.
+===========================================================================
+
+/* الشرح:
+   - الـ Capped Collection هي collection بحجم ثابت ومحدود
+   - لما الحجم يتملى, MongoDB بتبدأ تمسح أقدم document أوتوماتيك
+     عشان تحط الجديدة (زي الـ circular buffer)
+   - capped: true   =>  بيقول إن الـ collection دي محدودة الحجم
+   - size: 1048576  =>  الحجم بالـ Bytes  (1MB = 1024 * 1024 = 1,048,576 byte)
+   - مفيدة جدًا للـ logs أو أي بيانات مؤقتة مش محتاج تحتفظ بيها للأبد
+*/
+
+db.createCollection("logs", {
+  capped: true,
+  size: 1048576
+})
+
+
+===========================================================================
+Question 4: Create an index on the books collection for the title field.
+===========================================================================
+
+/* الشرح:
+   - الـ Index بيسرّع عمليات البحث بشكل كبير جدًا
+   - بدون index, MongoDB بتعمل "full collection scan" يعني بتفتش في كل document
+   - مع الـ index, بتروح مباشرة للـ document المطلوبة (زي فهرس الكتاب)
+   - { title: 1 }  =>  الـ 1 يعني الترتيب تصاعدي (Ascending)
+   - لو كتبنا -1 يبقى ترتيب تنازلي (Descending)
+   - نتيجة الأمر ده بتبقى "title_1" وده اسم الـ index اللي اتعمل
+*/
+
+db.books.createIndex({ title: 1 })
+
+
+===========================================================================
+Question 5: Insert one document into the books collection.
+===========================================================================
+
+/* الشرح:
+   - insertOne() بتضيف document واحدة بس في الـ collection
+   - بنبعت object فيه كل بيانات الكتاب
+   - MongoDB بتضيف _id أوتوماتيك لكل document لو ما حددناهوش إحنا
+   - الـ genres هنا array عشان كتاب ممكن يكون في أكتر من genre
+   - بعد الإضافة بترجع { acknowledged: true, insertedId: "..." }
+     ده تأكيد إن العملية نجحت وإيه الـ _id اللي اتحط
+*/
+
+db.books.insertOne({
+  title: "Book1",
+  author: "Ali",
+  year: 1937,
+  genres: ["Fantasy", "Adventure"]
+})
+
+
+===========================================================================
+Question 6: Insert multiple documents into the books collection with at
+            least three records.
+===========================================================================
+
+/* الشرح:
+   - insertMany() بتضيف أكتر من document في عملية واحدة
+   - بنبعت array من الـ objects [] وكل object فيها كتاب مختلف
+   - ده أسرع من عمل insertOne() أكتر من مرة لأن في request واحدة بس
+   - بترجع { acknowledged: true, insertedIds: { "0": "...", "1": "...", "2": "..." } }
+     يعني بترجع الـ _id بتاع كل document حسب ترتيبها في الـ array
+*/
+
+db.books.insertMany([
+  {
+    title: "Future",
+    author: "George Orwell",
+    year: 2020,
+    genres: ["Science Fiction"]
+  },
+  {
+    title: "To Kill a Mockingbird",
+    author: "Harper Lee",
+    year: 1960,
+    genres: ["Classic", "Fiction"]
+  },
+  {
+    title: "Brave New World",
+    author: "Aldous Huxley",
+    year: 2006,
+    genres: ["Dystopian", "Science Fiction"]
+  }
+])
+
+
+===========================================================================
+Question 7: Insert a new log into the logs collection.
+===========================================================================
+
+/* الشرح:
+   - بنضيف سجل جديد في الـ logs collection اللي عملناها في Q3
+   - الـ log بيسجل حدث معين, هنا كتاب اتستعار (borrowed)
+   - book_id: بيربط الـ log بكتاب معين عن طريق الـ ID بتاعه
+   - action: "borrowed" => نوع الحدث اللي حصل
+   - ده النمط الشائع في الأنظمة اللي بتسجل تاريخ العمليات (Audit Logs)
+*/
+
+db.logs.insertOne({
+  book_id: "64b5c2d8a123456ef8914",
+  action: "borrowed"
+})
+
+
+===========================================================================
+Question 8: Update the book with title "Future" change the year to be 2022.
+===========================================================================
+
+/* الشرح:
+   - updateOne() بتعدل أول document بتلاقيها بس اللي بتطابق الشرط
+   - الـ argument الأول { title: "Future" } => ده الـ filter (مين اللي هنعدله)
+   - الـ argument التاني { $set: { year: 2022 } } => ده التعديل اللي هنعمله
+   - $set هو operator بيغير قيمة field معينة من غير ما يمسح باقي الـ fields
+   - لو استخدمنا { year: 2022 } من غير $set هيمسح كل الـ document ويحط year بس!
+   - النتيجة بترجع { matchedCount: 1, modifiedCount: 1 } => وجد وعدّل document واحدة
+*/
+
+db.books.updateOne(
+  { title: "Future" },
+  { $set: { year: 2022 } }
+)
+
+
+===========================================================================
+Question 9: Find a Book with title "Brave New World".
+===========================================================================
+
+/* الشرح:
+   - findOne() بترجع أول document بس اللي بتطابق الشرط
+   - بنبعتلها الـ filter { title: "Brave New World" } عشان تدور على الكتاب ده
+   - لو في أكتر من كتاب بنفس الاسم, هترجع الأول بس
+   - لو مش لاقية حاجة, هترجع null
+   - الفرق بين findOne() وfind(): الأولى ترجع object, التانية ترجع cursor (array)
+*/
+
+db.books.findOne({ title: "Brave New World" })
+
+
+===========================================================================
+Question 10: Find all books published between 1990 and 2010.
+===========================================================================
+
+/* الشرح:
+   - find() بترجع كل الـ documents اللي بتطابق الشرط
+   - بنستخدم comparison operators للمقارنة:
+     $gte  =>  greater than or equal  (أكبر من أو يساوي)
+     $lte  =>  less than or equal     (أصغر من أو يساوي)
+   - يعني الكود ده بيقول: جيب الكتب اللي الـ year فيها >= 1990 وكمان <= 2010
+   - لو عايزين من غير مساواة نستخدم $gt و $lt
+*/
+
+db.books.find({
+  year: { $gte: 1990, $lte: 2010 }
+})
+
+
+===========================================================================
+Question 11: Find books where the genre includes "Science Fiction".
+===========================================================================
+
+/* الشرح:
+   - الـ genres في بياناتنا هي array مثل: ["Dystopian", "Science Fiction"]
+   - MongoDB بتدور على قيمة داخل الـ array بشكل أوتوماتيك
+   - يعني لما نكتب genres: "Science Fiction"
+     MongoDB بتشوف كل document وتشوف لو "Science Fiction" موجودة في الـ array دي
+   - مش محتاجين $in هنا لأن MongoDB بتتعامل مع الـ array matching تلقائيًا
+*/
+
+db.books.find({
+  genres: "Science Fiction"
+})
+
+
+===========================================================================
+Question 12: Skip the first two books, limit the results to the next three,
+             sorted by year in descending order.
+===========================================================================
+
+/* الشرح:
+   - الكود ده بيعمل 3 حاجات متسلسلة (chaining):
+   
+   1) .sort({ year: -1 })
+      => بيرتب الكتب من الأحدث للأقدم (-1 = descending)
+      
+   2) .skip(2)
+      => بيتخطى أول كتابين في النتيجة بعد الترتيب
+      
+   3) .limit(3)
+      => بيرجع 3 كتب بس من بعد اللي اتخطوا
+      
+   - ده النمط الأساسي للـ Pagination (التصفح بالصفحات) في MongoDB
+   - مثلاً: لو عندنا صفحات وكل صفحة فيها 3 كتب
+     الصفحة 1: skip(0).limit(3)
+     الصفحة 2: skip(3).limit(3) وهكذا
+*/
+
+db.books.find()
+  .sort({ year: -1 })
+  .skip(2)
+  .limit(3)
+
+
+===========================================================================
+Question 13: Find books where the year field stored as an integer.
+===========================================================================
+
+/* الشرح:
+   - في MongoDB في أنواع بيانات مختلفة حتى للأرقام:
+     int (32-bit integer), long (64-bit integer), double (عدد عشري)
+   - لما بنكتب رقم في mongosh زي 1937, بيتخزن كـ double افتراضيًا
+   - $type operator بيدور على documents حسب نوع الـ field
+   - "int" يعني بندور على الحقول المخزنة كـ 32-bit integer تحديدًا
+   - ممكن نستخدم الرقم بدل الاسم: { $type: 16 } وده كود الـ int في BSON
+   - مفيد لو في بيانات مختلطة وعايز تتأكد من نوع معين بس
+*/
+
+db.books.find({
+  year: { $type: "int" }
+})
+
+
+===========================================================================
+Question 14: Find all books where the genres field does not include any
+             of the genres "Horror" or "Science Fiction".
+===========================================================================
+
+/* الشرح:
+   - $nin هو اختصار "Not IN" وهو عكس $in
+   - $nin: ["Horror", "Science Fiction"]
+     يعني جيب الكتب اللي في الـ genres بتاعتها
+     لا "Horror" ولا "Science Fiction"
+   - بيشتغل على الـ arrays أوتوماتيك زي ما شفنا في Q11
+   - لو الكتاب عنده genres: ["Classic", "Drama"] => هيظهر في النتيجة
+   - لو الكتاب عنده genres: ["Science Fiction", "Classic"] => مش هيظهر
+*/
+
+db.books.find({
+  genres: { $nin: ["Horror", "Science Fiction"] }
+})
+
+
+===========================================================================
+Question 15: Delete all books published before 2000.
+===========================================================================
+
+/* الشرح:
+   - deleteMany() بتمسح كل الـ documents اللي بتطابق الشرط
+   - { year: { $lt: 2000 } } => الـ filter: كل كتاب الـ year بتاعه أصغر من 2000
+   - $lt => less than (أصغر من بدون مساواة)
+   - لو عايز تمسح document واحدة بس استخدم deleteOne()
+   - بترجع { acknowledged: true, deletedCount: X } حيث X عدد الـ documents اللي اتمسحت
+   - تحذير: العملية دي مش قابلة للتراجع (لا يوجد Undo), تأكد من الـ filter قبل التنفيذ
+*/
+
+db.books.deleteMany({
+  year: { $lt: 2000 }
+})
+
+
+===========================================================================
+Question 16: Using aggregation Functions, Filter books published after 2000
+             and sort them by year descending.
+===========================================================================
+
+/* الشرح:
+   - aggregate() بتشتغل بنظام الـ Pipeline: كل stage بتاخد output الـ stage اللي قبلها
+   - الـ Pipeline هنا فيها مرحلتين:
+   
+   Stage 1 - $match:
+   => زي الـ WHERE في SQL
+   => بيفلتر الكتب اللي الـ year بتاعها > 2000
+   => الـ documents اللي بتعدي الفلتر بتتبعت للـ stage الجاية
+   
+   Stage 2 - $sort:
+   => بيرتب الـ documents الجاية من الـ $match
+   => { year: -1 } يعني ترتيب تنازلي (من الأحدث للأقدم)
+   
+   - الفرق بين aggregate وfind().sort():
+     aggregate أقوى لأنه بيعمل transformations وحسابات معقدة
+*/
+
+db.books.aggregate([
+  { $match: { year: { $gt: 2000 } } },
+  { $sort: { year: -1 } }
+])
+
+
+===========================================================================
+Question 17: Using aggregation functions, Find all books published after
+             the year 2000. For each matching book, show only the title,
+             author, and year fields.
+===========================================================================
+
+/* الشرح:
+   - نفس الـ Q16 بس بزيادة stage تالتة وهي $project
+   
+   Stage 1 - $match:
+   => بيفلتر الكتب بعد سنة 2000
+   
+   Stage 2 - $project:
+   => بيتحكم في إيه الـ fields اللي هتظهر في النتيجة (زي SELECT في SQL)
+   => _id: 0   => اخفي الـ _id (مش محتاجينه في النتيجة)
+   => title: 1 => ظهّر الـ title
+   => author: 1 => ظهّر الـ author
+   => year: 1  => ظهّر الـ year
+   => أي field مش مذكور بـ 1, هيتخفى أوتوماتيك
+*/
+
+db.books.aggregate([
+  { $match: { year: { $gt: 2000 } } },
+  { $project: { _id: 0, title: 1, author: 1, year: 1 } }
+])
+
+
+===========================================================================
+Question 18: Using aggregation functions, break an array of genres into
+             separate documents.
+===========================================================================
+
+/* الشرح:
+   - $unwind بيفكك الـ array وبيعمل document منفصلة لكل عنصر فيها
+   
+   مثال: لو عندنا document واحدة:
+   { title: "The Hobbit", genres: ["Fantasy", "Adventure"] }
+   
+   بعد $unwind هتتحول لـ document تنين:
+   { title: "The Hobbit", genres: "Fantasy" }
+   { title: "The Hobbit", genres: "Adventure" }
+   
+   - "$genres" => بنحط $ قبل اسم الـ field عشان نقول لـ MongoDB
+     إن ده اسم field مش قيمة نصية
+   - $project بعدين بيظهر الـ title والـ genres بس من غير _id
+   - مفيد جدًا لو عايز تعمل تحليل أو إحصائيات على عناصر الـ array
+*/
+
+db.books.aggregate([
+  { $unwind: "$genres" },
+  { $project: { _id: 0, title: 1, genres: 1 } }
+])
+
+
+===========================================================================
+Question 19: Using aggregation functions, Join the books collection with
+             the logs collection.
+===========================================================================
+
+/* الشرح:
+   - $lookup بيعمل JOIN بين collections (زي SQL JOIN)
+   - بنشتغل على الـ logs collection ونجيب بيانات الكتب المرتبطة بكل log
+   
+   شرح الـ $lookup:
+   - from: "books"        => الـ collection التانية اللي هنعمل join معاها
+   - localField: "book_id" => الـ field في الـ logs اللي بيمثل الرابط
+   - foreignField: "_id"   => الـ field في الـ books اللي بيطابقه
+   - as: "book_details"    => اسم الـ field الجديد اللي هتتحط فيه بيانات الكتاب
+   
+   ثم $project:
+   - بيظهر الـ action من الـ log
+   - وبيظهر title وauthor وyear من الكتاب المرتبط
+   
+   النتيجة: كل log هيبقى فيه بيانات الكتاب المرتبط بيه في نفس الـ document
+   
+   ملاحظة: الـ book_details بتيجي كـ array حتى لو فيها عنصر واحد
+   لأن ممكن يكون في أكتر من كتاب بنفس الـ _id (نظريًا)
+*/
+
+db.logs.aggregate([
+  {
+    $lookup: {
+      from: "books",
+      localField: "book_id",
+      foreignField: "_id",
+      as: "book_details"
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      action: 1,
+      "book_details.title": 1,
+      "book_details.author": 1,
+      "book_details.year": 1
+    }
+  }
+])

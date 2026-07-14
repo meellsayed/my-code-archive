@@ -1,0 +1,28 @@
+{
+  "name": "sarahaApp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "dev2": "node --watch --no-warnings index.js",
+    "dev3": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "7.2",
+    "mongoose": "^9.7.1",
+    "nodemailer": "^9.0.1"
+  },
+  "devDependencies": {
+    "morgan": "^1.11.0"
+  }
+}

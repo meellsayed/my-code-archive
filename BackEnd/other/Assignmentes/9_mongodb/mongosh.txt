@@ -1,0 +1,8 @@
+
+2 >>
+    db.createCollection("users", {
+    validator: { $and: [{ userName: { $type: "string" } }] },
+    });
+
+3 >> db.createCollection("logs",{capped:true,size:1000})
+    
