@@ -96,9 +96,13 @@ export const blockUser = asyncHandler(async (req, res, next) => {
 });
 
 export const findUsers = asyncHandler((req, res, next) => {
-  const { email, username, address } = req.body
+  const { email, username, address } = req.body;
 
-const users = dbService.find({model:userModel,filter:{ $or: [ { address }, { username: "Manager" } ] },})
-
-
+  const users = dbService.find({
+    model: userModel,
+    filter: { $or: [{ address }, { username }, { email }] },
+    limit:5,
+    select:"username _id image confirmEmail phone gender",
+    populate
+  });
 });

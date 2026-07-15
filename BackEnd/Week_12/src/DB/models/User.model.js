@@ -48,13 +48,14 @@ const userSchema = new Schema(
     },
     isDeleted: { type: Boolean, default: false },
     changeCredentialsTime: Date,
+
     profileViewHistory: {
       type: [profileViewSchema],
       default: [],
     },
 
     isTwoStepVerification: Boolean,
-    
+
     confirmEmail: { type: Boolean, default: false },
     confirmEmailOTP: String,
     loginConfirmationOTP: String,
