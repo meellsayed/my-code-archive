@@ -5,14 +5,51 @@
 
 var romanToInt = function (s) {
   let result = 0;
-  const romanToInteger = {
-    I: 1,
-    V: 5,
-    X: 10,
-    L: 50,
-    C: 100,
-    D: 500,
-    M: 1000,
-  };
+  let arrayOfNum = [];
+  s = s.toUpperCase();
   
+  for (let index = 0; index < s.length; index++) {
+    const element = s[index];
+    switch (element) {
+      case "I":
+        if (s[index + 1] === "V" || s[index + 1] === "X") {
+          arrayOfNum[index] = -1;
+        } else {
+          arrayOfNum[index] = 1;
+        }
+        break;
+      case "V":
+        arrayOfNum[index] = 5;
+        break;
+      case "X":
+        if (s[index + 1] === "L" || s[index + 1] === "C") {
+          arrayOfNum[index] = -10;
+        } else {
+          arrayOfNum[index] = 10;
+        }
+        break;
+      case "L":
+        arrayOfNum[index] = 50;
+        break;
+      case "C":
+        if (s[index + 1] === "D" || s[index + 1] === "M") {
+          arrayOfNum[index] = -100;
+        } else {
+          arrayOfNum[index] = 100;
+        }
+        break;
+      case "D":
+        arrayOfNum[index] = 500;
+        break;
+      case "M":
+        arrayOfNum[index] = 1000;
+        break;
+      default:
+        break; 
+    }
+
+    result += arrayOfNum[index];
+  }
+  return result;
 };
+
