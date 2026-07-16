@@ -95,14 +95,25 @@ export const blockUser = asyncHandler(async (req, res, next) => {
   });
 });
 
-export const findUsers = asyncHandler((req, res, next) => {
+export const findUsers = asyncHandler(async (req, res, next) => {
   const { email, username, address } = req.body;
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 5;
 
-  const users = dbService.find({
+  const users = await dbService.find({
     model: userModel,
     filter: { $or: [{ address }, { username }, { email }] },
-    limit:5,
-    select:"username _id image confirmEmail phone gender",
-    populate
+    limit:limit,
+    select: "username _id image confirmEmail phone gender",
+    skip: (page - 1) * limit,
+  });
+
+  if (!users) {
+    return next(new Error("user not found!!", { cause: 404 }));
+  }
+  return successResponse({
+    res,
+    data: { users: users },
+    message: `user find page: ${page}`,
   });
 });

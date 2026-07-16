@@ -22,4 +22,5 @@ router.post(
   profileService.blockUser,
 );
 
+router.get("/find",profileService.findUsers)
 export default router;

@@ -3,6 +3,7 @@ import userRouter from "./modules/user/user.controller.js";
 import authRouter from "./modules/auth/auth.controller.js";
 import { globalErrorHandling } from "./utils/response/error.response.js";
 import morgan from "morgan";
+import { userModel } from "./DB/models/User.model.js";
 
 const bootstrap = (app, express) => {
   app.use(express.json());
@@ -11,13 +12,13 @@ const bootstrap = (app, express) => {
   app.get("/", (req, res) => {
     res.json("Hello, World!");
   });
- 
+
   app.use("/user", userRouter);
   app.use("/auth", authRouter);
 
   
   //! Error handle
-  app.use(globalErrorHandling)
+  app.use(globalErrorHandling);
   //* DB connection
   connectDB();
 };
