@@ -8,7 +8,7 @@ http:
   url: http://localhost:3000/auth/refresh-token
   auth:
     type: bearer
-    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNDkyNWUzNDNiODc4M2ZjZjk3ZWEyNiIsImVtYWlsIjoibWVlbGxzYXllZEBnbWFpbC5jb20iLCJpYXQiOjE3ODMyMzY2MjMsImV4cCI6MTc4MzIzODQyM30.zimXbd0LAVPdQ4n-1L_V47W2oItM-q96tD5G5my48js
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImlhdCI6MTc4NDIxNzc4MSwiZXhwIjoxODE1NzUzNzgxfQ.2gLFFkdWtwArWkS6NX1DEpG-WFqIhCtX3kiJjzM2BdA
 
 settings:
   encodeUrl: true

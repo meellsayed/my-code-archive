@@ -103,7 +103,7 @@ export const findUsers = asyncHandler(async (req, res, next) => {
   const users = await dbService.find({
     model: userModel,
     filter: { $or: [{ address }, { username }, { email }] },
-    limit:limit,
+    limit: limit,
     select: "username _id image confirmEmail phone gender",
     skip: (page - 1) * limit,
   });
@@ -115,5 +115,68 @@ export const findUsers = asyncHandler(async (req, res, next) => {
     res,
     data: { users: users },
     message: `user find page: ${page}`,
+  });
+});
+
+export const updateBasicInfo = asyncHandler(async (req, res, next) => {
+  const { username, phone, DOB, address, image, coverImages, gender } =
+    req.body;
+
+  let user = req.user;
+  if (!user) {
+    return next(new Error("user not fond", { cause: 404 }));
+  }
+
+  const updates = Object.fromEntries(
+    Object.entries({
+      username,
+      phone,
+      DOB,
+      address,
+      image,
+      coverImages,
+      gender,
+    }).filter(([, value]) => value !== undefined),
+  );
+  Object.assign(user, updates);
+
+  await user.save();
+  return successResponse({
+    res,
+    message: "profile updated",
+    data: { user },
+  });
+});
+
+export const uploadProfileImage = asyncHandler(async (req, res, next) => {
+  if (!req.file) {
+    return next(new Error("Please upload a file", { cause: 400 }));
+  }
+
+  const user = req.user;
+  user.image = req.file.path;
+  await user.save();
+
+  return successResponse({
+    res,
+    message: "Profile image uploaded",
+    data: { image: user.image },
+  });
+});
+
+export const uploadCoverImages = asyncHandler(async (req, res, next) => {
+  if (!req.files || req.files.length === 0) {
+    return next(new Error("Please upload files", { cause: 400 }));
+  }
+
+  const user = req.user;
+  const coverImages = req.files.map((file) => file.path);
+  user.coverImages = [...(user.coverImages || []), ...coverImages];
+  await user.save();
+
+  return successResponse({
+    res,
+    message: "Cover images uploaded",
+    data: { coverImages: user.coverImages },
   });
 });

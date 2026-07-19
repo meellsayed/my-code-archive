@@ -15,3 +15,10 @@ export const blockUser = joi
   })
   .required();
 
+export const find = joi
+  .object()
+  .keys({
+    email: generalFields.email,
+    username: generalFields.username,
+    address: generalFields.address,
+  });

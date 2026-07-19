@@ -1,0 +1,23 @@
+info:
+  name: find (1)
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: localhost:3000/user/profile/update/basic-info
+  body:
+    type: json
+    data: |-
+      {
+        "username":"meeeeee"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImVtYWlsIjoibWVlbGxzYXllZEBnbWFpbC5jb20iLCJpYXQiOjE3ODQyMTc4MDYsImV4cCI6MTc4NDIxOTYwNn0.yTd_ERGIGw4Q9opoWgeKZTRt00HkfuWeZpt5E1RB9lk
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
