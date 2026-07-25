@@ -164,6 +164,22 @@ export const uploadProfileImage = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const ProfileImage = asyncHandler(async (req, res, next) => {
+  if (!req.file) {
+    return next(new Error("Please upload a file", { cause: 400 }));
+  }
+
+  const user = req.user;
+  user.image = req.file.path;
+  await user.save();
+
+  return successResponse({
+    res,
+    message: "Profile image uploaded",
+    data: { image: user.image,req:req.file },
+  });
+});
+
 export const uploadCoverImages = asyncHandler(async (req, res, next) => {
   if (!req.files || req.files.length === 0) {
     return next(new Error("Please upload files", { cause: 400 }));

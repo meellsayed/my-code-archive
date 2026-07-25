@@ -16,7 +16,6 @@ const bootstrap = (app, express) => {
   app.use("/user", userRouter);
   app.use("/auth", authRouter);
 
-  
   //! Error handle
   app.use(globalErrorHandling);
   //* DB connection

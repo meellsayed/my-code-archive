@@ -4,6 +4,7 @@ import * as profileService from "./services/user.service.js";
 import * as validators from "./user.validation.js";
 import { validation } from "../../middlewares/validation.middleware.js";
 import { uploadFile } from "../../utils/file/uploadFile.js";
+import { fileValidations, uploadCloudFile } from "../../utils/file/uploadC.js";
 
 const router = Router();
 
@@ -34,8 +35,8 @@ router.post(
     req.folderName = "profile-images";
     next();
   },
-  uploadFile.single("image"),
-  profileService.uploadProfileImage,
+  uploadCloudFile(fileValidations.image).single("image"),
+  profileService.ProfileImage,
 );
 
 router.post(
