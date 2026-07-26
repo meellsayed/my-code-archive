@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { userModel } from "../../DB/models/User.model.js";
+import { roleTypes, userModel } from "../../DB/models/User.model.js";
 import * as dbService from "../../DB/db.service.js";
 /**
  * @param {{ payload?: object, signature?: string, options?: import('jsonwebtoken').SignOptions, expiresIn?: string|number }} [args]}

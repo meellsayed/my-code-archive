@@ -67,9 +67,9 @@ export const loginConfirmation = asyncHandler(async (req, res, next) => {
   if (!user) {
     return next(new Error("In-valid Email", { cause: 404 }));
   }
-  if (new Date() > user.OTPExpires) {
+  if (new Date() > user.OTPExpiresIn) {
     user.loginConfirmationOTP = undefined;
-    user.OTPExpires = undefined;
+    user.OTPExpiresIn = undefined;
     await user.save();
     return next(new Error("OTP has expired", { cause: 400 }));
   }
@@ -77,7 +77,7 @@ export const loginConfirmation = asyncHandler(async (req, res, next) => {
     return next(new Error("Invalid OTP", { cause: 400 }));
   }
   user.loginConfirmationOTP = undefined;
-  user.OTPExpires = undefined;
+  user.OTPExpiresIn = undefined;
   await user.save();
 
   const access_token = generate_access_token(user);
@@ -131,7 +131,7 @@ export const sendForgetPasswordOTP = asyncHandler(async (req, res, next) => {
 
   let user = await dbService.findOne({
     model: userModel,
-    filter: { email, idDeleted: false },
+    filter: { email, isDeleted: false },
   });
   if (!user) {
     return next(new Error("User not found", { cause: 404 }));

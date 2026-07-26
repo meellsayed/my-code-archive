@@ -1,0 +1,25 @@
+info:
+  name: create
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: localhost:3000/post/create
+  body:
+    type: json
+    data: |-
+      {
+        "title":"my title",
+        "content":"my post",
+        "tags":"men,rn,uvnc"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImlhdCI6MTc4NTEwNjE4OCwiZXhwIjoxNzg1MTA3OTg4fQ.lzfXTSYbEUMg5LIinH-L_t6zpJwq2M-4THA1g68NaFU
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

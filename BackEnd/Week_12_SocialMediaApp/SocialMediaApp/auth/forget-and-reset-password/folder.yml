@@ -1,7 +1,0 @@
-info:
-  name: forget-and-reset-password
-  type: folder
-  seq: 1
-
-request:
-  auth: inherit

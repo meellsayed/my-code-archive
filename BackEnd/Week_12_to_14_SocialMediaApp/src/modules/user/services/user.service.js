@@ -10,7 +10,7 @@ export const profile = asyncHandler(async (req, res, next) => {
     filter: { _id: req.user._id, isDeleted: false },
     populate: [
       {
-        path: "viewers.viewerId",
+        path: "profileViewHistory.viewerId",
       },
     ],
   });
@@ -86,7 +86,7 @@ export const blockUser = asyncHandler(async (req, res, next) => {
     return next(new Error("User profile blocked before", { cause: 400 }));
   }
 
-  user.blockedUsers.push({ _id: blockedUser._id });
+  user.blockedUsers.push(blockedUser._id);
   await user.save();
   return successResponse({
     res,

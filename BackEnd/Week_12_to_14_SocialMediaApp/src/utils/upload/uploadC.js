@@ -1,6 +1,6 @@
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import cloudinary from "./cloudinary.js";
+import os from "node:os";
+import path from "node:path";
 
 export const fileValidations = {
   image: ["image/jpeg", "image/png", "image/gif", "image/webp"],
@@ -8,13 +8,20 @@ export const fileValidations = {
 };
 
 export const uploadCloudFile = (allowedMimeTypes = []) => {
-  const storage = multer.diskStorage({});
-  function fileFilter(req, file, cb) {
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, os.tmpdir());
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+    },
+  });
+  const fileFilter = (req, file, cb) => {
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(new Error("In-valid file format", { cause: 400 }), false);
     }
-  }
-  return multer({ storage, fileFilter, det: "tempPath" });
+  };
+  return multer({ storage, fileFilter });
 };

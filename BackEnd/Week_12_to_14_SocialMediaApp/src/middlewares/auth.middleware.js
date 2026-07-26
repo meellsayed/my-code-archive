@@ -1,15 +1,14 @@
 import { asyncHandler } from "../utils/response/error.response.js";
 import { decodedToken, tokenTypes } from "../utils/security/token.js";
 
-
 export const authentication = (tokenType = "access") => {
   return asyncHandler(async (req, res, next) => {
     const { authorization } = req.headers;
     req.user = await decodedToken({
       authorization,
-      tokenType: tokenType == "access" ?tokenTypes.access:tokenTypes.refresh,
+      tokenType: tokenType == "access" ? tokenTypes.access : tokenTypes.refresh,
       next,
-    }); 
+    });
     return next();
   });
 };

@@ -79,7 +79,7 @@ sendEmailEvent.on("emailViewerAttempts", async ({ username, email }) => {
 });
 
 sendEmailEvent.on("otpForgetPassword", async ({ email, otp }) => {
-  const html = otpVerificationTemplate({ code: otp });
+  const html = otpForgetPasswordTemplate({ code: otp });
   await sendEmail({ to: email, subject: "OTP Forget Password", html });
   if (process.env.MOOD === "DEV") {
     console.log(`Email OTP Forget Password event triggered for: ${email}`);

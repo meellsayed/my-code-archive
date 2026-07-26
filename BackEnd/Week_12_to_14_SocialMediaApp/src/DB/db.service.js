@@ -1,16 +1,12 @@
 //
 // Create
 export const create = async ({ model = "", data = {} } = {}) => {
-  const document = model.create(data);
+  const document = await model.create(data);
   return document;
 };
 export const createMany = async ({ model = "", arrayOfData = [{}] } = {}) => {
-    let document =[{}]
-    for (let index = 0; index < arrayOfData.length; index++) {
-        const element = arrayOfData[index];
-         document[index] = model.create(element);
-    }
-  return document;
+  const documents = await model.insertMany(arrayOfData);
+  return documents;
 };
 
 // Find
@@ -81,7 +77,7 @@ export const findOneAndUpdate = async ({
     .populate(populate);
   return document;
 };
-export const UpdateOne = async ({
+export const updateOne = async ({
   model = "",
   filter = {},
   data = {},
@@ -90,12 +86,12 @@ export const UpdateOne = async ({
   populate = [],
 } = {}) => {
   const document = await model
-    .UpdateOne(filter, data, options)
+    .updateOne(filter, data, options)
     .select(select)
     .populate(populate);
   return document;
 };
-export const UpdateMany = async ({
+export const updateMany = async ({
   model = "",
   filter = {},
   data = {},
@@ -104,7 +100,7 @@ export const UpdateMany = async ({
   populate = [],
 } = {}) => {
   const document = await model
-    .UpdateMany(filter, data, options)
+    .updateMany(filter, data, options)
     .select(select)
     .populate(populate);
   return document;

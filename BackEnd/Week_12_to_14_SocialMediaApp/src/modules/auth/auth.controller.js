@@ -32,5 +32,5 @@ router.post("/enable-2fa/send-otp",authentication(),loginService.enable2faSendOT
 router.post("/enable-2fa/confirm-otp",authentication(),loginService.enable2faConfirmOTP)
 
 router.post("/login/confirmation-otp",validation(validators.confirmLogin),loginService.loginConfirmation)
-router.post("/block-user",authentication())
+
 export default router;
