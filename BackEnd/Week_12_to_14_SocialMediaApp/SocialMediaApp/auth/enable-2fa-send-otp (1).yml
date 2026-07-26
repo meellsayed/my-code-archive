@@ -1,0 +1,23 @@
+info:
+  name: enable-2fa-send-otp (1)
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: http://localhost:3000/auth/enable-2fa/confirm-otp
+  body:
+    type: json
+    data: |-
+      {
+        "otp":"45722"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNTA3ODY4ZmRhM2VlOTIxNDdlMmI2NCIsImlhdCI6MTc4Mzc0NTg3MCwiZXhwIjoxNzgzNzQ3NjcwfQ._GofE_KXy8oKCi1QTvE5r2X8Av2diPNGLN_dK9aZ1o0
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

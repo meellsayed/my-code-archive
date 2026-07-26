@@ -1,0 +1,25 @@
+info:
+  name: update/basic-info (1)
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: localhost:3000/user/profile/image
+  body:
+    type: multipart-form
+    data:
+      - name: image
+        type: file
+        value:
+          - /home/mohamed/Pictures/meeee.png
+        contentType: image/png
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImVtYWlsIjoibWVlbGxzYXllZEBnbWFpbC5jb20iLCJpYXQiOjE3ODQ0MzQ1NjksImV4cCI6MTc4NDQzNjM2OX0.I8jGQSwSspMJ0j8DvNY2-mKMzmKAr4eId_JoqNv68FE
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

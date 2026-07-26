@@ -1,0 +1,17 @@
+info:
+  name: share-profile
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: localhost:3000/user/profile/6a4925e343b8783fcf97ea26
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNGQxZDljODZkYjMwOWRhNzEwMDkxYiIsImlhdCI6MTc4MzYyOTc5OSwiZXhwIjoxNzgzNjMxNTk5fQ.O3G-tfUouK4D_8Q2GgcznV05kGbNQ0KL4H7NOWi0Tjk
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

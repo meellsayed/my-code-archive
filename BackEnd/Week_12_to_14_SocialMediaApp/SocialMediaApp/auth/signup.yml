@@ -1,0 +1,25 @@
+info:
+  name: signup
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: localhost:3000/auth/signup
+  body:
+    type: json
+    data: |-
+      {
+        "username": "mohamed Elsayed",
+        "email":"meellsayed@gmail.com",
+        "password":"nMnM@#15790",
+        "confirmationPassword": "nMnM@#15790"
+        
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
