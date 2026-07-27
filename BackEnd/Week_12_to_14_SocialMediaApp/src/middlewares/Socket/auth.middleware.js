@@ -1,6 +1,10 @@
 import { asyncHandler } from "../../utils/response/error.response.js";
 import { decodedToken, tokenTypes } from "../../utils/security/token.js";
 
+/**
+ * @param {{ tokenType?: string, socket?: import('socket.io').Socket }} params
+ * @returns {Promise<object>}
+ */
 export const authentication = async ({ tokenType = "access", socket = {} }) => {
   let authorization = socket.handshake.auth.authorization;
   const user = await decodedToken({

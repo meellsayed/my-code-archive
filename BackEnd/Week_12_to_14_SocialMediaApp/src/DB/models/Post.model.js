@@ -24,7 +24,7 @@ const postSchema = new Schema(
     createdBy: { type: Types.ObjectId, ref: "User", required: true },
     updatedBy: { type: Types.ObjectId, ref: "User" },
     deletedBy: { type: Types.ObjectId, ref: "User" },
-    viewers: [{ type: Types.ObjectId, ref: "User" }],
+    viewers: { type: Types.ObjectId, ref: "User" },
     isDeleted: Date,
   },
   { timestamps: true },

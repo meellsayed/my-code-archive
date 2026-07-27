@@ -6,6 +6,15 @@ info:
 http:
   method: GET
   url: http://localhost:3000/auth/refresh-token
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImlhdCI6MTc4NDIxNzc4MSwiZXhwIjoxODE1NzUzNzgxfQ.2gLFFkdWtwArWkS6NX1DEpG-WFqIhCtX3kiJjzM2BdA
+    - name: Authorization
+      value: "Bearer "
+      disabled: true
+    - name: Authorization
+      value: "Bearer "
+      disabled: true
   auth:
     type: bearer
     token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImlhdCI6MTc4NDIxNzc4MSwiZXhwIjoxODE1NzUzNzgxfQ.2gLFFkdWtwArWkS6NX1DEpG-WFqIhCtX3kiJjzM2BdA

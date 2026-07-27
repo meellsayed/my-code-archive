@@ -1,6 +1,11 @@
 import joi from "joi";
 import { Types } from "mongoose";
 
+/**
+ * @param {string} value
+ * @param {import('joi').CustomHelpers} helper
+ * @returns {boolean}
+ */
 export const isValidObjectId = (value, helper) => {
   return Types.ObjectId.isValid(value)
     ? true
@@ -27,6 +32,10 @@ export const generalFields = {
   
 };
 
+/**
+ * @param {import('joi').ObjectSchema} Schema
+ * @returns {(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) => void}
+ */
 export const validation = (Schema) => {
   return (req, res, next) => {
     const inputs = { ...req.query, ...req.body, ...req.params };

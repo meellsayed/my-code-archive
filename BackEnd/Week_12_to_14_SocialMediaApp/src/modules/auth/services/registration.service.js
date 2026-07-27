@@ -6,6 +6,11 @@ import sendEmailEvent from "../../../utils/event/send.email.event.js";
 import { verifyToken } from "../../../utils/security/token.js";
 import * as dbService from "../../../DB/db.service.js";
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const signup = asyncHandler(async (req, res, next) => {
   const { username, email, password } = req.body;
 
@@ -33,6 +38,11 @@ export const signup = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const confirmEmail = asyncHandler(async (req, res, next) => {
   const token = req.params.token;
 

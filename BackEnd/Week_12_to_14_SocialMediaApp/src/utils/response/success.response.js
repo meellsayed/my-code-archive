@@ -1,3 +1,6 @@
+/**
+ * @param {{ res: import('express').Response, status?: number, data?: object, message?: string }} params
+ */
 export const successResponse = ({
   res,
   status = 200,

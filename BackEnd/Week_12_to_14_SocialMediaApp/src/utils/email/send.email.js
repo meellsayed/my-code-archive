@@ -1,6 +1,9 @@
 import nodemailer from "nodemailer";
 import { asyncHandler } from "../response/error.response.js";
 
+/**
+ * @param {{ appName?: string, to?: string, cc?: string, bcc?: string, text?: string, attachments?: import('nodemailer').Attachment[], subject?: string, html?: string }} params
+ */
 export const sendEmail = asyncHandler(
   async ({
     appName = "social Media App",

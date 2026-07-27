@@ -11,6 +11,10 @@ export const tokenTypes = {
   access: "access",
   refresh: "refresh",
 };
+/**
+ * @param {{ authorization?: string, tokenType?: string, next?: object }} params
+ * @returns {Promise<object>}
+ */
 export const decodedToken = async ({
   authorization = "",
   tokenType = tokenTypes.access,
@@ -59,6 +63,10 @@ export const decodedToken = async ({
   return user;
 };
 
+/**
+ * @param {{ payload?: object, signature?: string, options?: import('jsonwebtoken').SignOptions, expiresIn?: string|number }} params
+ * @returns {string}
+ */
 export const generateToken = ({
   payload = {},
   signature = process.env.TOKEN_SIGNATURE,
@@ -89,6 +97,10 @@ export const verifyToken = ({
   return jwt.verify(token, signature);
 };
 
+/**
+ * @param {object} user
+ * @returns {string}
+ */
 export const generate_access_token = (user) => {
   return generateToken({
     payload: {
@@ -101,6 +113,10 @@ export const generate_access_token = (user) => {
     expiresIn: 1800,
   });
 };
+/**
+ * @param {object} user
+ * @returns {string}
+ */
 export const generate_refresh_token = (user) => {
   return generateToken({
     payload: {

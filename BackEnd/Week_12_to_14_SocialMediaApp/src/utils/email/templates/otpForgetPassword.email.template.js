@@ -1,3 +1,7 @@
+/**
+ * @param {{ username?: string, code?: string, expiresInMinutes?: string, companyName?: string }} params
+ * @returns {string}
+ */
 export const otpForgetPasswordTemplate = ({ 
     username = "User", 
      code = "000000", 

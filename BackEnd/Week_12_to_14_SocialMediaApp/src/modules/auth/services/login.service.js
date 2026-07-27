@@ -13,6 +13,11 @@ import * as dbService from "../../../DB/db.service.js";
  *  @param {(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) => Promise<any>} fn
  */
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -59,6 +64,11 @@ export const login = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const loginConfirmation = asyncHandler(async (req, res, next) => {
   const { email, otp } = req.body;
 
@@ -90,6 +100,11 @@ export const loginConfirmation = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const refreshToken = asyncHandler(async (req, res, next) => {
   const user = req.user;
 
@@ -101,6 +116,11 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const resetPassword = asyncHandler(async (req, res, next) => {
   const { oldPassword, newPassword } = req.body;
   let user = req.user;
@@ -126,6 +146,11 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const sendForgetPasswordOTP = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
 
@@ -148,6 +173,11 @@ export const sendForgetPasswordOTP = asyncHandler(async (req, res, next) => {
   return successResponse({ res });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const forgetPasswordOTP = asyncHandler(async (req, res, next) => {
   const { otp, email, newPassword } = req.body;
 
@@ -181,6 +211,11 @@ export const forgetPasswordOTP = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const enable2faSendOTP = asyncHandler(async (req, res, next) => {
   const otp = Math.floor(10000 + Math.random() * 90000).toString();
 
@@ -196,6 +231,11 @@ export const enable2faSendOTP = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const enable2faConfirmOTP = asyncHandler(async (req, res, next) => {
   const { otp } = req.body;
 

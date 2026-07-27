@@ -1,3 +1,7 @@
+/**
+ * @param {{ confirmEmailLink?: string, code?: string }} params
+ * @returns {string}
+ */
 export const verifyEmailTemplate = ({ confirmEmailLink, code } = {}) => {
   return `<!DOCTYPE html>
                 <html>

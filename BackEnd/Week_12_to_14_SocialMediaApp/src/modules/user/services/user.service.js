@@ -4,6 +4,11 @@ import * as dbService from "../../../DB/db.service.js";
 import { userModel } from "../../../DB/models/User.model.js";
 import sendEmailEvent from "../../../utils/event/send.email.event.js";
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const profile = asyncHandler(async (req, res, next) => {
   const user = await dbService.findOne({
     model: userModel,
@@ -17,6 +22,11 @@ export const profile = asyncHandler(async (req, res, next) => {
   return successResponse({ res, status: 200, data: { user } });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const shareProfile = asyncHandler(async (req, res, next) => {
   const { profileId } = req.params;
 
@@ -70,6 +80,11 @@ export const shareProfile = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const blockUser = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
   const user = req.user;
@@ -95,6 +110,11 @@ export const blockUser = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const findUsers = asyncHandler(async (req, res, next) => {
   const { email, username, address } = req.body;
   const page = Number(req.query.page) || 1;
@@ -118,6 +138,11 @@ export const findUsers = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const updateBasicInfo = asyncHandler(async (req, res, next) => {
   const { username, phone, DOB, address, image, coverImages, gender } =
     req.body;
@@ -148,6 +173,11 @@ export const updateBasicInfo = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const uploadProfileImage = asyncHandler(async (req, res, next) => {
   if (!req.file) {
     return next(new Error("Please upload a file", { cause: 400 }));
@@ -164,6 +194,11 @@ export const uploadProfileImage = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const ProfileImage = asyncHandler(async (req, res, next) => {
   if (!req.file) {
     return next(new Error("Please upload a file", { cause: 400 }));
@@ -180,6 +215,11 @@ export const ProfileImage = asyncHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export const uploadCoverImages = asyncHandler(async (req, res, next) => {
   if (!req.files || req.files.length === 0) {
     return next(new Error("Please upload files", { cause: 400 }));

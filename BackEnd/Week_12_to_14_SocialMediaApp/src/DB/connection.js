@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 
+/**
+ * @returns {Promise<void>}
+ */
 const connectDB = async () => {
   await mongoose
     .connect(process.env.DB_URL, {

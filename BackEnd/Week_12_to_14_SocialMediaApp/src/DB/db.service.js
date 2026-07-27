@@ -1,15 +1,24 @@
-//
-// Create
+/**
+ * @param {{ model: import('mongoose').Model<any>, data?: object }} params
+ * @returns {Promise<object>}
+ */
 export const create = async ({ model = "", data = {} } = {}) => {
   const document = await model.create(data);
   return document;
 };
+/**
+ * @param {{ model: import('mongoose').Model<any>, arrayOfData?: object[] }} params
+ * @returns {Promise<object[]>}
+ */
 export const createMany = async ({ model = "", arrayOfData = [{}] } = {}) => {
   const documents = await model.insertMany(arrayOfData);
   return documents;
 };
 
-// Find
+/**
+ * @param {{ model: import('mongoose').Model<any>, filter?: object, select?: string, populate?: import('mongoose').PopulateOptions[], limit?: number, skip?: number }} params
+ * @returns {Promise<object[]>}
+ */
 export const find = async ({
   model = "",
   filter = {},
@@ -26,6 +35,10 @@ export const find = async ({
     .skip(skip);
   return document;
 };
+/**
+ * @param {{ model: import('mongoose').Model<any>, filter?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @returns {Promise<object|null>}
+ */
 export const findOne = async ({
   model = "",
   filter = {},
@@ -38,6 +51,10 @@ export const findOne = async ({
     .populate(populate);
   return document;
 };
+/**
+ * @param {{ model: import('mongoose').Model<any>, id?: string, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @returns {Promise<object|null>}
+ */
 export const findById = async ({
   model = "",
   id = "",
@@ -48,7 +65,10 @@ export const findById = async ({
   return document;
 };
 
-// Updata
+/**
+ * @param {{ model: import('mongoose').Model<any>, id?: string, data?: object, options?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @returns {Promise<object|null>}
+ */
 export const findByIdAndUpdate = async ({
   model = "",
   id = "",
@@ -63,6 +83,10 @@ export const findByIdAndUpdate = async ({
     .populate(populate);
   return document;
 };
+/**
+ * @param {{ model: import('mongoose').Model<any>, filter?: object, data?: object, options?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @returns {Promise<object|null>}
+ */
 export const findOneAndUpdate = async ({
   model = "",
   filter = {},
@@ -77,6 +101,10 @@ export const findOneAndUpdate = async ({
     .populate(populate);
   return document;
 };
+/**
+ * @param {{ model: import('mongoose').Model<any>, filter?: object, data?: object, options?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @returns {Promise<object>}
+ */
 export const updateOne = async ({
   model = "",
   filter = {},
@@ -91,6 +119,10 @@ export const updateOne = async ({
     .populate(populate);
   return document;
 };
+/**
+ * @param {{ model: import('mongoose').Model<any>, filter?: object, data?: object, options?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @returns {Promise<object>}
+ */
 export const updateMany = async ({
   model = "",
   filter = {},
@@ -106,7 +138,10 @@ export const updateMany = async ({
   return document;
 };
 
-// delete
+/**
+ * @param {{ model: import('mongoose').Model<any>, id?: string, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @returns {Promise<object|null>}
+ */
 export const findByIdAndDelete = async ({
   model = "",
   id = "",
@@ -119,6 +154,10 @@ export const findByIdAndDelete = async ({
     .populate(populate);
   return document;
 };
+/**
+ * @param {{ model: import('mongoose').Model<any>, filter?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @returns {Promise<object|null>}
+ */
 export const findOneAndDelete = async ({
   model = "",
   filter = {},
@@ -131,11 +170,19 @@ export const findOneAndDelete = async ({
     .populate(populate);
   return document;
 };
+/**
+ * @param {{ model: import('mongoose').Model<any>, filter?: object }} params
+ * @returns {Promise<object>}
+ */
 export const deleteOne = async ({ model = "", filter = {} } = {}) => {
   const document = await model.deleteOne(filter);
 
   return document;
 };
+/**
+ * @param {{ model: import('mongoose').Model<any>, filter?: object }} params
+ * @returns {Promise<object>}
+ */
 export const deleteMany = async ({ model = "", filter = {} } = {}) => {
   const document = await model.deleteMany(filter);
 

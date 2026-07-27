@@ -11,6 +11,10 @@ import playground from "graphql-playground-middleware-express";
 import { schema } from "./modules/app.graph.js";
 import { decodedToken, tokenTypes } from "./utils/security/token.js";
 
+/**
+ * @param {import('express').Application} app
+ * @param {typeof import('express')} express
+ */
 const bootstrap = (app, express) => {
   connectDB();
 

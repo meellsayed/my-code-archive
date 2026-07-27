@@ -1,3 +1,7 @@
+/**
+ * @param {{ username: string, otp: string, verificationUrl: string }} params
+ * @returns {string}
+ */
 export const loginConfirmationOTP = ({username, otp, verificationUrl}) => {
     return `
     <!DOCTYPE html>

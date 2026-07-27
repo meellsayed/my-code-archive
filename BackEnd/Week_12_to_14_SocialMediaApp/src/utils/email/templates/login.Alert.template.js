@@ -1,3 +1,7 @@
+/**
+ * @param {{ username?: string, device?: string, location?: string, ipAddress?: string, dateTime?: string, resetLink?: string, companyName?: string }} params
+ * @returns {string}
+ */
 export const loginDetectedTemplate = ({
   username = "User",
   device = "Unknown Device",

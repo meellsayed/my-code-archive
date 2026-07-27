@@ -7,6 +7,10 @@ export const fileValidations = {
   document: ["application/pdf", "application/msword"],
 };
 
+/**
+ * @param {string[]} allowedMimeTypes
+ * @returns {import('multer').Multer}
+ */
 export const uploadCloudFile = (allowedMimeTypes = []) => {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {

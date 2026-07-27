@@ -1,3 +1,7 @@
+/**
+ * @param {{ username: string, viewsCount: number, profileUrl: string }} params
+ * @returns {string}
+ */
 export const emailViewerAttempts = ({username, viewsCount, profileUrl}) => {
     return `
     <!DOCTYPE html>
