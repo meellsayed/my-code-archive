@@ -72,6 +72,7 @@ const userSchema = new Schema(
       ],
       default: [],
     },
+    friends: [{ type: Types.ObjectId, ref: "User" }],
   },
   { timestamps: true },
 );

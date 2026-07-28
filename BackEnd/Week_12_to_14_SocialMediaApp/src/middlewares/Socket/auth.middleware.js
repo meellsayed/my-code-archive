@@ -14,12 +14,3 @@ export const authentication = async ({ tokenType = "access", socket = {} }) => {
 
   return user;
 };
-
-// export const authorization = (accessRoles = []) => {
-
-//     if (!accessRoles.includes(req.user.role)) {
-//       return next(new Error("In-valid Access Role", { cause: 403 }));
-//     }
-//     return next();
-
-// };

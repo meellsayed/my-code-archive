@@ -76,7 +76,7 @@ export const postQueries = {
     resolve: async (_, args) => {
       return dbService.findOne({
         model: postModel,
-        filter: { _id: args._id, isDeleted: null },
+        filter: { _id: args._id},
       });
     },
   },

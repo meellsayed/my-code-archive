@@ -8,6 +8,11 @@ import { fileValidations, uploadCloudFile } from "../../utils/upload/uploadC.js"
 
 const router = Router();
 
+
+
+router.patch("/profile/friends/:friendId",authentication(),profileService.sendFriendRequest)
+router.patch("/profile/friends/:friendRequestId/accept",authentication(),profileService.acceptFriendRequest)
+
 router.get("/profile", authentication(), profileService.profile);
 
 router.get(

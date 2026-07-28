@@ -1,0 +1,20 @@
+info:
+  name: add friend
+  type: http
+  seq: 1
+
+http:
+  method: PATCH
+  url: localhost:3000/user/profile/friends/:frindId
+  params:
+    - name: frindId
+      value: doo
+      type: path
+  auth:
+    type: bearer
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -51,7 +51,7 @@ export const decodedToken = async ({
   }
   const user = await dbService.findOne({
     model: userModel,
-    filter: { _id: decoded.id, isDeleted: false },
+    filter: { _id: decoded.id },
   });
   if (!user) {
     return next(new Error("User not found", { cause: 404 }));

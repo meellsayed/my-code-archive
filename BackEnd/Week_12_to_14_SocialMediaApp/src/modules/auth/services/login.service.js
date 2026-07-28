@@ -156,7 +156,7 @@ export const sendForgetPasswordOTP = asyncHandler(async (req, res, next) => {
 
   let user = await dbService.findOne({
     model: userModel,
-    filter: { email, isDeleted: false },
+    filter: { email},
   });
   if (!user) {
     return next(new Error("User not found", { cause: 404 }));
@@ -183,7 +183,7 @@ export const forgetPasswordOTP = asyncHandler(async (req, res, next) => {
 
   let user = await dbService.findOne({
     model: userModel,
-    filter: { email, isDeleted: false },
+    filter: { email },
   });
   if (!user) {
     return next(new Error("User not found", { cause: 404 }));

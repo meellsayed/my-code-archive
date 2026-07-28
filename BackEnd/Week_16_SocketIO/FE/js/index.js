@@ -42,8 +42,9 @@ function sendMessage(destId) {
 
 //sendCompleted
 clintIo.on('successMessage', (data) => {
-    const { chat, message } = data
-    meImage = chat?.mainUser.image?.secure_url || avatar
+    const { chat, message } = data 
+    // meImage = chat?.mainUser.image?.secure_url || avatar
+    meImage =  avatar
     friendImage = chat?.subParticipant.image?.secure_url || avatar
 
     const div = document.createElement('div');
