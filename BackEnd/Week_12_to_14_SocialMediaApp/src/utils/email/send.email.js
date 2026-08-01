@@ -4,17 +4,7 @@ import { asyncHandler } from "../response/error.response.js";
 /**
  * @param {{ appName?: string, to?: string, cc?: string, bcc?: string, text?: string, attachments?: import('nodemailer').Attachment[], subject?: string, html?: string }} params
  */
-export const sendEmail = asyncHandler(
-  async ({
-    appName = "social Media App",
-    to = "",
-    cc = "",
-    bcc = "",
-    text = "",
-    attachments = [],
-    subject = "",
-    html = "",
-  }) => {
+export const sendEmail =async({appName = "social Media App",to = "",cc = "",bcc = "",text = "",attachments = [],subject = "",html = "" }) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -33,7 +23,6 @@ export const sendEmail = asyncHandler(
       text,
       attachments,
     });
+    return info}
 
-    return info;
-  },
-);
+

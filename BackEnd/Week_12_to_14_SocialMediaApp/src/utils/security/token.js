@@ -110,7 +110,7 @@ export const generate_access_token = (user) => {
       user.role === roleTypes.admin
         ? process.env.ADMIN_ACCESS_TOKEN
         : process.env.USER_ACCESS_TOKEN,
-    expiresIn: 1800,
+    expiresIn: 31536000,
   });
 };
 /**

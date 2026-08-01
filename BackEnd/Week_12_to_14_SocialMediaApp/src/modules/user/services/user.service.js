@@ -10,14 +10,14 @@ import { friendRequestModel } from "../../../DB/models/FriendRequest.model.js";
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
  */
-
 export const profile = asyncHandler(async (req, res, next) => {
   const user = await dbService.findOne({
     model: userModel,
-    filter: { _id: req.user._id},
+    filter: { _id: req.user._id },
     populate: [
       {
-        path: "profileViewHistory.viewerId",
+        path: "friends",
+        select: "username",
       },
     ],
   });
@@ -34,7 +34,6 @@ export const shareProfile = asyncHandler(async (req, res, next) => {
 
   const userProfile = await userModel.findOne({
     _id: profileId,
-   
   });
 
   if (!userProfile) {
@@ -92,7 +91,6 @@ export const blockUser = asyncHandler(async (req, res, next) => {
   const user = req.user;
   const blockedUser = await userModel.findOne({
     email,
-    
   });
 
   if (!blockedUser) {
@@ -247,6 +245,10 @@ export const uploadCoverImages = asyncHandler(async (req, res, next) => {
 export const sendFriendRequest = asyncHandler(async (req, res, next) => {
   const { friendId } = req.params;
 
+  if (req.user.friends.includes(friendId)) {
+    return next(Error("friend in your friends list"));
+  }
+
   const friend = await dbService.findOne({
     model: userModel,
     filter: { _id: friendId },
@@ -273,7 +275,7 @@ export const sendFriendRequest = asyncHandler(async (req, res, next) => {
 export const acceptFriendRequest = asyncHandler(async (req, res, next) => {
   const { friendRequestId } = req.params;
 
-  const acceptRequest = await dbService.findOne({
+  const acceptRequest = await dbService.findOneAndDelete({
     model: friendRequestModel,
     filter: {
       createdBy: friendRequestId,
@@ -284,24 +286,24 @@ export const acceptFriendRequest = asyncHandler(async (req, res, next) => {
   if (!acceptRequest) {
     return next(new Error("not found", { cause: 404 }));
   }
+  if (req.user.friends.includes(acceptRequest.createdBy)) {
+    return next(Error("friend in your friends list"));
+  }
 
-  const friend = await dbService.findOne({
+  await dbService.updateOne({
     model: userModel,
     filter: { _id: friendRequestId },
-
+    data: {
+      addToSet: { friends: req.user._id },
+    },
   });
-  friend.friends.push(req.user._id)
+
   req.user.friends.push(acceptRequest.createdBy);
-  acceptRequest.status = true;
-
-  await acceptRequest.save();
   await req.user.save();
-  await friend.save();
-
 
   return successResponse({
     res,
-    status: 201,
-    data: { acceptRequest ,me:req.user,friend:friend},
+    status: 200,
+    data: { acceptRequest, me: req.user },
   });
 });

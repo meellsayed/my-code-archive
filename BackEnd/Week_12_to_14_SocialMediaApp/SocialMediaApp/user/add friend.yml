@@ -8,10 +8,11 @@ http:
   url: localhost:3000/user/profile/friends/:frindId
   params:
     - name: frindId
-      value: doo
+      value: 6a66365b60757baa936f9b4a
       type: path
   auth:
     type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImlhdCI6MTc4NTI3OTg4OCwiZXhwIjoxNzg1MjgxNjg4fQ.vzvlRQ3wxj8JB4YBhjYMWD7VccchqdlEQHA0cwCYMgE
 
 settings:
   encodeUrl: true

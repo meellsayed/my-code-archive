@@ -3,7 +3,7 @@ import { socketConnections } from "../socket.controller.js";
 
 export const registerSocket = async (socket) => {
   const user = await authentication({ socket: socket });
-  // console.log(user);
+  console.log(user);
 
   socketConnections.set(user._id.toString(), socket.id);
   console.log(socketConnections);
