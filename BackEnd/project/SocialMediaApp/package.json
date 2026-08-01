@@ -1,0 +1,39 @@
+{
+  "name": "socialMediaApp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "dev2": "node --watch --no-warnings index.js",
+    "dev3": "nodemon index.js",
+    "dev4": "pm2 start index.js --watch --name my-app",
+    "log": "pm2 logs my-app"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^1.41.3",
+    "cors": "^2.8.6",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "graphql": "^17.0.2",
+    "graphql-http": "^1.22.4",
+    "graphql-playground-middleware-express": "^1.7.23",
+    "joi": "^18.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "7.2",
+    "mongoose": "^9.7.1",
+    "multer": "^2.2.0",
+    "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^9.0.1",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "morgan": "^1.11.0"
+  }
+}

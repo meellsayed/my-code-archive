@@ -1,0 +1,58 @@
+import { Router } from "express";
+import { authentication } from "../../middlewares/auth.middleware.js";
+import * as profileService from "./services/user.service.js";
+import * as validators from "./user.validation.js";
+import { validation } from "../../middlewares/validation.middleware.js";
+import { uploadFile } from "../../utils/upload/uploadFile.js";
+import { fileValidations, uploadCloudFile } from "../../utils/upload/uploadC.js";
+
+const router = Router();
+
+
+
+router.patch("/profile/friends/:friendId",authentication(),profileService.sendFriendRequest)
+router.patch("/profile/friends/:friendRequestId/accept",authentication(),profileService.acceptFriendRequest)
+
+router.get("/profile", authentication(), profileService.profile);
+
+router.get(
+  "/profile/:profileId",
+  validation(validators.shareProfile),
+  authentication(),
+  profileService.shareProfile,
+);
+
+router.post(
+  "/block-user",
+  validation(validators.blockUser),
+  authentication(),
+  profileService.blockUser,
+);
+
+router.get("/find",validation(validators.find),profileService.findUsers)
+
+router.post("/profile/update/basic-info",authentication(),profileService.updateBasicInfo)
+
+router.post(
+  "/profile/image",
+  authentication(),
+  (req, res, next) => {
+    req.folderName = "profile-images";
+    next();
+  },
+  uploadCloudFile(fileValidations.image).single("image"),
+  profileService.ProfileImage,
+);
+
+router.post(
+  "/profile/cover-images",
+  authentication(),
+  (req, res, next) => {
+    req.folderName = "cover-images";
+    next();
+  },
+  uploadFile.array("coverImages", 5),
+  profileService.uploadCoverImages,
+);
+
+export default router;

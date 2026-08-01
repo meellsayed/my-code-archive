@@ -1,0 +1,26 @@
+info:
+  name: refresh-token
+  type: http
+  seq: 6
+
+http:
+  method: GET
+  url: http://localhost:3000/auth/refresh-token
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImlhdCI6MTc4NDIxNzc4MSwiZXhwIjoxODE1NzUzNzgxfQ.2gLFFkdWtwArWkS6NX1DEpG-WFqIhCtX3kiJjzM2BdA
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNjYzNjViNjA3NTdiYWE5MzZmOWI0YSIsImlhdCI6MTc4NTI4MDE4OSwiZXhwIjoxODE2ODE2MTg5fQ.48pgA7SQddvB2TlwjxhM12vhtzsoPmHqrKOo0NHBLCw
+      disabled: true
+    - name: Authorization
+      value: "Bearer "
+      disabled: true
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImlhdCI6MTc4NDIxNzc4MSwiZXhwIjoxODE1NzUzNzgxfQ.2gLFFkdWtwArWkS6NX1DEpG-WFqIhCtX3kiJjzM2BdA
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

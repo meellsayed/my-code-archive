@@ -1,0 +1,14 @@
+{
+  "name": "seed-users",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Script to seed 20 users into MongoDB",
+  "main": "seedUsers.js",
+  "scripts": {
+    "seed": "node seedUsers.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "mongoose": "^8.0.0"
+  }
+}

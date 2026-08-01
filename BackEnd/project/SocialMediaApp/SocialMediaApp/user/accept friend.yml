@@ -1,0 +1,21 @@
+info:
+  name: accept friend
+  type: http
+  seq: 8
+
+http:
+  method: PATCH
+  url: localhost:3000/user/profile/friends/:friendRequestId/accept
+  params:
+    - name: friendRequestId
+      value: 6a6b1b8cdf3cb61379c3e50e
+      type: path
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNmIxYjc5ZmYyOTEzYmRjYjU0YTJhNyIsImlhdCI6MTc4NTQxMjA4MSwiZXhwIjoxODE2OTQ4MDgxfQ.3v9vON5ak-uATrW-3z8vAI8CCKRPxFxayLG_qCvdVRk
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

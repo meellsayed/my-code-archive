@@ -1,0 +1,23 @@
+info:
+  name: delete
+  type: http
+  seq: 3
+
+http:
+  method: DELETE
+  url: localhost:3000/post/delete
+  body:
+    type: json
+    data: |-
+      {
+        "postId":"6a668fb5d0152119d92eb215"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNThmNjhhYzEyODAyYzk3ZTM3YjQ1YSIsImlhdCI6MTc4NTEyOTk4NCwiZXhwIjoxNzg1MTMxNzg0fQ.3wkQDIrnobEyrO8ULpzOAxoMyXHLcfz3Sv1ouEWvkFw
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

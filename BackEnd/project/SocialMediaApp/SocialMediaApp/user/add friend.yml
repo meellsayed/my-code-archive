@@ -1,0 +1,21 @@
+info:
+  name: add friend
+  type: http
+  seq: 1
+
+http:
+  method: PATCH
+  url: localhost:3000/user/profile/friends/:frindId
+  params:
+    - name: frindId
+      value: 6a6b1b79ff2913bdcb54a2a7
+      type: path
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNmIxYjhjZGYzY2I2MTM3OWMzZTUwZSIsImlhdCI6MTc4NTQxMTkxMSwiZXhwIjoxODE2OTQ3OTExfQ.hI8tEETPrfiwdJiyGQw9asDKp9eAukNI92lGn3VeOzY
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
