@@ -1,0 +1,22 @@
+import { model, Schema, Types } from "mongoose";
+
+const invoiceSchema = new Schema(
+  {
+    customer: { type: Types.ObjectId, ref: "Customer" },
+    seller: { type: Types.ObjectId, ref: "User" },
+    items: { type: Types.ObjectId, ref: "Cart" },
+
+    note: { type: String },
+    discount: { type: Number, min: 0 },
+    tax: { type: Number, min: 0 },
+    address: String,
+    total: { type: Number },
+    paymentMethod: { type: String },
+
+    createdBy: { type: Types.ObjectId, ref: "User" },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
+
+export const invoiceModel = model.Invoice || model("Invoice", invoiceSchema);

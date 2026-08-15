@@ -1,5 +1,8 @@
 # Node
 **/node_modules/
+**/node_modules Copy/
+**/node_modules Copy 1/
+
 
 # Build
 **/dist/
@@ -18,8 +21,8 @@
 **/*.log
 
 # Environment
-# **/.env
-# **/.env.*
+**/.env
+**/.env.*
 
 # IDE
 **/.vscode/

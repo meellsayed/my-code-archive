@@ -1,0 +1,10 @@
+_id
+libraryName
+phone
+email
+address
+currency
+tax
+logo
+createdAt
+updatedAt

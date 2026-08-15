@@ -1,11 +1,12 @@
-import { MongoClient } from "mongodb";
 import express from "express";
 import bootstrap from "./src/app.controller.js";
+import dotenv from "dotenv";
+dotenv.config({ path: "./src/config/.env.dev" });
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 bootstrap(app, express);
-app.use(req,res)
+
 app.listen(PORT, (err) => {
   if (err) {
     console.error(err);

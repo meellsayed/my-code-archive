@@ -1,22 +1,37 @@
 import connectDB from "./DB/connection.js";
-import * as errors from "./middlewares/errorHandeling.js";
 import userRouter from "./modules/user/user.controller.js";
 import authRouter from "./modules/auth/auth.controller.js";
+import bookRouter from "./modules/book/book.controller.js";
+import authorRouter from "./modules/author/author.controller.js";
+import categoryRouter from "./modules/category/category.controller.js";
+import invoiceRouter from "./modules/invoice/invoice.controller.js";
+import customerRouter from "./modules/customer/customer.controller.js";
+import morgan from "morgan";
+import { globalErrorHandling } from "./utils/response/error.response.js";
 
+/**
+ * @param {import('express').Application} app
+ * @param {typeof import('express')} express
+ */
 const bootstrap = (app, express) => {
-  app.use(express.json());
-
-  app.get("/", (req, res) => {
-    res.json("Hello, World!");
-  });
- 
-  app.use("/api/users", userRouter);
-  app.use("/api/auth", authRouter);
-
-  app.use(errors.notFound);
-  app.use(errors.errorHandler);
   //DB connection
   connectDB();
+
+  app.use(express.json());
+  app.use(morgan(process.env.MOOD == "DEV" ? "dev" : "tiny"));
+  app.get("/", (req, res, next) => {
+    return res.json({ message: "Server is running" });
+  });
+
+  // app.use("/user", userRouter);
+  app.use("/auth", authRouter);
+  app.use("/book", bookRouter);
+  app.use("/author", authorRouter);
+  app.use("/category", categoryRouter);
+  app.use("/invoice", invoiceRouter);
+  app.use("/customer", customerRouter);
+
+  app.use(globalErrorHandling);
 };
 
 export default bootstrap;

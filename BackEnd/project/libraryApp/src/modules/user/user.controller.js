@@ -1,12 +1,20 @@
-import {Router} from "express";
-import { home } from "./services/user.service.js";
+import { Router } from "express";
+import * as userServices from "./services/user.service.js";
+import { authentication, authorization } from "../../middlewares/auth.middleware.js";
+import { runAsyncWorkFinishedHook } from "graphql/execution/hooks.js";
+import { roleTypes } from "../../DB/models/User.model.js";
 const router = Router();
 
 
-router.get("/", home);
 
+// router.patch(
+//   "/:id",
+//   authentication(),
+//   authorization([roleTypes.admin, roleTypes.staff]),
+//   userServices.updateOne,
+// );
 
-
-
+// router.get("", userServices.getAll);
+// router.get("/:id", userServices.getOne); //? done
 
 export default router;

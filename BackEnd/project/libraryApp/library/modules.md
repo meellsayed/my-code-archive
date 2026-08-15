@@ -1,0 +1,74 @@
+- [ ] ├── modules/
+  - [ ] ├── auth/
+    - [x] login
+    - [x] signup
+    - [x] forget password
+    - [ ] signup and login by google
+    - [ ] reset password
+    - [x] tokens
+      - [x] refresh
+      - [x] access
+      - [x] middleware
+  - [ ] ├── user/
+    - [ ] add user
+    - [ ] find user
+    - [ ] update user profile
+    - [ ] soft delete user
+  - [ ] roles
+    - [ ] admin Role
+      - [ ] dashboard
+        - [ ] invoice
+        - [ ] customers
+        - [ ] staff
+      - [ ] add - delete - update (all)
+    - [ ] staff Role
+    - [ ] customers Role
+      - [ ] get all orders
+      - [ ] management borrowings
+      - [ ]
+  - [?] ├── books/
+    - [x] add new book
+    - [x] add book in stock
+    - [x] update book
+    - [x] delete book
+    - [x] get book (by \_id)
+    - [x] get books
+    - [x] find book by
+      - [x] name
+      - [x] author
+      - [x] category
+  - [?] ├── authors/
+    - [x] add author
+    - [x] delete author
+    - [x] update author
+    - [x] find author by name
+    - [x] get all book of one author
+    - [x] find book in one author
+    - [x] get author
+    - [x] get authors
+  - [ ] ├── categories/
+    - [ ] add
+    - [ ] delete
+    - [ ] update
+    - [ ] find by name
+    - [ ] get all books
+  - [ ] ├── publishers/
+    - [ ] add
+    - [ ] delete
+    - [ ] update
+    - [ ] add book
+    - [ ] find by name
+    - [ ] get all books
+  - [ ] ├── invoice/
+    - [?] cart
+      - [x] add book and remove it
+    - [x] create invos
+    - [x] cal total
+    - [x] update inventory
+    - [ ] status
+  - [ ] ├── inventory/
+    - [ ] quantity of books
+    - [ ] alter in min books
+    - [ ] save steps
+  - [ ] └── settings/
+    - [ ]

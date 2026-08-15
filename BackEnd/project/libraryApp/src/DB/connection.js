@@ -2,15 +2,14 @@ import mongoose from "mongoose";
 
 const connectDB = async () => {
   await mongoose
-    .connect("mongodb://localhost:27017/saraha", {
-      serverSelectionTimeoutMS: 5000, // defult is 30 seconds
-      
+    .connect(`mongodb://localhost:27017/${process.env.APP_NAME}`, {
+      serverSelectionTimeoutMS: 5000,
     })
     .then(() => {
-      console.log("Connected to Mongoose");
+      console.log("Connected to DataBase");
     })
     .catch((err) => {
-      console.error("Error connecting to Mongoose", err);
+      console.error("Error connecting to DataBase\/n", err);
     });
 };
 
