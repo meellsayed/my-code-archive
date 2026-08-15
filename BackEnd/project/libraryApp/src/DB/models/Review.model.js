@@ -17,4 +17,4 @@ const reviewSchema = new Schema(
   { timestamps: true },
 );
 
-export const reviewModel = model.Review || model("Review", reviewSchema);
+export const reviewModel =  mongoose.models.Review || model("Review", reviewSchema);

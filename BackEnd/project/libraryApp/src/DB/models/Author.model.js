@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose";
+import mongoose, { model, Schema, Types } from "mongoose";
 
 const authorSchema = new Schema(
   {
@@ -19,4 +19,6 @@ const authorSchema = new Schema(
   { timestamps: true },
 );
 
-export const authorModel = model.Author || model("Author", authorSchema);
+export const authorModel =
+  mongoose.models.Author || model("Author", authorSchema);
+  

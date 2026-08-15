@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose";
+import mongoose, { model, Schema, Types } from "mongoose";
 
 const orderSchema = new Schema({
   book: { type: Types.ObjectId, ref: "Book" },
@@ -15,9 +15,9 @@ const cartSchema = new Schema(
     createdBy: { type: Types.ObjectId, ref: "User" },
     updatedBy: { type: Types.ObjectId, ref: "User" },
     isStaff: { type: Boolean, default: false },
-    done:{ type: Boolean, default: false },
+    done: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
 
-export const cartModel = model.Cart || model("Cart", cartSchema);
+export const cartModel = mongoose.models.Cart || model("Cart", cartSchema);

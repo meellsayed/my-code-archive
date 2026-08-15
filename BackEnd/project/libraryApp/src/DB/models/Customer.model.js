@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose";
+import mongoose, { model, Schema, Types } from "mongoose";
 
 export const customerTypes = {
   online: "online",
@@ -36,4 +36,4 @@ const customerSchema = new Schema(
 
 
 export const customerModel =
-  model.Customer || model("Customer", customerSchema);
+   mongoose.models.Customer || model("Customer", customerSchema);

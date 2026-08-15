@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose";
+import mongoose, { model, Schema, Types } from "mongoose";
 
 const invoiceSchema = new Schema(
   {
@@ -20,4 +20,5 @@ const invoiceSchema = new Schema(
   { timestamps: true },
 );
 
-export const invoiceModel = model.Invoice || model("Invoice", invoiceSchema);
+export const invoiceModel =
+  mongoose.models.Invoice || model("Invoice", invoiceSchema);

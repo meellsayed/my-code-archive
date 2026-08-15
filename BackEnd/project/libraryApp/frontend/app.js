@@ -274,6 +274,9 @@ const buyCart = async () => {
         gender: $("cust-gender").value,
         type: $("cust-type").value,
       };
+      if (!body.customer.username || !body.customer.phone) {
+        throw new Error("Customer name and phone are required for a sale");
+      }
     }
 
     await apiPost(path, body, true);
@@ -283,7 +286,11 @@ const buyCart = async () => {
     state.posCart = null;
     $("checkout-address").value = "";
     $("checkout-note").value = "";
+    $("cust-name").value = "";
+    $("cust-phone").value = "";
+    $("cust-address").value = "";
     renderCart();
+    loadBooks();
     showToast("Done!");
   } catch (err) {
     $("cart-msg").className = "msg error";
@@ -676,7 +683,7 @@ const openBookForm = async (id = null) => {
   $("entity-form").appendChild(form);
   $("entity-modal-heading").textContent = id ? "Edit Book" : "New Book";
   $("entity-modal").classList.remove("hidden");
-  $("entity-form").onsubmit = async (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(form);
     const data = Object.fromEntries(fd);
@@ -734,7 +741,7 @@ const openEntityForm = async (type, id = null) => {
   $("entity-form").appendChild(form);
   $("entity-modal-heading").textContent = `${id ? "Edit" : "New"} ${meta.title}`;
   $("entity-modal").classList.remove("hidden");
-  $("entity-form").onsubmit = async (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form));
     try {
@@ -776,7 +783,7 @@ const openCustomerForm = async () => {
   $("entity-form").appendChild(form);
   $("entity-modal-heading").textContent = "New Customer";
   $("entity-modal").classList.remove("hidden");
-  $("entity-form").onsubmit = async (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form));
     try {
@@ -817,6 +824,11 @@ const posCheckout = async () => {
   const btn = $("pos-checkout");
   btn.disabled = true;
   try {
+    const name = $("pos-cust-name").value.trim();
+    const phone = $("pos-cust-phone").value.trim();
+    if (!name || !phone) {
+      throw new Error("Customer name and phone are required");
+    }
     const address = $("pos-cust-address").value.trim();
     await apiPost(
       `/order/staff/buy/cart/${state.posCart._id}`,
@@ -824,8 +836,8 @@ const posCheckout = async () => {
         address,
         note: $("pos-note").value.trim(),
         customer: {
-          username: $("pos-cust-name").value.trim(),
-          phone: $("pos-cust-phone").value.trim(),
+          username: name,
+          phone,
           address,
           gender: $("pos-cust-gender").value,
           type: $("pos-cust-type").value,
@@ -837,7 +849,12 @@ const posCheckout = async () => {
     $("pos-msg").textContent = "Sale completed!";
     state.posCart = null;
     state.cart = null;
+    $("pos-cust-name").value = "";
+    $("pos-cust-phone").value = "";
+    $("pos-cust-address").value = "";
+    $("pos-note").value = "";
     renderPosFromCart();
+    loadBooks();
     showToast("Sale Done!");
   } catch (err) {
     $("pos-msg").className = "msg error";
@@ -905,16 +922,28 @@ const handleLogin = async (e) => {
   msg.textContent = "";
   try {
     const credential = $("login-email").value.trim();
+    const password = $("login-password").value;
+    if (!credential) {
+      msg.textContent = "Enter your email or phone";
+      return;
+    }
+    if (!password) {
+      msg.textContent = "Enter your password";
+      return;
+    }
     const isEmail = credential.includes("@");
     const { data } = await apiPost("/auth/login", {
       ...(isEmail ? { email: credential } : { phone: credential }),
-      password: $("login-password").value,
+      password,
     });
     if (!data?.accessToken) throw new Error("No token returned");
     state.token = data.accessToken;
     localStorage.setItem("accessToken", data.accessToken);
     localStorage.setItem("refreshToken", data.refreshToken);
-    state.user = data.user || {};
+    const safeUser = { ...(data.user || {}) };
+    delete safeUser.password;
+    delete safeUser.otp;
+    state.user = safeUser;
     localStorage.setItem("user", JSON.stringify(state.user));
     updateAuthUI();
     e.target.reset();
@@ -931,15 +960,26 @@ const handleSignup = async (e) => {
   msg.className = "msg";
   msg.textContent = "";
   try {
+    const username = $("signup-username").value.trim();
+    const email = $("signup-email").value.trim();
+    const phone = $("signup-phone").value.trim();
     const password = $("signup-password").value;
+    if (!username || !email || !phone || !password) {
+      msg.textContent = "All fields are required";
+      return;
+    }
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      msg.textContent = "Enter a valid email";
+      return;
+    }
     if (password !== $("signup-confirm").value) {
       msg.textContent = "Passwords do not match!";
       return;
     }
     await apiPost("/auth/signup", {
-      username: $("signup-username").value.trim(),
-      email: $("signup-email").value.trim(),
-      phone: $("signup-phone").value.trim(),
+      username,
+      email,
+      phone,
       password,
       confirmationPassword: password,
     });
@@ -999,8 +1039,13 @@ const handleForgot = async (e) => {
 const loadSession = async () => {
   if (!state.token) return;
   // The backend has no "get me" route, so restore the user (incl. role) from storage.
-  const saved = JSON.parse(localStorage.getItem("user") || "null");
-  if (saved?.username) state.user = saved;
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem("user") || "null");
+  } catch (e) {
+    localStorage.removeItem("user");
+  }
+  if (saved) state.user = saved;
   updateAuthUI();
 };
 
@@ -1011,10 +1056,6 @@ document.querySelectorAll("#main-nav .nav-link[data-view]").forEach((n) =>
 $("btn-logout").addEventListener("click", () =>
   state.token ? handleLogout() : showView("auth"),
 );
-$("nav-dashboard").addEventListener("click", () => {
-  state.dashTab = "books";
-  renderDashboard();
-});
 $("search-btn").addEventListener("click", () =>
   loadBooks($("search-input").value.trim()),
 );
@@ -1073,16 +1114,16 @@ $("btn-new-category").addEventListener("click", () => openEntityForm("category")
 $("btn-new-customer").addEventListener("click", openCustomerForm);
 
 $("dash-book-search").addEventListener("input", (e) =>
-  debounce(() => loadDashBooks(e.target.value.trim()), 400),
+  debounce(() => loadDashBooks(e.target.value.trim()), 400, "books"),
 );
 $("dash-author-search").addEventListener("input", (e) =>
-  debounce(() => loadDashAuthors(e.target.value.trim()), 400),
+  debounce(() => loadDashAuthors(e.target.value.trim()), 400, "authors"),
 );
 $("dash-category-search").addEventListener("input", (e) =>
-  debounce(() => loadDashCategories(e.target.value.trim()), 400),
+  debounce(() => loadDashCategories(e.target.value.trim()), 400, "categories"),
 );
 $("dash-customer-search").addEventListener("input", (e) =>
-  debounce(() => loadDashCustomers(e.target.value.trim()), 400),
+  debounce(() => loadDashCustomers(e.target.value.trim()), 400, "customers"),
 );
 
 $("entity-modal-close").addEventListener("click", () =>
@@ -1120,8 +1161,8 @@ const posSearch = async (search = "") => {
               (b) => `
         <div class="pos-book" data-id="${b._id}">
           <h4>${escapeHTML(b.title)}</h4>
-          <p class="price">$${b.price}</p>
-          <span class="muted">Qty: ${b.quantity}</span>
+          <p class="price">$${b.price ?? 0}</p>
+          <span class="muted">Qty: ${b.quantity ?? 0}</span>
         </div>`,
             )
             .join("");
@@ -1161,10 +1202,10 @@ const loadCategories = async () => {
   }
 };
 
-let debounceTimer = null;
-const debounce = (fn, ms) => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(fn, ms);
+let debounceTimers = {};
+const debounce = (fn, ms, key = "default") => {
+  clearTimeout(debounceTimers[key]);
+  debounceTimers[key] = setTimeout(fn, ms);
 };
 
 // ================= init =================
