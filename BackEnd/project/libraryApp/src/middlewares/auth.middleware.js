@@ -13,6 +13,9 @@ export const authentication = (tokenType = "access") => {
       tokenType: tokenType == "access" ? tokenTypes.access : tokenTypes.refresh,
       next,
     });
+    if (req.user == undefined) {
+      return next(new Error("unauthenticated", { cause: 401 }));
+    }
     return next();
   });
 };
@@ -29,4 +32,3 @@ export const authorization = (accessRoles = []) => {
     return next();
   });
 };
-

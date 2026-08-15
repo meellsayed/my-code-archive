@@ -4,7 +4,7 @@ import authRouter from "./modules/auth/auth.controller.js";
 import bookRouter from "./modules/book/book.controller.js";
 import authorRouter from "./modules/author/author.controller.js";
 import categoryRouter from "./modules/category/category.controller.js";
-import invoiceRouter from "./modules/invoice/invoice.controller.js";
+import orderRouter from "./modules/order/order.controller.js";
 import customerRouter from "./modules/customer/customer.controller.js";
 import morgan from "morgan";
 import { globalErrorHandling } from "./utils/response/error.response.js";
@@ -28,7 +28,7 @@ const bootstrap = (app, express) => {
   app.use("/book", bookRouter);
   app.use("/author", authorRouter);
   app.use("/category", categoryRouter);
-  app.use("/invoice", invoiceRouter);
+  app.use("/order", orderRouter);
   app.use("/customer", customerRouter);
 
   app.use(globalErrorHandling);

@@ -12,6 +12,7 @@ const invoiceSchema = new Schema(
     address: String,
     total: { type: Number },
     paymentMethod: { type: String },
+    status: { type: String, enum: ["new", "canceled", "delivered", "done"] },
 
     createdBy: { type: Types.ObjectId, ref: "User" },
     isDeleted: { type: Boolean, default: false },

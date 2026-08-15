@@ -35,25 +35,36 @@ export const addItemAndRemove = asyncHandler(async (req, res, next) => {
   });
 
   if (cart != null) {
-    const oldBook = cart.order.filter((order) => {
-      if (order.book._id.toString() === id.toString()) {
-        if (order.quantity + quantity > book.quantity) {
-          return next(new Error(`Quantity in stock: ${book.quantity}`));
-        }
-        order.quantity += quantity;
-        return order;
-      }
-    });
+    const oldBook = cart.order.find(
+      (order) => order.book._id.toString() === id.toString(),
+    );
 
-    if (oldBook[0] == undefined) {
-      cart.order.push({ book: id, quantity });
+    if (oldBook) {
+      if (oldBook.quantity + quantity > book.quantity) {
+        return next(new Error(`Quantity in stock: ${book.quantity}`));
+      }
+
+      oldBook.quantity += quantity;
+    } else {
+      if (quantity > book.quantity) {
+        return next(new Error(`Quantity in stock: ${book.quantity}`));
+      }
+
+      cart.order.push({
+        book: id,
+        quantity,
+      });
     }
 
     cart.updatedBy = userId;
-    await cart.save();
-    return successResponse({ res, data: { cart } });
-  }
 
+    await cart.save();
+
+    return successResponse({
+      res,
+      data: { cart },
+    });
+  }
   // if not old cart create one
   const data = {
     user: userId,
@@ -63,6 +74,6 @@ export const addItemAndRemove = asyncHandler(async (req, res, next) => {
   };
 
   cart = await dbService.create({ model: cartModel, data });
-  
+
   return successResponse({ res, statusCode: 201, data: { cart } });
 });

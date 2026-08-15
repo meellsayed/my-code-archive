@@ -31,7 +31,7 @@ export const signup = asyncHandler(async (req, res, next) => {
     gender,
   } = req.body;
 
-  if (await dbService.findOne({ model: userModel, filter: { $or: [email] } })) {
+  if (await dbService.findOne({ model: userModel, filter: { $or: [{email},{phone}] } })) {
     return next(new Error("Email exist", { cause: 400 }));
   }
   const data = filterObject({
@@ -75,7 +75,7 @@ export const signup = asyncHandler(async (req, res, next) => {
     otp,
   });
 
-  return successResponse({ res, data: { user }, message, statusCode: 201 });
+  return successResponse({ res, data: { user }, statusCode: 201 });
 });
 
 export const confirmEmail = asyncHandler(async (req, res, next) => {

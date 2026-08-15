@@ -5,7 +5,6 @@
 export const asyncHandler = (fn) => {
   return (req, res, next) => {
     return fn (req, res, next).catch((error) => {
-      error.cause = 400;
       return next(error);
     });
   };

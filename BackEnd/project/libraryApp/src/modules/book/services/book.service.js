@@ -169,6 +169,10 @@ export const getOne = asyncHandler(async (req, res, next) => {
     ],
   });
 
+  if (!book || book.isDeleted) {
+    return next(new Error("Book not found", { cause: 404 }));
+  }
+
   return successResponse({ res, data: { book } });
 });
 
@@ -222,6 +226,8 @@ export const getAll = asyncHandler(async (req, res, next) => {
   if (publisher) {
     query.publisher = publisher;
   }
+
+  query.isDeleted = false;
 
   // Sorting
   let sortQuery = {};

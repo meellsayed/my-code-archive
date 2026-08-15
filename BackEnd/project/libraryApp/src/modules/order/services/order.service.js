@@ -12,6 +12,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
   const userId = req.user._id;
   // ,discount,tax
   let total = 0; // to calc total price after discount and tax
+
   const session = await startSession(); //Transactions
 
   try {
@@ -30,30 +31,37 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     }
 
     let ifError = undefined;
-    // order have bookId and quantity
-    cart.order.forEach((order) => {
-      if (order.quantity > order.book.quantity || order.book.quantity == 0) {
+
+    // Check stock
+    for (const order of cart.order) {
+      if (order.quantity > order.book.quantity || order.book.quantity === 0) {
         ifError = `Quantity (${order.book.title}) in stock: ${order.book.quantity}`;
+        break;
       }
-    });
-    if (ifError) return next(new Error(ifError));
+    }
 
-    cart.order.forEach(async (order) => {
-      total += order.book.price * order.quantity; // calc Total price
+    if (ifError) {
+      return next(new Error(ifError));
+    }
+
+    // Calculate total + update stock
+    for (const order of cart.order) {
+      total += order.book.price * order.quantity;
+
       order.book.quantity -= order.quantity;
+
       await order.book.save();
-    });
+    }
 
-    let data = {
+    const data = filterObject({
       customer: userId,
-
       items: cartId,
       note,
       address,
       total,
       createdBy: userId,
-    };
-    data = filterObject(data);
+      status: "new",
+    });
 
     const invoice = await dbService.create({ model: invoiceModel, data });
     await session.commitTransaction();
@@ -63,8 +71,6 @@ export const buyCart = asyncHandler(async (req, res, next) => {
       data: { invoice, cart },
       statusCode: 200,
     });
-
-    
   } catch (error) {
     await session.abortTransaction();
     return next(new Error("Session Transactions Error"));

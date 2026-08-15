@@ -4,7 +4,6 @@ import {
   authentication,
   authorization,
 } from "../../middlewares/auth.middleware.js";
-import { runAsyncWorkFinishedHook } from "graphql/execution/hooks.js";
 import { roleTypes } from "../../DB/models/User.model.js";
 const router = Router();
 

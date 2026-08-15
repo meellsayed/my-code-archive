@@ -106,10 +106,23 @@ export const getAll = asyncHandler(async (req, res, next) => {
   }
 
   pipeline.push({
+    $match: {
+      isDeleted: false,
+    },
+  });
+
+  pipeline.push({
     $lookup: {
       from: "books",
-      localField: "_id",
-      foreignField: "author",
+      let: { authorId: "$_id" },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $eq: ["$$authorId", "$author"] },
+            isDeleted: false,
+          },
+        },
+      ],
       as: "authorBooks",
     },
   });
@@ -153,6 +166,11 @@ export const getAuthorBooks = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { search, sort, page = 1, limit = 10 } = req.query;
   const filter = {};
+
+  const author = await dbService.findById({ model: authorModel, id });
+  if (!author || author.isDeleted) {
+    return next(new Error("Author not found", { cause: 404 }));
+  }
 
   filter.author = id;
   filter.isDeleted = false;

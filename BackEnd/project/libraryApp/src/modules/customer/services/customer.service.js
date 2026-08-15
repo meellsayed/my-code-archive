@@ -31,7 +31,7 @@ export const addOne = asyncHandler(async (req, res, next) => {
 
 export const deleteOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const customer = await findById({ model: customerModel, id });
+  const customer = await dbService.findById({ model: customerModel, id });
 
   customer.isDeleted = true;
   await customer.save();
@@ -49,7 +49,7 @@ export const getOne = asyncHandler(async (req, res, next) => {
   if (!customer) {
     return next(new Error("customer not found", { cause: 404 }));
   }
-  return successResponse({ res, data: customer });
+  return successResponse({ res, data: {customer} });
 });
 
 export const getAll = asyncHandler(async (req, res, next) => {
@@ -72,10 +72,10 @@ export const getAll = asyncHandler(async (req, res, next) => {
 
   switch (gender) {
     case "male":
-      filter.gender = male;
+      filter.gender = "male";
       break;
     case "female":
-      filter.gender = female;
+      filter.gender = "female";
       break;
     default:
       break;

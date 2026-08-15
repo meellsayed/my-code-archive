@@ -101,10 +101,22 @@ export const getAll = asyncHandler(async (req, res, next) => {
     });
   }
   pipeline.push({
+    $match: {
+      isDeleted: false,
+    },
+  });
+  pipeline.push({
     $lookup: {
       from: "books",
-      localField: "_id",
-      foreignField: "categories",
+      let: { categoryId: "$_id" },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $in: ["$$categoryId", "$categories"] },
+            isDeleted: false,
+          },
+        },
+      ],
       as: "categoryBooks",
     },
   });
@@ -146,6 +158,11 @@ export const getCategoryBooks = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { search, sort, page = 1, limit = 10 } = req.query;
   const filter = {};
+
+  const category = await dbService.findById({ model: categoryModel, id });
+  if (!category || category.isDeleted) {
+    return next(new Error("Category not found", { cause: 404 }));
+  }
 
   filter.categories = id;
   filter.isDeleted = false;

@@ -9,7 +9,7 @@ const connectDB = async () => {
       console.log("Connected to DataBase");
     })
     .catch((err) => {
-      console.error("Error connecting to DataBase\/n", err);
+      console.error("Error connecting to DataBase", err);
     });
 };
 
