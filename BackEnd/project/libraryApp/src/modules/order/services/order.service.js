@@ -14,7 +14,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
   let total = 0; // to calc total price after discount and tax
 
   const session = await startSession(); //Transactions
-
+  session.startTransaction();
   try {
     const cart = await dbService.findById({
       model: cartModel,
@@ -25,8 +25,10 @@ export const buyCart = asyncHandler(async (req, res, next) => {
           select: "price title quantity", // book data not order data
         },
       ],
+      session,
     });
     if (cart.user != userId) {
+      await session.abortTransaction();
       return next(new Error("that is not your cart", { cause: 403 }));
     }
 
@@ -41,6 +43,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     }
 
     if (ifError) {
+      await session.abortTransaction();
       return next(new Error(ifError));
     }
 
@@ -50,7 +53,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
 
       order.book.quantity -= order.quantity;
 
-      await order.book.save();
+      await order.book.save({ session });
     }
 
     const data = filterObject({
@@ -63,7 +66,11 @@ export const buyCart = asyncHandler(async (req, res, next) => {
       status: "new",
     });
 
-    const invoice = await dbService.create({ model: invoiceModel, data });
+    const invoice = await dbService.create({
+      model: invoiceModel,
+      data,
+      options: { session },
+    });
     await session.commitTransaction();
 
     return successResponse({
@@ -73,8 +80,8 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     });
   } catch (error) {
     await session.abortTransaction();
-    return next(new Error("Session Transactions Error"));
+    return next(error);
   } finally {
-    session.endSession();
+    await session.endSession();
   }
 });

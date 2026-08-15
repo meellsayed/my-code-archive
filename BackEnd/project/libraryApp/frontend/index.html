@@ -3,25 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Library App</title>
+    <title>Library Management System</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="navbar">
       <h1 class="brand">Library<span>App</span></h1>
-      <nav class="nav-links">
-        <button data-view="books" class="nav-link active">Books</button>
-        <button id="nav-cart" data-view="cart" class="nav-link">Cart</button>
-        <button id="nav-auth" data-view="auth" class="nav-link">Login</button>
-        <button id="btn-logout" class="nav-link hidden">Logout</button>
+      <nav class="nav-links" id="main-nav">
+        <button data-view="store" class="nav-link active">Store</button>
+        <button data-view="cart" class="nav-link">Cart</button>
+        <button data-view="dashboard" class="nav-link hidden" id="nav-dashboard">Dashboard</button>
+        <span class="user-chip hidden" id="user-chip"></span>
+        <button class="nav-link" id="btn-logout">Login</button>
       </nav>
     </header>
 
     <main class="container">
       <p id="welcome-msg" class="welcome hidden"></p>
 
-      <!-- Books view -->
-      <section id="view-books" class="view active">
+      <!-- ============ STORE (public) ============ -->
+      <section id="view-store" class="view active">
         <div class="filters">
           <div class="search-bar">
             <input id="search-input" type="text" placeholder="Search by title or author..." />
@@ -32,12 +33,27 @@
         <div id="books-grid" class="books-grid"></div>
       </section>
 
-      <!-- Cart view -->
+      <!-- ============ CART ============ -->
       <section id="view-cart" class="view">
         <h2>Your Cart</h2>
         <div id="cart-items" class="cart-items"></div>
-        <div class="cart-summary card hidden" id="cart-summary">
+        <div id="cart-summary" class="card cart-summary hidden">
           <p>Total: <strong id="cart-total">$0</strong></p>
+          <div id="customer-fields" class="customer-fields hidden">
+            <h3>Customer details (sale)</h3>
+            <input id="cust-name" type="text" placeholder="Customer name" />
+            <input id="cust-phone" type="text" placeholder="Customer phone" />
+            <input id="cust-address" type="text" placeholder="Customer address" />
+            <select id="cust-gender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+            <select id="cust-type">
+              <option value="branch">Branch</option>
+              <option value="online">Online</option>
+              <option value="onlineAndBranch">Online & Branch</option>
+            </select>
+          </div>
           <input id="checkout-address" type="text" placeholder="Delivery address" />
           <input id="checkout-note" type="text" placeholder="Note (optional)" />
           <button id="btn-buy" class="btn primary">Buy Now</button>
@@ -45,13 +61,94 @@
         </div>
       </section>
 
-      <!-- Auth view: login + signup -->
+      <!-- ============ DASHBOARD (staff + admin) ============ -->
+      <section id="view-dashboard" class="view">
+        <h2>Dashboard</h2>
+        <div class="auth-switch" id="dash-nav">
+          <button class="auth-tab active" data-dash="books">Books</button>
+          <button class="auth-tab" data-dash="authors">Authors</button>
+          <button class="auth-tab" data-dash="categories">Categories</button>
+          <button class="auth-tab" data-dash="customers">Customers</button>
+          <button class="auth-tab" data-dash="pos">New Sale</button>
+        </div>
+
+        <!-- Books -->
+        <div id="dash-books" class="dash-pane active">
+          <div class="pane-toolbar">
+            <input id="dash-book-search" type="text" placeholder="Search books..." />
+            <button id="btn-new-book" class="btn primary">+ New Book</button>
+          </div>
+          <div id="dash-books-list" class="dash-list"></div>
+        </div>
+
+        <!-- Authors -->
+        <div id="dash-authors" class="dash-pane">
+          <div class="pane-toolbar">
+            <input id="dash-author-search" type="text" placeholder="Search authors..." />
+            <button id="btn-new-author" class="btn primary">+ New Author</button>
+          </div>
+          <div id="dash-authors-list" class="dash-list"></div>
+        </div>
+
+        <!-- Categories -->
+        <div id="dash-categories" class="dash-pane">
+          <div class="pane-toolbar">
+            <input id="dash-category-search" type="text" placeholder="Search categories..." />
+            <button id="btn-new-category" class="btn primary">+ New Category</button>
+          </div>
+          <div id="dash-categories-list" class="dash-list"></div>
+        </div>
+
+        <!-- Customers -->
+        <div id="dash-customers" class="dash-pane">
+          <div class="pane-toolbar">
+            <input id="dash-customer-search" type="text" placeholder="Search customers..." />
+            <button id="btn-new-customer" class="btn primary">+ New Customer</button>
+          </div>
+          <div id="dash-customers-list" class="dash-list"></div>
+        </div>
+
+        <!-- POS (new sale) -->
+        <div id="dash-pos" class="dash-pane">
+          <h3>Point of Sale</h3>
+          <p class="muted">Add books to the sale, enter customer info, then checkout.</p>
+          <div class="search-bar">
+            <input id="pos-search" type="text" placeholder="Search books...">
+            <button id="pos-search-btn" class="btn primary">Search</button>
+          </div>
+          <div id="pos-results" class="pos-results"></div>
+          <hr>
+          <div id="pos-cart" class="cart-items"></div>
+          <div class="customer-fields" id="pos-customer">
+            <h3>Customer details (sale)</h3>
+            <input id="pos-cust-name" type="text" placeholder="Customer name" />
+            <input id="pos-cust-phone" type="text" placeholder="Customer phone" />
+            <input id="pos-cust-address" type="text" placeholder="Customer address" />
+            <select id="pos-cust-gender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+            <select id="pos-cust-type">
+              <option value="branch">Branch</option>
+              <option value="online">Online</option>
+              <option value="onlineAndBranch">Online & Branch</option>
+            </select>
+            <input id="pos-note" type="text" placeholder="Note (optional)" />
+          </div>
+          <div class="cart-summary card">
+            <p>Total: <strong id="pos-total">$0</strong></p>
+            <button id="pos-checkout" class="btn primary">Checkout Sale</button>
+            <p id="pos-msg" class="msg"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ AUTH ============ -->
       <section id="view-auth" class="view">
         <div class="auth-switch">
           <button id="tab-login" class="auth-tab active">Login</button>
           <button id="tab-signup" class="auth-tab">Sign up</button>
         </div>
-
         <form id="login-form" class="card form-card">
           <h2>Login</h2>
           <label for="login-email">Email or Phone</label>
@@ -60,8 +157,20 @@
           <input id="login-password" type="password" placeholder="••••••••" />
           <p id="login-msg" class="msg"></p>
           <button type="submit" class="btn primary">Login</button>
+          <p><a href="#" id="forgot-link">Forgot password?</a></p>
         </form>
-
+        <form id="forgot-form" class="card form-card hidden">
+          <h2>Reset Password</h2>
+          <label for="forgot-email">Email</label>
+          <input id="forgot-email" type="email" placeholder="email@example.com" />
+          <label for="forgot-new">New Password</label>
+          <input id="forgot-new" type="password" placeholder="••••••••" />
+          <label for="forgot-confirm">Confirm New Password</label>
+          <input id="forgot-confirm" type="password" placeholder="••••••••" />
+          <p id="forgot-msg" class="msg"></p>
+          <button type="submit" class="btn primary">Send Reset Link</button>
+          <p><a href="#" id="forgot-back">Back to login</a></p>
+        </form>
         <form id="signup-form" class="card form-card hidden">
           <h2>Create Account</h2>
           <label for="signup-username">Username</label>
@@ -79,21 +188,39 @@
         </form>
       </section>
 
-      <!-- Book detail modal -->
-      <div id="modal" class="modal hidden">
+      <!-- ============ MODALS ============ -->
+      <div id="book-modal" class="modal hidden">
         <div class="modal-content card">
-          <button id="modal-close" class="modal-close">&times;</button>
-          <h2 id="modal-title"></h2>
-          <p id="modal-author"></p>
-          <p id="modal-price"></p>
-          <p id="modal-desc"></p>
+          <button id="book-modal-close" class="modal-close">&times;</button>
+          <h2 id="book-modal-title"></h2>
+          <p id="book-modal-author"></p>
+          <p id="book-modal-price"></p>
+          <p id="book-modal-desc"></p>
           <div class="qty-row">
             <button id="qty-minus" class="btn qty-btn">-</button>
             <span id="qty-value">1</span>
             <button id="qty-plus" class="btn qty-btn">+</button>
           </div>
-          <button id="modal-add" class="btn primary">Add to Cart</button>
-          <p id="modal-msg" class="msg"></p>
+          <button id="book-modal-add" class="btn primary">Add to Cart</button>
+          <p id="book-modal-msg" class="msg"></p>
+        </div>
+      </div>
+
+      <!-- Generic entity modal (edit) -->
+      <div id="entity-modal" class="modal hidden">
+        <div class="modal-content card">
+          <button id="entity-modal-close" class="modal-close">&times;</button>
+          <h2 id="entity-modal-heading">Edit</h2>
+          <form id="entity-form"></form>
+        </div>
+      </div>
+
+      <!-- Generic info/listing modal -->
+      <div id="info-modal" class="modal hidden">
+        <div class="modal-content card">
+          <button id="info-modal-close" class="modal-close">&times;</button>
+          <h2 id="info-modal-heading"></h2>
+          <div id="info-modal-body" class="info-body"></div>
         </div>
       </div>
     </main>

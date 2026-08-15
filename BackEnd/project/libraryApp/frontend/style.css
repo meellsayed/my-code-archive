@@ -38,6 +38,7 @@ body {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .nav-link {
@@ -57,6 +58,21 @@ body {
   color: #fff;
 }
 
+.user-chip {
+  background: #334155;
+  color: #38bdf8;
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.user-chip .role {
+  color: #94a3b8;
+  font-weight: 400;
+  text-transform: capitalize;
+}
+
 .welcome {
   text-align: center;
   padding: 0.75rem;
@@ -68,7 +84,7 @@ body {
 
 /* ---- layout ---- */
 .container {
-  max-width: 1100px;
+  max-width: 1150px;
   margin: 0 auto;
   padding: 2rem;
 }
@@ -81,7 +97,7 @@ body {
   display: block;
 }
 
-/* ---- filters ---- */
+/* ---- filters / chips ---- */
 .filters {
   margin-bottom: 2rem;
 }
@@ -129,12 +145,17 @@ body {
 
 /* ---- buttons ---- */
 .btn {
-  padding: 0.75rem 1.25rem;
+  padding: 0.6rem 1.1rem;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn.primary {
@@ -146,6 +167,15 @@ body {
   background: #1d4ed8;
 }
 
+.btn.success {
+  background: #16a34a;
+  color: #fff;
+}
+
+.btn.success:hover {
+  background: #15803d;
+}
+
 .btn.danger {
   background: #dc2626;
   color: #fff;
@@ -153,6 +183,20 @@ body {
 
 .btn.danger:hover {
   background: #b91c1c;
+}
+
+.btn.ghost {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.btn.ghost:hover {
+  background: #d1d5db;
+}
+
+.btn.small {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
 }
 
 .qty-row {
@@ -166,7 +210,7 @@ body {
 .qty-btn {
   background: #e5e7eb;
   color: #1f2937;
-  padding: 0.4rem 0.9rem;
+  padding: 0.3rem 0.9rem;
 }
 
 /* ---- books grid ---- */
@@ -241,31 +285,46 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  max-width: 420px;
+  max-width: 460px;
 }
 
-.cart-summary input {
-  padding: 0.75rem;
+.cart-summary input,
+.cart-summary select {
+  padding: 0.7rem;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  background: #fff;
 }
 
-/* ---- auth ---- */
+.customer-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.75rem;
+}
+
+.customer-fields h3 {
+  font-size: 1rem;
+  color: #374151;
+}
+
+/* ---- dashboard ---- */
 .auth-switch {
   display: flex;
   gap: 0.5rem;
-  justify-content: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .auth-tab {
-  padding: 0.6rem 1.5rem;
+  padding: 0.55rem 1.3rem;
   border: 1px solid #d1d5db;
   background: #fff;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .auth-tab.active {
@@ -274,6 +333,125 @@ body {
   border-color: #1e293b;
 }
 
+.dash-pane {
+  display: none;
+}
+
+.dash-pane.active {
+  display: block;
+}
+
+.pane-toolbar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.pane-toolbar input {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.7rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.dash-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dash-row {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.dash-row .info h4 {
+  color: #111827;
+  font-size: 1.05rem;
+}
+
+.dash-row .info span {
+  color: #6b7280;
+  font-size: 0.85rem;
+  display: block;
+}
+
+.dash-row .actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge.success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge.warn {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.badge.primary {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.pos-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.pos-book {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pos-book:hover {
+  border: 1px solid #2563eb;
+}
+
+.pos-book h4 {
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+.pos-book .price {
+  color: #16a34a;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+}
+
+.muted {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* ---- auth forms ---- */
 .card {
   background: #fff;
   border-radius: 12px;
@@ -299,11 +477,14 @@ body {
   margin-top: 0.5rem;
 }
 
-.form-card input {
-  padding: 0.75rem;
+.form-card input,
+.form-card select,
+.form-card textarea {
+  padding: 0.7rem;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-family: inherit;
 }
 
 .form-card .btn {
@@ -334,6 +515,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 100;
+  padding: 1rem;
 }
 
 .modal.hidden {
@@ -343,12 +525,32 @@ body {
 .modal-content {
   position: relative;
   max-width: 480px;
-  width: 90%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   align-items: center;
   text-align: center;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content label {
+  font-size: 0.85rem;
+  color: #4b5563;
+  width: 100%;
+  text-align: left;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
 }
 
 .modal-close {
@@ -365,7 +567,23 @@ body {
 .modal-content .price {
   color: #16a34a;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
+}
+
+.modal-content label.check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.modal-content label.check-label input {
+  width: auto;
+}
+
+.info-body {
+  width: 100%;
+  text-align: left;
 }
 
 /* ---- toast ---- */
@@ -398,5 +616,14 @@ body {
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+  .container {
+    padding: 1rem;
   }
 }

@@ -1,22 +1,46 @@
 /**
- * @param {{ model: import('mongoose').Model<any>, data?: object }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   data?: object,
+ *   options?: import('mongoose').QueryOptions
+ * }} params
  * @returns {Promise<object>}
  */
-export const create = async ({ model, data = {} } = {}) => {
-  let document = await model.create(data);
+export const create = async ({ model, data = {}, options = {} } = {}) => {
+  const document = await model.create(data, options);
+
   return document;
 };
+
 /**
- * @param {{ model: import('mongoose').Model<any>, arrayOfData?: object[] }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   arrayOfData?: object[],
+ *   options?: import('mongoose').InsertManyOptions
+ * }} params
  * @returns {Promise<object[]>}
  */
-export const createMany = async ({ model, arrayOfData = [{}] } = {}) => {
-  const documents = await model.insertMany(arrayOfData);
+export const createMany = async ({
+  model,
+  arrayOfData = [{}],
+  options = {},
+} = {}) => {
+  const documents = await model.insertMany(arrayOfData, options);
+
   return documents;
 };
 
 /**
- * @param {{ model: import('mongoose').Model<any>, filter?: object, select?: string, populate?: import('mongoose').PopulateOptions[], limit?: number, skip?: number }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   filter?: object,
+ *   select?: string,
+ *   populate?: import('mongoose').PopulateOptions[],
+ *   limit?: number,
+ *   skip?: number,
+ *   sort?: object,
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object[]>}
  */
 export const find = async ({
@@ -27,6 +51,7 @@ export const find = async ({
   limit = 1000,
   skip = 0,
   sort = {},
+  session,
 } = {}) => {
   const document = await model
     .find(filter)
@@ -34,11 +59,20 @@ export const find = async ({
     .populate(populate)
     .limit(limit)
     .skip(skip)
-    .sort(sort);
+    .sort(sort)
+    .session(session);
+
   return document;
 };
+
 /**
- * @param {{ model: import('mongoose').Model<any>, filter?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   filter?: object,
+ *   select?: string,
+ *   populate?: import('mongoose').PopulateOptions[],
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object|null>}
  */
 export const findOne = async ({
@@ -46,15 +80,25 @@ export const findOne = async ({
   filter = {},
   select = "",
   populate = [],
+  session,
 } = {}) => {
   const document = await model
     .findOne(filter)
     .select(select)
-    .populate(populate);
+    .populate(populate)
+    .session(session);
+
   return document;
 };
+
 /**
- * @param {{ model: import('mongoose').Model<any>, id?: string, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   id?: string,
+ *   select?: string,
+ *   populate?: import('mongoose').PopulateOptions[],
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object|null>}
  */
 export const findById = async ({
@@ -62,13 +106,27 @@ export const findById = async ({
   id = "",
   select = "",
   populate = [],
+  session,
 } = {}) => {
-  const document = await model.findById(id).select(select).populate(populate);
+  const document = await model
+    .findById(id)
+    .select(select)
+    .populate(populate)
+    .session(session);
+
   return document;
 };
 
 /**
- * @param {{ model: import('mongoose').Model<any>, id?: string, data?: object, options?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   id?: string,
+ *   data?: object,
+ *   options?: import('mongoose').QueryOptions,
+ *   select?: string,
+ *   populate?: import('mongoose').PopulateOptions[],
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object|null>}
  */
 export const findByIdAndUpdate = async ({
@@ -78,15 +136,29 @@ export const findByIdAndUpdate = async ({
   options = {},
   select = "",
   populate = [],
+  session,
 } = {}) => {
   const document = await model
-    .findByIdAndUpdate(id, data, options)
+    .findByIdAndUpdate(id, data, {
+      ...options,
+      session,
+    })
     .select(select)
     .populate(populate);
+
   return document;
 };
+
 /**
- * @param {{ model: import('mongoose').Model<any>, filter?: object, data?: object, options?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   filter?: object,
+ *   data?: object,
+ *   options?: import('mongoose').QueryOptions,
+ *   select?: string,
+ *   populate?: import('mongoose').PopulateOptions[],
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object|null>}
  */
 export const findOneAndUpdate = async ({
@@ -96,15 +168,27 @@ export const findOneAndUpdate = async ({
   options = {},
   select = "",
   populate = [],
+  session,
 } = {}) => {
   const document = await model
-    .findOneAndUpdate(filter, data, options)
+    .findOneAndUpdate(filter, data, {
+      ...options,
+      session,
+    })
     .select(select)
     .populate(populate);
+
   return document;
 };
+
 /**
- * @param {{ model: import('mongoose').Model<any>, filter?: object, data?: object, options?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   filter?: object,
+ *   data?: object,
+ *   options?: import('mongoose').UpdateOptions,
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object>}
  */
 export const updateOne = async ({
@@ -112,12 +196,24 @@ export const updateOne = async ({
   filter = {},
   data = {},
   options = {},
+  session,
 } = {}) => {
-  const document = await model.updateOne(filter, data, options);
+  const document = await model.updateOne(filter, data, {
+    ...options,
+    session,
+  });
+
   return document;
 };
+
 /**
- * @param {{ model: import('mongoose').Model<any>, filter?: object, data?: object, options?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   filter?: object,
+ *   data?: object,
+ *   options?: import('mongoose').UpdateOptions,
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object>}
  */
 export const updateMany = async ({
@@ -125,13 +221,24 @@ export const updateMany = async ({
   filter = {},
   data = {},
   options = {},
+  session,
 } = {}) => {
-  const document = await model.updateMany(filter, data, options);
+  const document = await model.updateMany(filter, data, {
+    ...options,
+    session,
+  });
+
   return document;
 };
 
 /**
- * @param {{ model: import('mongoose').Model<any>, id?: string, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   id?: string,
+ *   select?: string,
+ *   populate?: import('mongoose').PopulateOptions[],
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object|null>}
  */
 export const findByIdAndDelete = async ({
@@ -139,15 +246,24 @@ export const findByIdAndDelete = async ({
   id = "",
   select = "",
   populate = [],
+  session,
 } = {}) => {
   const document = await model
-    .findByIdAndDelete(id)
+    .findByIdAndDelete(id, { session })
     .select(select)
     .populate(populate);
+
   return document;
 };
+
 /**
- * @param {{ model: import('mongoose').Model<any>, filter?: object, select?: string, populate?: import('mongoose').PopulateOptions[] }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   filter?: object,
+ *   select?: string,
+ *   populate?: import('mongoose').PopulateOptions[],
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object|null>}
  */
 export const findOneAndDelete = async ({
@@ -155,28 +271,44 @@ export const findOneAndDelete = async ({
   filter = {},
   select = "",
   populate = [],
+  session,
 } = {}) => {
   const document = await model
-    .findOneAndDelete(filter)
+    .findOneAndDelete(filter, { session })
     .select(select)
     .populate(populate);
-  return document;
-};
-/**
- * @param {{ model: import('mongoose').Model<any>, filter?: object }} params
- * @returns {Promise<object>}
- */
-export const deleteOne = async ({ model, filter = {} } = {}) => {
-  const document = await model.deleteOne(filter);
 
   return document;
 };
+
 /**
- * @param {{ model: import('mongoose').Model<any>, filter?: object }} params
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   filter?: object,
+ *   session?: import('mongoose').ClientSession
+ * }} params
  * @returns {Promise<object>}
  */
-export const deleteMany = async ({ model, filter = {} } = {}) => {
-  const document = await model.deleteMany(filter);
+export const deleteOne = async ({ model, filter = {}, session } = {}) => {
+  const document = await model.deleteOne(filter, {
+    session,
+  });
+
+  return document;
+};
+
+/**
+ * @param {{
+ *   model: import('mongoose').Model<any>,
+ *   filter?: object,
+ *   session?: import('mongoose').ClientSession
+ * }} params
+ * @returns {Promise<object>}
+ */
+export const deleteMany = async ({ model, filter = {}, session } = {}) => {
+  const document = await model.deleteMany(filter, {
+    session,
+  });
 
   return document;
 };
