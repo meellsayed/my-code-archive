@@ -52,7 +52,7 @@ export const login = asyncHandler(async (req, res, next) => {
     data: {
       refreshToken,
       accessToken,
-      user: { username: user.username, email: user.email },
+      user
     },
   });
 });

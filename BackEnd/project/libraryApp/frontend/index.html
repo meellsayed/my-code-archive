@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="navbar">
+      <h1 class="brand">Library<span>App</span></h1>
+      <nav class="nav-links">
+        <button data-view="books" class="nav-link active">Books</button>
+        <button id="nav-cart" data-view="cart" class="nav-link">Cart</button>
+        <button id="nav-auth" data-view="auth" class="nav-link">Login</button>
+        <button id="btn-logout" class="nav-link hidden">Logout</button>
+      </nav>
+    </header>
+
+    <main class="container">
+      <p id="welcome-msg" class="welcome hidden"></p>
+
+      <!-- Books view -->
+      <section id="view-books" class="view active">
+        <div class="filters">
+          <div class="search-bar">
+            <input id="search-input" type="text" placeholder="Search by title or author..." />
+            <button id="search-btn" class="btn primary">Search</button>
+          </div>
+          <div id="category-filters" class="chips"></div>
+        </div>
+        <div id="books-grid" class="books-grid"></div>
+      </section>
+
+      <!-- Cart view -->
+      <section id="view-cart" class="view">
+        <h2>Your Cart</h2>
+        <div id="cart-items" class="cart-items"></div>
+        <div class="cart-summary card hidden" id="cart-summary">
+          <p>Total: <strong id="cart-total">$0</strong></p>
+          <input id="checkout-address" type="text" placeholder="Delivery address" />
+          <input id="checkout-note" type="text" placeholder="Note (optional)" />
+          <button id="btn-buy" class="btn primary">Buy Now</button>
+          <p id="cart-msg" class="msg"></p>
+        </div>
+      </section>
+
+      <!-- Auth view: login + signup -->
+      <section id="view-auth" class="view">
+        <div class="auth-switch">
+          <button id="tab-login" class="auth-tab active">Login</button>
+          <button id="tab-signup" class="auth-tab">Sign up</button>
+        </div>
+
+        <form id="login-form" class="card form-card">
+          <h2>Login</h2>
+          <label for="login-email">Email or Phone</label>
+          <input id="login-email" type="text" placeholder="email@example.com or phone" />
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" placeholder="••••••••" />
+          <p id="login-msg" class="msg"></p>
+          <button type="submit" class="btn primary">Login</button>
+        </form>
+
+        <form id="signup-form" class="card form-card hidden">
+          <h2>Create Account</h2>
+          <label for="signup-username">Username</label>
+          <input id="signup-username" type="text" placeholder="John Doe" />
+          <label for="signup-email">Email</label>
+          <input id="signup-email" type="email" placeholder="email@example.com" />
+          <label for="signup-phone">Phone</label>
+          <input id="signup-phone" type="text" placeholder="010xxxxxxx" />
+          <label for="signup-password">Password</label>
+          <input id="signup-password" type="password" placeholder="••••••••" />
+          <label for="signup-confirm">Confirm Password</label>
+          <input id="signup-confirm" type="password" placeholder="••••••••" />
+          <p id="signup-msg" class="msg"></p>
+          <button type="submit" class="btn primary">Sign up</button>
+        </form>
+      </section>
+
+      <!-- Book detail modal -->
+      <div id="modal" class="modal hidden">
+        <div class="modal-content card">
+          <button id="modal-close" class="modal-close">&times;</button>
+          <h2 id="modal-title"></h2>
+          <p id="modal-author"></p>
+          <p id="modal-price"></p>
+          <p id="modal-desc"></p>
+          <div class="qty-row">
+            <button id="qty-minus" class="btn qty-btn">-</button>
+            <span id="qty-value">1</span>
+            <button id="qty-plus" class="btn qty-btn">+</button>
+          </div>
+          <button id="modal-add" class="btn primary">Add to Cart</button>
+          <p id="modal-msg" class="msg"></p>
+        </div>
+      </div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
