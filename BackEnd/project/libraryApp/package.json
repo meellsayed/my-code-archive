@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node --watch index.js",
     "dev2": "node --watch --no-warnings index.js",
-    "dev3": "nodemon index.js",
+    "start:dev": "nodemon --watch src --legacy-watch index.js",
     "dev4": "pm2 start index.js --watch --name libraryApp",
     "log": "pm2 logs libraryApp",
     "stop": "pm2 stop libraryApp"

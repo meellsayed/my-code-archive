@@ -7,7 +7,7 @@
  * @returns {Promise<object>}
  */
 export const create = async ({ model, data = {}, options = {} } = {}) => {
-  const document = await model.create(data, options);
+  const document = await model.create(data);
 
   return document;
 };

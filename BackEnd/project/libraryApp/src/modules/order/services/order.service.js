@@ -4,7 +4,7 @@ import * as dbService from "../../../DB/db.service.js";
 import { cartModel } from "../../../DB/models/Cart.model.js";
 import { invoiceModel } from "../../../DB/models/Invoice.model.js";
 import { filterObject } from "../../../utils/utils.js";
-import { startSession } from "mongoose";
+// import { startSession } from "mongoose";
 
 export const buyCart = asyncHandler(async (req, res, next) => {
   const { cartId } = req.params;
@@ -13,8 +13,8 @@ export const buyCart = asyncHandler(async (req, res, next) => {
   // ,discount,tax
   let total = 0; // to calc total price after discount and tax
 
-  const session = await startSession(); //Transactions
-  session.startTransaction();
+  // // const session = await startSession(); //Transactions
+  // session.startTransaction();
   try {
     const cart = await dbService.findById({
       model: cartModel,
@@ -25,10 +25,10 @@ export const buyCart = asyncHandler(async (req, res, next) => {
           select: "price title quantity", // book data not order data
         },
       ],
-      session,
+      // session,
     });
     if (cart.user != userId) {
-      await session.abortTransaction();
+      // await session.abortTransaction();
       return next(new Error("that is not your cart", { cause: 403 }));
     }
 
@@ -43,7 +43,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     }
 
     if (ifError) {
-      await session.abortTransaction();
+      // await session.abortTransaction();
       return next(new Error(ifError));
     }
 
@@ -53,7 +53,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
 
       order.book.quantity -= order.quantity;
 
-      await order.book.save({ session });
+      // await order.book.save({ session });
     }
 
     const data = filterObject({
@@ -69,9 +69,9 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     const invoice = await dbService.create({
       model: invoiceModel,
       data,
-      options: { session },
+      // options: { session },
     });
-    await session.commitTransaction();
+    // await session.commitTransaction();
 
     return successResponse({
       res,
@@ -79,9 +79,9 @@ export const buyCart = asyncHandler(async (req, res, next) => {
       statusCode: 200,
     });
   } catch (error) {
-    await session.abortTransaction();
+    // await session.abortTransaction();
     return next(error);
   } finally {
-    await session.endSession();
+    // // await session.endSession();
   }
 });
