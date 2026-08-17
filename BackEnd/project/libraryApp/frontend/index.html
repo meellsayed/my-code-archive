@@ -11,7 +11,9 @@
       <h1 class="brand">Library<span>App</span></h1>
       <nav class="nav-links" id="main-nav">
         <button data-view="store" class="nav-link active">Store</button>
-        <button data-view="cart" class="nav-link">Cart</button>
+        <button data-view="cart" class="nav-link" id="nav-cart">
+          Cart <span class="cart-badge hidden" id="cart-badge">0</span>
+        </button>
         <button data-view="dashboard" class="nav-link hidden" id="nav-dashboard">Dashboard</button>
         <span class="user-chip hidden" id="user-chip"></span>
         <button class="nav-link" id="btn-logout">Login</button>
@@ -194,6 +196,7 @@
           <button id="book-modal-close" class="modal-close">&times;</button>
           <h2 id="book-modal-title"></h2>
           <p id="book-modal-author"></p>
+          <p id="book-modal-stock"></p>
           <p id="book-modal-price"></p>
           <p id="book-modal-desc"></p>
           <div class="qty-row">
@@ -224,6 +227,8 @@
         </div>
       </div>
     </main>
+
+    <div id="toast-container" class="toast-container"></div>
 
     <script src="app.js"></script>
   </body>

@@ -16,7 +16,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
   // ,discount,tax
   let total = 0; // to calc total price after discount and tax
 
-  const session = await startSession(); //Transactions
+  // const session = await startSession(); //Transactions
 
   try {
     const isCustomer = await dbService.findOne({
@@ -79,7 +79,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     });
 
     const invoice = await dbService.create({ model: invoiceModel, data });
-    await session.commitTransaction();
+    // await session.commitTransaction();
 
     return successResponse({
       res,
@@ -87,9 +87,9 @@ export const buyCart = asyncHandler(async (req, res, next) => {
       statusCode: 200,
     });
   } catch (error) {
-    await session.abortTransaction();
+    // await session.abortTransaction();
     return next(new Error("Session Transactions Error"));
   } finally {
-    session.endSession();
+    // session.endSession();
   }
 });

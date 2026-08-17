@@ -27,9 +27,27 @@ const showToast = (message, type = "success") => {
   const el = document.createElement("div");
   el.className = `toast ${type}`;
   el.textContent = message;
-  document.body.appendChild(el);
+  $("toast-container").appendChild(el);
   setTimeout(() => el.remove(), 3000);
 };
+
+const formatPrice = (value) => {
+  const n = Number(value) || 0;
+  return (n % 1 === 0 ? n.toLocaleString() : n.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })) + " EGP";
+};
+
+const coverImg = (url, cls = "book-cover") =>
+  url
+    ? `<img class="${cls}" src="${escapeHTML(url)}" alt="" onerror="this.classList.add('placeholder');this.src=''" loading="lazy" />`
+    : `<div class="${cls} placeholder"></div>`;
+
+const stockBadge = (qty) =>
+  qty > 0
+    ? `<span class="stock in">● In stock (${qty})</span>`
+    : `<span class="stock out">● Out of stock</span>`;
 
 const isStaff = () => ["admin", "staff"].includes(state.user?.role);
 const isAdmin = () => state.user?.role === "admin";
@@ -88,13 +106,29 @@ const apiDelete = (path, useAuth = false) =>
   api(path, { method: "DELETE" }, useAuth);
 
 // ================= views / nav =================
+const updateCartBadge = () => {
+  const badge = $("cart-badge");
+  const items = (state.cart?.order || []).filter((i) => (i.quantity ?? 0) > 0);
+  const count = items.reduce((s, i) => s + (i.quantity ?? 0), 0);
+  badge.textContent = count;
+  badge.classList.toggle("hidden", count === 0);
+};
+
+const loadCart = async () => {
+  updateCartBadge();
+  renderCart();
+};
+
 const showView = (view) => {
   document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
   $("view-" + view).classList.add("active");
   document.querySelectorAll("#main-nav .nav-link[data-view]").forEach((n) =>
     n.classList.toggle("active", n.dataset.view === view),
   );
-  if (view === "cart") renderCart();
+  if (view === "cart") {
+    renderCart();
+    loadCart();
+  }
   if (view === "dashboard") renderDashboard();
   if (view === "store") loadBooks();
 };
@@ -128,16 +162,26 @@ const updateAuthUI = () => {
 const renderBooks = (books) => {
   const grid = $("books-grid");
   if (!books.length) {
-    grid.innerHTML = '<p class="msg">No books found.</p>';
+    grid.innerHTML =
+      '<div class="empty-state"><p class="msg">No books found.</p></div>';
     return;
   }
   grid.innerHTML = books
     .map(
       (b) => `
-      <div class="book-card" data-id="${b._id}">
+      <div class="book-card ${b.quantity > 0 ? "" : "out-of-stock"}" data-id="${b._id}">
+        ${coverImg(b.cover, "book-cover")}
         <h3>${escapeHTML(b.title)}</h3>
         <p class="author">${escapeHTML(b.author?.name || "Unknown author")}</p>
-        <p class="price">$${b.price ?? "—"}</p>
+        ${b.subtitle ? `<p class="subtitle">${escapeHTML(b.subtitle)}</p>` : ""}
+        <div class="card-actions">
+          <p class="price">${formatPrice(b.price)}</p>
+          ${stockBadge(b.quantity)}
+        </div>
+        <button class="btn primary small add-to-cart-btn"
+          data-id="${b._id}" data-title="${escapeHTML(b.title)}" ${b.quantity > 0 ? "" : "disabled"}>
+          ${b.quantity > 0 ? "Add to Cart" : "Out of Stock"}
+        </button>
       </div>`,
     )
     .join("");
@@ -161,20 +205,39 @@ const loadBooks = async (search = "") => {
 let currentBook = null;
 let qty = 1;
 
-const openBook = async (id) => {
+const openQuickAdd = async (id) => {
+  await openBook(id, $("book-modal-add"));
+};
+
+const openBook = async (id, focusBtn = null) => {
   try {
     const { data } = await apiGet("/book/" + id);
     const book = data?.book;
     if (!book) throw new Error("Book not found");
     currentBook = book;
     qty = 1;
-    $("qty-value").textContent = "1";
+    updateQtyValue();
+    const coverWrap = $("book-modal-cover-wrap") || (() => {
+      const wrap = document.createElement("div");
+      wrap.id = "book-modal-cover-wrap";
+      $("book-modal-author").insertAdjacentElement("beforebegin", wrap);
+      return wrap;
+    })();
+    coverWrap.innerHTML = coverImg(book.cover, "modal-cover");
     $("book-modal-title").textContent = book.title;
-    $("book-modal-author").textContent = book.author?.name || "Unknown author";
-    $("book-modal-price").textContent = `$${book.price}`;
+    $("book-modal-author").textContent =
+      `${book.author?.name || "Unknown author"}${book.pages ? ` · ${book.pages} pages` : ""}`;
+    $("book-modal-price").textContent = formatPrice(book.price);
+    $("book-modal-stock").innerHTML =
+      stockBadge(book.quantity) +
+      (book.availableToBorrow ? `<span class="stock borrow">● Borrowable</span>` : "");
     $("book-modal-desc").textContent = book.description || "No description.";
     $("book-modal-msg").textContent = "";
+    const addBtn = $("book-modal-add");
+    addBtn.disabled = book.quantity <= 0;
+    addBtn.textContent = book.quantity > 0 ? "Add to Cart" : "Out of Stock";
     $("book-modal").classList.remove("hidden");
+    if (focusBtn) focusBtn.focus();
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -204,16 +267,34 @@ const addToCart = async (bookId, qty, target = "cart") => {
 };
 
 // ================= cart =================
-const removeCartItem = async (bookId, quantity) => {
+const removeCartItem = async (bookId) => {
   if (!state.token) return;
+  const item = (state.cart?.order || []).find(
+    (i) => String(i.book?._id || i.book) === String(bookId),
+  );
+  const qty = (item?.quantity ?? 0) || 1;
   try {
     const { data } = await apiPost(
       `/order/cart/remove-item/${bookId}`,
-      { quantity: -Number(quantity) },
+      { quantity: -Number(qty) },
       true,
     );
     state.cart = data?.cart || state.cart;
-    renderCart();
+    loadCart();
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+};
+
+const changeCartQty = async (bookId, delta) => {
+  try {
+    const { data } = await apiPost(
+      `/order/cart/add-item/${bookId}`,
+      { quantity: delta },
+      true,
+    );
+    state.cart = data?.cart || state.cart;
+    loadCart();
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -223,8 +304,9 @@ const renderCart = () => {
   const wrap = $("cart-items");
   const items = (state.cart?.order || []).filter((i) => (i.quantity ?? 0) > 0);
   if (!items.length) {
-    wrap.innerHTML = '<p class="msg">Your cart is empty.</p>';
+    wrap.innerHTML = '<div class="empty-state"><p class="msg">Your cart is empty.</p></div>';
     $("cart-summary").classList.add("hidden");
+    updateCartBadge();
     return;
   }
   wrap.innerHTML = items
@@ -233,25 +315,38 @@ const renderCart = () => {
       <div class="cart-item">
         <div class="info">
           <h4>${escapeHTML(item.book?.title || "Unknown book")}</h4>
-          <span>Qty: ${item.quantity} | $${item.book?.price ?? 0} each</span>
+          <span>${formatPrice(item.book?.price ?? 0)} each</span>
         </div>
-        <button class="btn ghost small" data-remove-book="${item.book?._id}" data-remove-qty="${item.quantity}">Remove</button>
+        <div class="right">
+          <div class="stepper">
+            <button data-qty-minus="${item.book?._id}">−</button>
+            <span>${item.quantity}</span>
+            <button data-qty-plus="${item.book?._id}">+</button>
+          </div>
+          <span class="line-total">${formatPrice((item.book?.price ?? 0) * item.quantity)}</span>
+          <button class="btn ghost small" data-remove-book="${item.book?._id}">Remove</button>
+        </div>
       </div>`,
     )
     .join("");
   wrap.querySelectorAll("[data-remove-book]").forEach((btn) =>
-    btn.addEventListener("click", () =>
-      removeCartItem(btn.dataset.removeBook, btn.dataset.removeQty),
-    ),
+    btn.addEventListener("click", () => removeCartItem(btn.dataset.removeBook)),
+  );
+  wrap.querySelectorAll("[data-qty-minus]").forEach((b) =>
+    b.addEventListener("click", () => changeCartQty(b.dataset.qtyMinus, -1)),
+  );
+  wrap.querySelectorAll("[data-qty-plus]").forEach((b) =>
+    b.addEventListener("click", () => changeCartQty(b.dataset.qtyPlus, 1)),
   );
   const total = items.reduce(
     (s, i) => s + (i.book?.price ?? 0) * i.quantity,
     0,
   );
-  $("cart-total").textContent = `$${total.toFixed(2)}`;
+  $("cart-total").textContent = formatPrice(total);
   $("cart-summary").classList.remove("hidden");
   $("customer-fields").classList.toggle("hidden", !isStaff());
   $("btn-buy").textContent = isStaff() ? "Create Sale" : "Buy Now";
+  updateCartBadge();
 };
 
 const buyCart = async () => {
@@ -803,12 +898,39 @@ const posAdd = async (bookId) => {
   if (ok) renderPosFromCart();
 };
 
+const posChangeQty = async (bookId, delta) => {
+  const item = (state.posCart?.order || []).find(
+    (i) => String(i.book?._id || i.book) === String(bookId),
+  );
+  const qty = (item?.quantity ?? 0) + delta;
+  if (qty <= 0) return posRemove(bookId, item?.quantity || 1);
+  try {
+    const { data } = await apiPost(
+      `/order/cart/add-item/${bookId}`,
+      { quantity: delta },
+      true,
+    );
+    state.posCart = data?.cart || state.posCart;
+    state.cart = data?.cart || state.cart;
+    renderPosFromCart();
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+};
+
 const posRemove = async (bookId, quantity) => {
   if (!state.token) return;
+  let qty = Number(quantity);
+  if (!qty) {
+    const item = (state.posCart?.order || []).find(
+      (i) => String(i.book?._id || i.book) === String(bookId),
+    );
+    qty = item?.quantity || 1;
+  }
   try {
     const { data } = await apiPost(
       `/order/cart/remove-item/${bookId}`,
-      { quantity: -Number(quantity) },
+      { quantity: -Number(qty) },
       true,
     );
     state.posCart = data?.cart || state.posCart;
@@ -868,8 +990,8 @@ const renderPosFromCart = () => {
   const wrap = $("pos-cart");
   const items = (state.posCart?.order || []).filter((i) => (i.quantity ?? 0) > 0);
   if (!items.length) {
-    wrap.innerHTML = '<p class="msg">No items yet. Search & add books.</p>';
-    $("pos-total").textContent = "$0";
+    wrap.innerHTML = '<div class="empty-state"><p class="msg">No items yet. Search & add books.</p></div>';
+    $("pos-total").textContent = formatPrice(0);
     $("pos-msg").className = "msg";
     $("pos-msg").textContent = "";
     return;
@@ -880,22 +1002,34 @@ const renderPosFromCart = () => {
       <div class="cart-item">
         <div class="info">
           <h4>${escapeHTML(i.book?.title || "Unknown")}</h4>
-          <span>Qty: ${i.quantity} | $${i.book?.price ?? 0} each</span>
+          <span>${formatPrice(i.book?.price ?? 0)} each</span>
         </div>
-        <button class="btn ghost small" data-pos-remove="${i.book?._id}" data-pos-qty="${i.quantity}">Remove</button>
+        <div class="right">
+          <div class="stepper">
+            <button data-pos-minus="${i.book?._id}">−</button>
+            <span>${i.quantity}</span>
+            <button data-pos-plus="${i.book?._id}">+</button>
+          </div>
+          <span class="line-total">${formatPrice((i.book?.price ?? 0) * i.quantity)}</span>
+          <button class="btn ghost small" data-pos-remove="${i.book?._id}">Remove</button>
+        </div>
       </div>`,
     )
     .join("");
   wrap.querySelectorAll("[data-pos-remove]").forEach((btn) =>
-    btn.addEventListener("click", () =>
-      posRemove(btn.dataset.posRemove, btn.dataset.posQty),
-    ),
+    btn.addEventListener("click", () => posRemove(btn.dataset.posRemove, 0)),
+  );
+  wrap.querySelectorAll("[data-pos-minus]").forEach((b) =>
+    b.addEventListener("click", () => posChangeQty(b.dataset.posMinus, -1)),
+  );
+  wrap.querySelectorAll("[data-pos-plus]").forEach((b) =>
+    b.addEventListener("click", () => posChangeQty(b.dataset.posPlus, 1)),
   );
   const total = items.reduce(
     (s, i) => s + (i.book?.price ?? 0) * i.quantity,
     0,
   );
-  $("pos-total").textContent = `$${total.toFixed(2)}`;
+  $("pos-total").textContent = formatPrice(total);
 };
 
 // ================= auth =================
@@ -1062,7 +1196,15 @@ $("search-btn").addEventListener("click", () =>
 $("search-input").addEventListener("keydown", (e) => {
   if (e.key === "Enter") loadBooks(e.target.value.trim());
 });
+$("search-input").addEventListener("input", (e) =>
+  debounce(() => loadBooks(e.target.value.trim()), 400, "store-search"),
+);
 $("books-grid").addEventListener("click", (e) => {
+  const btn = e.target.closest(".add-to-cart-btn");
+  if (btn) {
+    openQuickAdd(btn.dataset.id);
+    return;
+  }
   const card = e.target.closest(".book-card");
   if (card) openBook(card.dataset.id);
 });
@@ -1072,11 +1214,32 @@ $("book-modal-close").addEventListener("click", () =>
 $("book-modal").addEventListener("click", (e) => {
   if (e.target === $("book-modal")) $("book-modal").classList.add("hidden");
 });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    ["book-modal", "entity-modal", "info-modal"].forEach((id) => {
+      const m = document.getElementById(id);
+      if (m && !m.classList.contains("hidden")) m.classList.add("hidden");
+    });
+  }
+});
+const updateQtyValue = () => {
+  const el = $("qty-value");
+  el.textContent = qty;
+  $("qty-minus").disabled = qty <= 1;
+  $("qty-plus").disabled = currentBook ? qty >= currentBook.quantity : false;
+};
+
 $("qty-minus").addEventListener("click", () => {
-  if (qty > 1) $("qty-value").textContent = --qty;
+  if (qty > 1) {
+    --qty;
+    updateQtyValue();
+  }
 });
 $("qty-plus").addEventListener("click", () => {
-  $("qty-value").textContent = ++qty;
+  if (currentBook && qty < currentBook.quantity) {
+    ++qty;
+    updateQtyValue();
+  }
 });
 $("book-modal-add").addEventListener("click", async () => {
   if (!currentBook) return;
@@ -1084,6 +1247,8 @@ $("book-modal-add").addEventListener("click", async () => {
   if (ok) {
     $("book-modal-msg").className = "msg success";
     $("book-modal-msg").textContent = "Added to cart!";
+    updateCartBadge();
+    $("book-modal").classList.add("hidden");
   }
 });
 
@@ -1155,19 +1320,24 @@ const posSearch = async (search = "") => {
     const books = data?.books || [];
     wrap.innerHTML =
       books.length === 0
-        ? '<p class="msg">No books.</p>'
+        ? '<div class="empty-state"><p class="msg">No books.</p></div>'
         : books
             .map(
               (b) => `
-        <div class="pos-book" data-id="${b._id}">
+        <div class="pos-book ${b.quantity > 0 ? "" : "out-of-stock"}" data-id="${b._id}">
+          ${coverImg(b.cover, "pos-cover")}
           <h4>${escapeHTML(b.title)}</h4>
-          <p class="price">$${b.price ?? 0}</p>
-          <span class="muted">Qty: ${b.quantity ?? 0}</span>
+          <p class="price">${formatPrice(b.price ?? 0)}</p>
+          ${stockBadge(b.quantity)}
         </div>`,
             )
             .join("");
     wrap.querySelectorAll(".pos-book").forEach((el) =>
-      el.addEventListener("click", () => posAdd(el.dataset.id)),
+      el.addEventListener("click", () => {
+        const stock = el.querySelector(".stock.in");
+        if (stock) posAdd(el.dataset.id);
+        else showToast("Out of stock", "error");
+      }),
     );
   } catch (err) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
