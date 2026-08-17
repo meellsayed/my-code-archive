@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch index.js",
+    "seed": "node src/DB/seed/seed.js",
     "dev2": "node --watch --no-warnings index.js",
     "start:dev": "nodemon --watch src --legacy-watch index.js",
     "dev4": "pm2 start index.js --watch --name libraryApp",

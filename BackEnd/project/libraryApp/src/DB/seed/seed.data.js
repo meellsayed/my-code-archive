@@ -1,0 +1,222 @@
+export const seedUsers = [
+  {
+    username: "Admin",
+    email: "admin@test.com",
+    phone: "p011",
+    password: "$2b$10$wYOk291CJXy70oLb1z2p5.K37v8BRqhZBKe7JlcaB3bjgGuaNshI2",
+    address: "Cairo, Egypt",
+    gender: "male",
+    confirmEmail: true,
+    role: "admin",
+  },
+  {
+    username: "Staff",
+    email: "staff@test.com",
+    phone: "p012",
+    password: "$2b$10$wYOk291CJXy70oLb1z2p5.K37v8BRqhZBKe7JlcaB3bjgGuaNshI2",
+    address: "Giza, Egypt",
+    gender: "female",
+    confirmEmail: true,
+    role: "staff",
+  },
+  {
+    username: "Customer",
+    email: "customer@test.com",
+    phone: "p013",
+    password: "$2b$10$wYOk291CJXy70oLb1z2p5.K37v8BRqhZBKe7JlcaB3bjgGuaNshI2",
+    address: "Alexandria, Egypt",
+    gender: "male",
+    confirmEmail: true,
+    role: "customer",
+  },
+  {
+    username: "Sara Ahmed",
+    email: "sara@test.com",
+    phone: "p014",
+    password: "$2b$10$wYOk291CJXy70oLb1z2p5.K37v8BRqhZBKe7JlcaB3bjgGuaNshI2",
+    address: "Mansoura, Egypt",
+    gender: "female",
+    confirmEmail: true,
+    role: "customer",
+  },
+];
+
+export const seedCategories = [
+  { name: "Fiction", description: "Fiction novels and stories" },
+  { name: "Science", description: "Science and research books" },
+  { name: "Fantasy", description: "Fantasy and mythology books" },
+  { name: "Biography", description: "Biographies and memoirs" },
+  { name: "History", description: "History and civilization" },
+];
+
+export const seedAuthors = [
+  {
+    name: "Ahmed Khaled",
+    bio: "Egyptian novelist known for sci-fi stories.",
+    birthDate: new Date("1972-03-12"),
+  },
+  {
+    name: "Nadia Salem",
+    bio: "Author of history and civilization books.",
+    birthDate: new Date("1980-07-22"),
+  },
+  {
+    name: "Omar Hossam",
+    bio: "Fantasy writer and world builder.",
+    birthDate: new Date("1985-01-05"),
+  },
+  {
+    name: "Laila Mansour",
+    bio: "Biographer and journalist.",
+    birthDate: new Date("1975-11-18"),
+  },
+  {
+    name: "Karim Fathy",
+    bio: "Science communicator and researcher.",
+    birthDate: new Date("1990-06-30"),
+  },
+  {
+    name: "Mona Hassan",
+    bio: "Literary fiction author.",
+    birthDate: new Date("1988-09-14"),
+  },
+];
+
+export const seedBooks = [
+  {
+    title: "The Hidden Galaxy",
+    subtitle: "A journey beyond the stars",
+    description:
+      "A gripping sci-fi adventure about a lost explorer discovering an uncharted galaxy.",
+    pages: 320,
+    price: 90000,
+    costPrice: 50000,
+    quantity: 15,
+    minQuantity: 5,
+    availableToBorrow: true,
+    publisher: "Nile Books",
+    cover: "https://picsum.photos/seed/galaxy/300/420",
+  },
+  {
+    title: "Ancient Egypt Revisited",
+    subtitle: "Secrets of the pharaohs",
+    description:
+      "A detailed historical study of ancient Egyptian civilization and its mysteries.",
+    pages: 450,
+    price: 120000,
+    costPrice: 70000,
+    quantity: 10,
+    minQuantity: 3,
+    availableToBorrow: true,
+    publisher: "Tahrir Press",
+    cover: "https://picsum.photos/seed/egypt/300/420",
+  },
+  {
+    title: "Dragon's Legacy",
+    subtitle: "The last of the old blood",
+    description:
+      "An epic fantasy saga about the final dragon-blooded heir fighting to reclaim his throne.",
+    pages: 610,
+    price: 150000,
+    costPrice: 85000,
+    quantity: 8,
+    minQuantity: 2,
+    availableToBorrow: false,
+    publisher: "Fantasy House",
+    cover: "https://picsum.photos/seed/dragon/300/420",
+  },
+  {
+    title: "Voices of a Nation",
+    subtitle: "Stories that shaped a country",
+    description:
+      "Biographical essays on figures who influenced modern Egyptian history.",
+    pages: 380,
+    price: 98000,
+    costPrice: 55000,
+    quantity: 12,
+    minQuantity: 4,
+    availableToBorrow: true,
+    publisher: "Nile Books",
+    cover: "https://picsum.photos/seed/nation/300/420",
+  },
+  {
+    title: "Quantum Realities",
+    subtitle: "Understanding the quantum world",
+    description:
+      "An accessible introduction to quantum mechanics for curious readers.",
+    pages: 290,
+    price: 110000,
+    costPrice: 62000,
+    quantity: 9,
+    minQuantity: 3,
+    availableToBorrow: true,
+    publisher: "Science Press",
+    cover: "https://picsum.photos/seed/quantum/300/420",
+  },
+  {
+    title: "The Glass City",
+    subtitle: "A novel of memory and loss",
+    description:
+      "A literary fiction piece exploring family ties and the fragility of memory.",
+    pages: 240,
+    price: 75000,
+    costPrice: 40000,
+    quantity: 20,
+    minQuantity: 5,
+    availableToBorrow: true,
+    publisher: "Delta House",
+    cover: "https://picsum.photos/seed/glass/300/420",
+  },
+  {
+    title: "Mars: The Next Frontier",
+    subtitle: "Planning the first colony",
+    description:
+      "The science and engineering behind establishing a human colony on Mars.",
+    pages: 350,
+    price: 135000,
+    costPrice: 78000,
+    quantity: 6,
+    minQuantity: 2,
+    availableToBorrow: true,
+    publisher: "Science Press",
+    // cover: "https://picsum.photos/seed/mars/300/412",
+  },
+  {
+    title: "Echoes of the Past",
+    subtitle: "A time-travel thriller",
+    description:
+      "A scientist accidentally alters history and must race to fix the timeline.",
+    pages: 410,
+    price: 105000,
+    costPrice: 58000,
+    quantity: 11,
+    minQuantity: 4,
+    availableToBorrow: true,
+    publisher: "Nile Books",
+    cover: "https://picsum.photos/seed/echoes/300/420",
+  },
+];
+
+export const seedCustomers = [
+  {
+    username: "Omar Walk-In",
+    phone: "01111111111",
+    address: "Nasr City, Cairo",
+    gender: "male",
+    type: "branch",
+  },
+  {
+    username: "Dina Online",
+    phone: "01111111112",
+    address: "Zamalek, Cairo",
+    gender: "female",
+    type: "online",
+  },
+  {
+    username: "Mostafa Mixed",
+    phone: "01111111113",
+    address: "Heliopolis, Cairo",
+    gender: "male",
+    type: "onlineAndBranch",
+  },
+];
