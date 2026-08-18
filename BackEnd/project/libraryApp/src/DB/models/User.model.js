@@ -33,7 +33,6 @@ const userSchema = new Schema(
       enum: Object.values(roleTypes),
       default: roleTypes.customer,
     },
-
   },
   { timestamps: true },
 );

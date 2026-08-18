@@ -179,7 +179,8 @@ export const seedBooks = [
     minQuantity: 2,
     availableToBorrow: true,
     publisher: "Science Press",
-    cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLBo1vMZ-Xh4uusue0-7SSZ1R4eD_bZDkgdcdTe3u9ug&s=10",
+    cover:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLBo1vMZ-Xh4uusue0-7SSZ1R4eD_bZDkgdcdTe3u9ug&s=10",
   },
   {
     title: "Echoes of the Past",

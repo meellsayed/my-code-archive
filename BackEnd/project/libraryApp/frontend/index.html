@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -14,7 +14,13 @@
         <button data-view="cart" class="nav-link" id="nav-cart">
           Cart <span class="cart-badge hidden" id="cart-badge">0</span>
         </button>
-        <button data-view="dashboard" class="nav-link hidden" id="nav-dashboard">Dashboard</button>
+        <button
+          data-view="dashboard"
+          class="nav-link hidden"
+          id="nav-dashboard"
+        >
+          Dashboard
+        </button>
         <span class="user-chip hidden" id="user-chip"></span>
         <button class="nav-link" id="btn-logout">Login</button>
       </nav>
@@ -27,7 +33,11 @@
       <section id="view-store" class="view active">
         <div class="filters">
           <div class="search-bar">
-            <input id="search-input" type="text" placeholder="Search by title or author..." />
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Search by title or author..."
+            />
             <button id="search-btn" class="btn primary">Search</button>
             <select id="sort-select" title="Sort by price">
               <option value="">Sort: Default</option>
@@ -50,7 +60,11 @@
             <h3>Customer details (sale)</h3>
             <input id="cust-name" type="text" placeholder="Customer name" />
             <input id="cust-phone" type="text" placeholder="Customer phone" />
-            <input id="cust-address" type="text" placeholder="Customer address" />
+            <input
+              id="cust-address"
+              type="text"
+              placeholder="Customer address"
+            />
             <select id="cust-gender">
               <option value="male">Male</option>
               <option value="female">Female</option>
@@ -61,7 +75,11 @@
               <option value="onlineAndBranch">Online & Branch</option>
             </select>
           </div>
-          <input id="checkout-address" type="text" placeholder="Delivery address" />
+          <input
+            id="checkout-address"
+            type="text"
+            placeholder="Delivery address"
+          />
           <input id="checkout-note" type="text" placeholder="Note (optional)" />
           <button id="btn-buy" class="btn primary">Buy Now</button>
           <p id="cart-msg" class="msg"></p>
@@ -83,7 +101,11 @@
         <!-- Books -->
         <div id="dash-books" class="dash-pane active">
           <div class="pane-toolbar">
-            <input id="dash-book-search" type="text" placeholder="Search books..." />
+            <input
+              id="dash-book-search"
+              type="text"
+              placeholder="Search books..."
+            />
             <button id="btn-new-book" class="btn primary">+ New Book</button>
           </div>
           <div id="dash-books-list" class="dash-list"></div>
@@ -92,8 +114,14 @@
         <!-- Authors -->
         <div id="dash-authors" class="dash-pane">
           <div class="pane-toolbar">
-            <input id="dash-author-search" type="text" placeholder="Search authors..." />
-            <button id="btn-new-author" class="btn primary">+ New Author</button>
+            <input
+              id="dash-author-search"
+              type="text"
+              placeholder="Search authors..."
+            />
+            <button id="btn-new-author" class="btn primary">
+              + New Author
+            </button>
           </div>
           <div id="dash-authors-list" class="dash-list"></div>
         </div>
@@ -101,8 +129,14 @@
         <!-- Categories -->
         <div id="dash-categories" class="dash-pane">
           <div class="pane-toolbar">
-            <input id="dash-category-search" type="text" placeholder="Search categories..." />
-            <button id="btn-new-category" class="btn primary">+ New Category</button>
+            <input
+              id="dash-category-search"
+              type="text"
+              placeholder="Search categories..."
+            />
+            <button id="btn-new-category" class="btn primary">
+              + New Category
+            </button>
           </div>
           <div id="dash-categories-list" class="dash-list"></div>
         </div>
@@ -110,7 +144,11 @@
         <!-- Customers -->
         <div id="dash-customers" class="dash-pane">
           <div class="pane-toolbar">
-            <input id="dash-customer-search" type="text" placeholder="Search customers..." />
+            <input
+              id="dash-customer-search"
+              type="text"
+              placeholder="Search customers..."
+            />
             <select id="dash-customer-gender">
               <option value="">Gender: All</option>
               <option value="male">Male</option>
@@ -122,7 +160,9 @@
               <option value="online">Online</option>
               <option value="onlineAndBranch">Online & Branch</option>
             </select>
-            <button id="btn-new-customer" class="btn primary">+ New Customer</button>
+            <button id="btn-new-customer" class="btn primary">
+              + New Customer
+            </button>
           </div>
           <div id="dash-customers-list" class="dash-list"></div>
         </div>
@@ -130,7 +170,11 @@
         <!-- Orders -->
         <div id="dash-orders" class="dash-pane">
           <div class="pane-toolbar">
-            <input id="dash-order-search" type="text" placeholder="Search by customer or seller..." />
+            <input
+              id="dash-order-search"
+              type="text"
+              placeholder="Search by customer or seller..."
+            />
             <select id="dash-order-status">
               <option value="">Status: All</option>
               <option value="new">New</option>
@@ -145,19 +189,29 @@
         <!-- POS (new sale) -->
         <div id="dash-pos" class="dash-pane">
           <h3>Point of Sale</h3>
-          <p class="muted">Add books to the sale, enter customer info, then checkout.</p>
+          <p class="muted">
+            Add books to the sale, enter customer info, then checkout.
+          </p>
           <div class="search-bar">
-            <input id="pos-search" type="text" placeholder="Search books...">
+            <input id="pos-search" type="text" placeholder="Search books..." />
             <button id="pos-search-btn" class="btn primary">Search</button>
           </div>
           <div id="pos-results" class="pos-results"></div>
-          <hr>
+          <hr />
           <div id="pos-cart" class="cart-items"></div>
           <div class="customer-fields" id="pos-customer">
             <h3>Customer details (sale)</h3>
             <input id="pos-cust-name" type="text" placeholder="Customer name" />
-            <input id="pos-cust-phone" type="text" placeholder="Customer phone" />
-            <input id="pos-cust-address" type="text" placeholder="Customer address" />
+            <input
+              id="pos-cust-phone"
+              type="text"
+              placeholder="Customer phone"
+            />
+            <input
+              id="pos-cust-address"
+              type="text"
+              placeholder="Customer address"
+            />
             <select id="pos-cust-gender">
               <option value="male">Male</option>
               <option value="female">Female</option>
@@ -186,7 +240,11 @@
         <form id="login-form" class="card form-card">
           <h2>Login</h2>
           <label for="login-email">Email or Phone</label>
-          <input id="login-email" type="text" placeholder="email@example.com or phone" />
+          <input
+            id="login-email"
+            type="text"
+            placeholder="email@example.com or phone"
+          />
           <label for="login-password">Password</label>
           <input id="login-password" type="password" placeholder="••••••••" />
           <p id="login-msg" class="msg"></p>
@@ -196,7 +254,11 @@
         <form id="forgot-form" class="card form-card hidden">
           <h2>Reset Password</h2>
           <label for="forgot-email">Email</label>
-          <input id="forgot-email" type="email" placeholder="email@example.com" />
+          <input
+            id="forgot-email"
+            type="email"
+            placeholder="email@example.com"
+          />
           <label for="forgot-new">New Password</label>
           <input id="forgot-new" type="password" placeholder="••••••••" />
           <label for="forgot-confirm">Confirm New Password</label>
@@ -210,7 +272,11 @@
           <label for="signup-username">Username</label>
           <input id="signup-username" type="text" placeholder="John Doe" />
           <label for="signup-email">Email</label>
-          <input id="signup-email" type="email" placeholder="email@example.com" />
+          <input
+            id="signup-email"
+            type="email"
+            placeholder="email@example.com"
+          />
           <label for="signup-phone">Phone</label>
           <input id="signup-phone" type="text" placeholder="010xxxxxxx" />
           <label for="signup-password">Password</label>

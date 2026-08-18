@@ -22,7 +22,7 @@
 // //     role,
 // //     confirmEmail: true,
 // //   });
-  
+
 // // });
 
 // // { id } = req.params;

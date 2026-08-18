@@ -52,7 +52,7 @@ export const login = asyncHandler(async (req, res, next) => {
     data: {
       refreshToken,
       accessToken,
-      user
+      user,
     },
   });
 });
@@ -108,7 +108,7 @@ export const forgetPassword = asyncHandler(async (req, res, next) => {
     return next(new Error("In-valid otp"));
 
   user.password = data.newPassword;
-  user.otp = undefined 
+  user.otp = undefined;
   user.changeCredentialsTime = Date.now();
   await user.save();
   return successResponse({ res, data: { user }, message: "Done" });
@@ -123,6 +123,5 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
     data: { accessToken, userId: user._id, username: user.username },
   });
 });
-
 
 //* brach customer login

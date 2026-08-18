@@ -125,28 +125,27 @@ export const getAll = asyncHandler(async (req, res, next) => {
       booksCount: { $size: "$categoryBooks" },
     },
   });
-  
-  if (sort ==="booksCount"){
-    pipeline.push({
-      $sort:{
-        booksCount:-1
-      }
-    })
-  }
-  if (sort ==="-booksCount"){
-    pipeline.push({
-      $sort:{
-        booksCount:1
-      }
-    })
-  }
 
+  if (sort === "booksCount") {
+    pipeline.push({
+      $sort: {
+        booksCount: -1,
+      },
+    });
+  }
+  if (sort === "-booksCount") {
+    pipeline.push({
+      $sort: {
+        booksCount: 1,
+      },
+    });
+  }
 
   pipeline.push({
-    $project:{
-      categoryBooks:0
-    }
-  })
+    $project: {
+      categoryBooks: 0,
+    },
+  });
 
   const categories = await categoryModel.aggregate(pipeline);
 

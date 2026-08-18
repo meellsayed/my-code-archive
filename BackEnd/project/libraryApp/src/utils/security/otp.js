@@ -5,5 +5,5 @@ export const generateOTP = ({ size = 6 } = {}) => {
   let max = 9 * 10 ** Number(size - 1);
 
   const otp = Math.floor(min + Math.random() * max).toString();
- return otp
+  return otp;
 };

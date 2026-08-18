@@ -5,7 +5,7 @@ export const filterObject = (data) => {
   return updates;
 };
 
-// not used for now 
+// not used for now
 export const pagination = async ({ filter, model, page = 1, limit = 10 }) => {
   const skip = (page - 1) * limit;
   const total = await model.countDocuments(filter);

@@ -31,4 +31,3 @@ router.get("/:id", authorServices.getOne);
 router.get("/books/:id", authorServices.getAuthorBooks);
 
 export default router;
- 

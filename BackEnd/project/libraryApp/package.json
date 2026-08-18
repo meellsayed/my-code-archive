@@ -33,6 +33,7 @@
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
-    "morgan": "^1.11.0"
+    "morgan": "^1.11.0",
+    "prettier": "^3.9.6"
   }
 }

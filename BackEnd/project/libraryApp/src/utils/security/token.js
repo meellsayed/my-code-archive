@@ -28,7 +28,7 @@ export const verifyToken = ({
 };
 
 export const generateRefreshToken = (user = {}) => {
-  const payload = { id: user._id, email: user.email , role:user.role};
+  const payload = { id: user._id, email: user.email, role: user.role };
   const signature = process.env.USER_REFRESH_TOKEN;
   const expiresIn = 31536000;
 

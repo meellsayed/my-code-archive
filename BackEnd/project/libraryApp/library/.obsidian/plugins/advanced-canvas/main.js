@@ -12,19 +12,23 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
+  if ((from && typeof from === "object") || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+        __defProp(to, key, {
+          get: () => from[key],
+          enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable,
+        });
   }
   return to;
 };
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __toCommonJS = (mod) =>
+  __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/main.ts
 var main_exports = {};
 __export(main_exports, {
-  default: () => AdvancedCanvasPlugin
+  default: () => AdvancedCanvasPlugin,
 });
 module.exports = __toCommonJS(main_exports);
 var import_obsidian21 = require("obsidian");
@@ -93,7 +97,7 @@ var CUSTOM_ICONS = {
       <rect height="100" width="100" stroke-width="15" stroke="currentColor" stroke-dasharray="8,8" fill="transparent"/>
       <line x1="40" y1="50" x2="80" y2="50" stroke-width="5" marker-start="url(#arrow-left)"/>
     </g>
-  `
+  `,
 };
 var IconsHelper = class {
   static addIcons() {
@@ -112,43 +116,53 @@ var DebugHelper = class {
     this.edgeAddedCount = 0;
     this.edgeChangedCount = 0;
     this.plugin = plugin;
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (_canvas) => {
-        this.nodeAddedCount = 0;
-        this.nodeChangedCount = 0;
-        this.edgeAddedCount = 0;
-        this.edgeChangedCount = 0;
-      }
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-added",
-      (_canvas, _node) => {
-        if (this.logging) console.count("\u{1F7E2} NodeAdded");
-        this.nodeAddedCount++;
-      }
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-changed",
-      (_canvas, _node) => {
-        if (this.logging) console.count("\u{1F7E1} NodeChanged");
-        this.nodeChangedCount++;
-      }
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:edge-added",
-      (_canvas, _edge) => {
-        if (this.logging) console.count("\u{1F7E2} EdgeAdded");
-        this.edgeAddedCount++;
-      }
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:edge-changed",
-      (_canvas, _edge) => {
-        if (this.logging) console.count("\u{1F7E1} EdgeChanged");
-        this.edgeChangedCount++;
-      }
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:canvas-changed",
+        (_canvas) => {
+          this.nodeAddedCount = 0;
+          this.nodeChangedCount = 0;
+          this.edgeAddedCount = 0;
+          this.edgeChangedCount = 0;
+        },
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-added",
+        (_canvas, _node) => {
+          if (this.logging) console.count("\u{1F7E2} NodeAdded");
+          this.nodeAddedCount++;
+        },
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-changed",
+        (_canvas, _node) => {
+          if (this.logging) console.count("\u{1F7E1} NodeChanged");
+          this.nodeChangedCount++;
+        },
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:edge-added",
+        (_canvas, _edge) => {
+          if (this.logging) console.count("\u{1F7E2} EdgeAdded");
+          this.edgeAddedCount++;
+        },
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:edge-changed",
+        (_canvas, _edge) => {
+          if (this.logging) console.count("\u{1F7E1} EdgeChanged");
+          this.edgeChangedCount++;
+        },
+      ),
+    );
   }
   resetEfficiency() {
     this.nodeAddedCount = 0;
@@ -159,25 +173,37 @@ var DebugHelper = class {
   logEfficiency() {
     const canvas = this.plugin.getCurrentCanvas();
     if (!canvas) return;
-    console.log("NodeAdded Efficiency:", this.nodeAddedCount / canvas.nodes.size);
-    console.log("NodeChanged Efficiency:", this.nodeChangedCount / canvas.nodes.size);
-    console.log("EdgeAdded Efficiency:", this.edgeAddedCount / canvas.edges.size);
-    console.log("EdgeChanged Efficiency:", this.edgeChangedCount / canvas.edges.size);
+    console.log(
+      "NodeAdded Efficiency:",
+      this.nodeAddedCount / canvas.nodes.size,
+    );
+    console.log(
+      "NodeChanged Efficiency:",
+      this.nodeChangedCount / canvas.nodes.size,
+    );
+    console.log(
+      "EdgeAdded Efficiency:",
+      this.edgeAddedCount / canvas.edges.size,
+    );
+    console.log(
+      "EdgeChanged Efficiency:",
+      this.edgeChangedCount / canvas.edges.size,
+    );
   }
   static markBBox(canvas, bbox, duration = -1) {
     const node = canvas.createTextNode({
       pos: { x: bbox.minX, y: bbox.minY },
       size: { width: bbox.maxX - bbox.minX, height: bbox.maxY - bbox.minY },
       text: "",
-      focus: false
+      focus: false,
     });
     node.setData({
       ...node.getData(),
       id: "debug-bbox",
       color: "1",
       styleAttributes: {
-        border: "invisible"
-      }
+        border: "invisible",
+      },
     });
     if (duration >= 0) {
       window.setTimeout(() => {
@@ -212,25 +238,41 @@ var BBoxHelper = class {
       minX: bbox.minX - diffX / 2,
       maxX: bbox.maxX + diffX / 2,
       minY: bbox.minY - diffY / 2,
-      maxY: bbox.maxY + diffY / 2
+      maxY: bbox.maxY + diffY / 2,
     };
   }
   static isColliding(bbox1, bbox2) {
-    return bbox1.minX <= bbox2.maxX && bbox1.maxX >= bbox2.minX && bbox1.minY <= bbox2.maxY && bbox1.maxY >= bbox2.minY;
+    return (
+      bbox1.minX <= bbox2.maxX &&
+      bbox1.maxX >= bbox2.minX &&
+      bbox1.minY <= bbox2.maxY &&
+      bbox1.maxY >= bbox2.minY
+    );
   }
   static insideBBox(position, bbox, canTouchEdge) {
     if ("x" in position) {
-      const x = position.x, y = position.y;
-      return canTouchEdge ? x >= bbox.minX && x <= bbox.maxX && y >= bbox.minY && y <= bbox.maxY : x > bbox.minX && x < bbox.maxX && y > bbox.minY && y < bbox.maxY;
+      const x = position.x,
+        y = position.y;
+      return canTouchEdge
+        ? x >= bbox.minX && x <= bbox.maxX && y >= bbox.minY && y <= bbox.maxY
+        : x > bbox.minX && x < bbox.maxX && y > bbox.minY && y < bbox.maxY;
     }
-    return canTouchEdge ? position.minX >= bbox.minX && position.maxX <= bbox.maxX && position.minY >= bbox.minY && position.maxY <= bbox.maxY : position.minX > bbox.minX && position.maxX < bbox.maxX && position.minY > bbox.minY && position.maxY < bbox.maxY;
+    return canTouchEdge
+      ? position.minX >= bbox.minX &&
+          position.maxX <= bbox.maxX &&
+          position.minY >= bbox.minY &&
+          position.maxY <= bbox.maxY
+      : position.minX > bbox.minX &&
+          position.maxX < bbox.maxX &&
+          position.minY > bbox.minY &&
+          position.maxY < bbox.maxY;
   }
   static enlargeBBox(bbox, padding) {
     return {
       minX: bbox.minX - padding,
       minY: bbox.minY - padding,
       maxX: bbox.maxX + padding,
-      maxY: bbox.maxY + padding
+      maxY: bbox.maxY + padding,
     };
   }
   static moveInDirection(position, side, distance) {
@@ -307,7 +349,9 @@ var _CanvasHelper = class _CanvasHelper {
     if (menuOption.id) quickSetting.id = menuOption.id;
     quickSetting.classList.add("canvas-control-item");
     (0, import_obsidian2.setIcon)(quickSetting, menuOption.icon);
-    (0, import_obsidian2.setTooltip)(quickSetting, menuOption.label, { placement: "left" });
+    (0, import_obsidian2.setTooltip)(quickSetting, menuOption.label, {
+      placement: "left",
+    });
     quickSetting.addEventListener("click", () => {
       var _a;
       return (_a = menuOption.callback) == null ? void 0 : _a.call(menuOption);
@@ -316,23 +360,35 @@ var _CanvasHelper = class _CanvasHelper {
   }
   static addControlMenuButton(controlGroup, element) {
     var _a;
-    if (element.id) (_a = controlGroup.querySelector(`#${element.id}`)) == null ? void 0 : _a.remove();
+    if (element.id)
+      (_a = controlGroup.querySelector(`#${element.id}`)) == null
+        ? void 0
+        : _a.remove();
     controlGroup.appendChild(element);
   }
-  static createCardMenuOption(canvas, menuOption, previewNodeSize, onPlaced, onRightClick) {
+  static createCardMenuOption(
+    canvas,
+    menuOption,
+    previewNodeSize,
+    onPlaced,
+    onRightClick,
+  ) {
     const menuOptionElement = activeDocument.createElement("div");
     if (menuOption.id) menuOptionElement.id = menuOption.id;
     menuOptionElement.classList.add("canvas-card-menu-button");
     menuOptionElement.classList.add("mod-draggable");
     (0, import_obsidian2.setIcon)(menuOptionElement, menuOption.icon);
-    (0, import_obsidian2.setTooltip)(menuOptionElement, menuOption.label, { placement: "top" });
+    (0, import_obsidian2.setTooltip)(menuOptionElement, menuOption.label, {
+      placement: "top",
+    });
     menuOptionElement.addEventListener("click", (_e) => {
       onPlaced(canvas, this.getCenterCoordinates(canvas, previewNodeSize()));
     });
-    if (onRightClick) menuOptionElement.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      onRightClick(e);
-    });
+    if (onRightClick)
+      menuOptionElement.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        onRightClick(e);
+      });
     menuOptionElement.addEventListener("pointerdown", (e) => {
       canvas.dragTempNode(e, previewNodeSize(), (pos) => {
         canvas.deselectAll();
@@ -343,7 +399,13 @@ var _CanvasHelper = class _CanvasHelper {
   }
   static addCardMenuOption(canvas, element) {
     var _a;
-    if (element.id) (_a = canvas == null ? void 0 : canvas.cardMenuEl.querySelector(`#${element.id}`)) == null ? void 0 : _a.remove();
+    if (element.id)
+      (_a =
+        canvas == null
+          ? void 0
+          : canvas.cardMenuEl.querySelector(`#${element.id}`)) == null
+        ? void 0
+        : _a.remove();
     canvas == null ? void 0 : canvas.cardMenuEl.appendChild(element);
   }
   static createPopupMenuOption(menuOption) {
@@ -351,7 +413,9 @@ var _CanvasHelper = class _CanvasHelper {
     if (menuOption.id) menuOptionElement.id = menuOption.id;
     menuOptionElement.classList.add("clickable-icon");
     (0, import_obsidian2.setIcon)(menuOptionElement, menuOption.icon);
-    (0, import_obsidian2.setTooltip)(menuOptionElement, menuOption.label, { placement: "top" });
+    (0, import_obsidian2.setTooltip)(menuOptionElement, menuOption.label, {
+      placement: "top",
+    });
     menuOptionElement.addEventListener("click", () => {
       var _a;
       return (_a = menuOption.callback) == null ? void 0 : _a.call(menuOption);
@@ -366,53 +430,80 @@ var _CanvasHelper = class _CanvasHelper {
         const submenuId = `${menuOption.id}-submenu`;
         if (menuOptionElement.classList.contains("is-active")) {
           menuOptionElement.classList.remove("is-active");
-          (_b = (_a = menuOptionElement.parentElement) == null ? void 0 : _a.querySelector(`#${submenuId}`)) == null ? void 0 : _b.remove();
+          (_b =
+            (_a = menuOptionElement.parentElement) == null
+              ? void 0
+              : _a.querySelector(`#${submenuId}`)) == null
+            ? void 0
+            : _b.remove();
           return;
         }
         menuOptionElement.classList.add("is-active");
-        const submenu = (_c = menuOptionElement.parentElement) == null ? void 0 : _c.createDiv();
+        const submenu =
+          (_c = menuOptionElement.parentElement) == null
+            ? void 0
+            : _c.createDiv();
         if (!submenu) return;
         submenu.id = submenuId;
         submenu.classList.add("canvas-submenu");
         for (const subMenuOption of subMenuOptions) {
-          const subMenuOptionElement = this.createPopupMenuOption(subMenuOption);
+          const subMenuOptionElement =
+            this.createPopupMenuOption(subMenuOption);
           submenu.appendChild(subMenuOptionElement);
         }
-      }
+      },
     });
     return menuOptionElement;
   }
   static addPopupMenuOption(canvas, element, index = -1) {
     var _a;
-    const popupMenuEl = (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
+    const popupMenuEl =
+      (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
     if (!popupMenuEl) return;
     if (element.id) {
       const optionToReplace = popupMenuEl.querySelector(`#${element.id}`);
-      if (optionToReplace && index === -1) index = Array.from(popupMenuEl.children).indexOf(optionToReplace) - 1;
+      if (optionToReplace && index === -1)
+        index = Array.from(popupMenuEl.children).indexOf(optionToReplace) - 1;
       optionToReplace == null ? void 0 : optionToReplace.remove();
     }
-    const sisterElement = index >= 0 ? popupMenuEl.children[index] : popupMenuEl.children[popupMenuEl.children.length + index];
+    const sisterElement =
+      index >= 0
+        ? popupMenuEl.children[index]
+        : popupMenuEl.children[popupMenuEl.children.length + index];
     popupMenuEl.insertAfter(element, sisterElement);
   }
   static getCenterCoordinates(canvas, nodeSize) {
     const viewBounds = canvas.getViewportBBox();
     return {
       x: (viewBounds.minX + viewBounds.maxX) / 2 - nodeSize.width / 2,
-      y: (viewBounds.minY + viewBounds.maxY) / 2 - nodeSize.height / 2
+      y: (viewBounds.minY + viewBounds.maxY) / 2 - nodeSize.height / 2,
     };
   }
   static getBBox(canvasElements) {
-    const bBoxes = canvasElements.map((element) => {
-      if ("getBBox" in element) return element.getBBox();
-      if (element.x !== void 0 && element.y !== void 0 && element.width !== void 0 && element.height !== void 0)
-        return { minX: element.x, minY: element.y, maxX: element.x + element.width, maxY: element.y + element.height };
-      return null;
-    }).filter((bbox) => bbox !== null);
+    const bBoxes = canvasElements
+      .map((element) => {
+        if ("getBBox" in element) return element.getBBox();
+        if (
+          element.x !== void 0 &&
+          element.y !== void 0 &&
+          element.width !== void 0 &&
+          element.height !== void 0
+        )
+          return {
+            minX: element.x,
+            minY: element.y,
+            maxX: element.x + element.width,
+            maxY: element.y + element.height,
+          };
+        return null;
+      })
+      .filter((bbox) => bbox !== null);
     return BBoxHelper.combineBBoxes(bBoxes);
   }
   static getSmallestAllowedZoomBBox(canvas, bbox) {
     if (canvas.screenshotting) return bbox;
-    if (canvas.canvasRect.width === 0 || canvas.canvasRect.height === 0) return bbox;
+    if (canvas.canvasRect.width === 0 || canvas.canvasRect.height === 0)
+      return bbox;
     const widthZoom = canvas.canvasRect.width / (bbox.maxX - bbox.minX);
     const heightZoom = canvas.canvasRect.height / (bbox.maxY - bbox.minY);
     const requiredZoom = Math.min(widthZoom, heightZoom);
@@ -422,55 +513,105 @@ var _CanvasHelper = class _CanvasHelper {
     }
     return bbox;
   }
-  static addStyleAttributesToPopup(plugin, canvas, styleAttributes, currentStyleAttributes, setStyleAttribute) {
+  static addStyleAttributesToPopup(
+    plugin,
+    canvas,
+    styleAttributes,
+    currentStyleAttributes,
+    setStyleAttribute,
+  ) {
     if (!plugin.settings.getSetting("combineCustomStylesInDropdown"))
-      this.addStyleAttributesButtons(canvas, styleAttributes, currentStyleAttributes, setStyleAttribute);
-    else this.addStyleAttributesDropdownMenu(canvas, styleAttributes, currentStyleAttributes, setStyleAttribute);
+      this.addStyleAttributesButtons(
+        canvas,
+        styleAttributes,
+        currentStyleAttributes,
+        setStyleAttribute,
+      );
+    else
+      this.addStyleAttributesDropdownMenu(
+        canvas,
+        styleAttributes,
+        currentStyleAttributes,
+        setStyleAttribute,
+      );
   }
-  static addStyleAttributesButtons(canvas, stylableAttributes, currentStyleAttributes, setStyleAttribute) {
+  static addStyleAttributesButtons(
+    canvas,
+    stylableAttributes,
+    currentStyleAttributes,
+    setStyleAttribute,
+  ) {
     var _a;
     for (const stylableAttribute of stylableAttributes) {
-      const selectedStyle = (_a = stylableAttribute.options.find((option) => currentStyleAttributes[stylableAttribute.key] === option.value)) != null ? _a : stylableAttribute.options.find((value) => value.value === null);
+      const selectedStyle =
+        (_a = stylableAttribute.options.find(
+          (option) =>
+            currentStyleAttributes[stylableAttribute.key] === option.value,
+        )) != null
+          ? _a
+          : stylableAttribute.options.find((value) => value.value === null);
       if (!selectedStyle) {
-        console.warn(`No "null" style option found for stylable attribute "${stylableAttribute.key}"`);
+        console.warn(
+          `No "null" style option found for stylable attribute "${stylableAttribute.key}"`,
+        );
         continue;
       }
-      const menuOption = _CanvasHelper.createExpandablePopupMenuOption({
-        id: `menu-option-${stylableAttribute.key}`,
-        label: stylableAttribute.label,
-        icon: selectedStyle.icon
-      }, stylableAttribute.options.map((styleOption) => ({
-        label: styleOption.label,
-        icon: styleOption.icon,
-        callback: () => {
-          setStyleAttribute(stylableAttribute, styleOption.value);
-          currentStyleAttributes[stylableAttribute.key] = styleOption.value;
-          (0, import_obsidian2.setIcon)(menuOption, styleOption.icon);
-          menuOption.dispatchEvent(new Event("click"));
-        }
-      })));
+      const menuOption = _CanvasHelper.createExpandablePopupMenuOption(
+        {
+          id: `menu-option-${stylableAttribute.key}`,
+          label: stylableAttribute.label,
+          icon: selectedStyle.icon,
+        },
+        stylableAttribute.options.map((styleOption) => ({
+          label: styleOption.label,
+          icon: styleOption.icon,
+          callback: () => {
+            setStyleAttribute(stylableAttribute, styleOption.value);
+            currentStyleAttributes[stylableAttribute.key] = styleOption.value;
+            (0, import_obsidian2.setIcon)(menuOption, styleOption.icon);
+            menuOption.dispatchEvent(new Event("click"));
+          },
+        })),
+      );
       _CanvasHelper.addPopupMenuOption(canvas, menuOption);
     }
   }
-  static addStyleAttributesDropdownMenu(canvas, stylableAttributes, currentStyleAttributes, setStyleAttribute) {
+  static addStyleAttributesDropdownMenu(
+    canvas,
+    stylableAttributes,
+    currentStyleAttributes,
+    setStyleAttribute,
+  ) {
     var _a, _b;
     const STYLE_MENU_ID = "style-menu";
     const STYLE_MENU_DROPDOWN_ID = "style-menu-dropdown";
     const STYLE_MENU_DROPDOWN_SUBMENU_ID = "style-menu-dropdown-submenu";
-    const popupMenuElement = (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
+    const popupMenuElement =
+      (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
     if (!popupMenuElement) return;
-    (_b = popupMenuElement.querySelector(`#${STYLE_MENU_ID}`)) == null ? void 0 : _b.remove();
+    (_b = popupMenuElement.querySelector(`#${STYLE_MENU_ID}`)) == null
+      ? void 0
+      : _b.remove();
     const styleMenuButtonElement = popupMenuElement.createEl("button");
     styleMenuButtonElement.id = STYLE_MENU_ID;
     styleMenuButtonElement.classList.add("clickable-icon");
     (0, import_obsidian2.setIcon)(styleMenuButtonElement, "paintbrush");
-    (0, import_obsidian2.setTooltip)(styleMenuButtonElement, "Style", { placement: "top" });
+    (0, import_obsidian2.setTooltip)(styleMenuButtonElement, "Style", {
+      placement: "top",
+    });
     styleMenuButtonElement.addEventListener("click", () => {
       var _a2, _b2, _c;
       const isOpen = styleMenuButtonElement.classList.toggle("has-active-menu");
       if (!isOpen) {
-        (_a2 = popupMenuElement.querySelector(`#${STYLE_MENU_DROPDOWN_ID}`)) == null ? void 0 : _a2.remove();
-        (_b2 = popupMenuElement.querySelector(`#${STYLE_MENU_DROPDOWN_SUBMENU_ID}`)) == null ? void 0 : _b2.remove();
+        (_a2 = popupMenuElement.querySelector(`#${STYLE_MENU_DROPDOWN_ID}`)) ==
+        null
+          ? void 0
+          : _a2.remove();
+        (_b2 = popupMenuElement.querySelector(
+          `#${STYLE_MENU_DROPDOWN_SUBMENU_ID}`,
+        )) == null
+          ? void 0
+          : _b2.remove();
         return;
       }
       const styleMenuDropdownElement = popupMenuElement.createDiv();
@@ -479,10 +620,19 @@ var _CanvasHelper = class _CanvasHelper {
       styleMenuDropdownElement.style.position = "absolute";
       styleMenuDropdownElement.style.maxHeight = "initial";
       styleMenuDropdownElement.style.top = `${popupMenuElement.getBoundingClientRect().height}px`;
-      const canvasWrapperCenterX = canvas.wrapperEl.getBoundingClientRect().left + canvas.wrapperEl.getBoundingClientRect().width / 2;
-      const leftPosition = styleMenuButtonElement.getBoundingClientRect().left - popupMenuElement.getBoundingClientRect().left;
-      const rightPosition = popupMenuElement.getBoundingClientRect().right - styleMenuButtonElement.getBoundingClientRect().right;
-      if (popupMenuElement.getBoundingClientRect().left + leftPosition < canvasWrapperCenterX)
+      const canvasWrapperCenterX =
+        canvas.wrapperEl.getBoundingClientRect().left +
+        canvas.wrapperEl.getBoundingClientRect().width / 2;
+      const leftPosition =
+        styleMenuButtonElement.getBoundingClientRect().left -
+        popupMenuElement.getBoundingClientRect().left;
+      const rightPosition =
+        popupMenuElement.getBoundingClientRect().right -
+        styleMenuButtonElement.getBoundingClientRect().right;
+      if (
+        popupMenuElement.getBoundingClientRect().left + leftPosition <
+        canvasWrapperCenterX
+      )
         styleMenuDropdownElement.style.left = `${leftPosition}px`;
       else styleMenuDropdownElement.style.right = `${rightPosition}px`;
       for (const stylableAttribute of stylableAttributes) {
@@ -491,7 +641,13 @@ var _CanvasHelper = class _CanvasHelper {
         stylableAttributeElement.classList.add("tappable");
         const iconElement = stylableAttributeElement.createDiv();
         iconElement.classList.add("menu-item-icon");
-        let selectedStyle = (_c = stylableAttribute.options.find((option) => currentStyleAttributes[stylableAttribute.key] === option.value)) != null ? _c : stylableAttribute.options.find((value) => value.value === null);
+        let selectedStyle =
+          (_c = stylableAttribute.options.find(
+            (option) =>
+              currentStyleAttributes[stylableAttribute.key] === option.value,
+          )) != null
+            ? _c
+            : stylableAttribute.options.find((value) => value.value === null);
         if (!selectedStyle) continue;
         (0, import_obsidian2.setIcon)(iconElement, selectedStyle.icon);
         const labelElement = stylableAttributeElement.createDiv();
@@ -508,39 +664,66 @@ var _CanvasHelper = class _CanvasHelper {
         });
         stylableAttributeElement.addEventListener("click", () => {
           var _a3;
-          (_a3 = popupMenuElement.querySelector(`#${STYLE_MENU_DROPDOWN_SUBMENU_ID}`)) == null ? void 0 : _a3.remove();
+          (_a3 = popupMenuElement.querySelector(
+            `#${STYLE_MENU_DROPDOWN_SUBMENU_ID}`,
+          )) == null
+            ? void 0
+            : _a3.remove();
           const styleMenuDropdownSubmenuElement = popupMenuElement.createDiv();
           styleMenuDropdownSubmenuElement.id = STYLE_MENU_DROPDOWN_SUBMENU_ID;
           styleMenuDropdownSubmenuElement.classList.add("menu");
           styleMenuDropdownSubmenuElement.style.position = "absolute";
           styleMenuDropdownSubmenuElement.style.maxHeight = "initial";
-          const topOffset = parseFloat(window.getComputedStyle(styleMenuDropdownElement).getPropertyValue("padding-top")) + (styleMenuDropdownElement.offsetHeight - styleMenuDropdownElement.clientHeight) / 2;
+          const topOffset =
+            parseFloat(
+              window
+                .getComputedStyle(styleMenuDropdownElement)
+                .getPropertyValue("padding-top"),
+            ) +
+            (styleMenuDropdownElement.offsetHeight -
+              styleMenuDropdownElement.clientHeight) /
+              2;
           styleMenuDropdownSubmenuElement.style.top = `${stylableAttributeElement.getBoundingClientRect().top - topOffset - popupMenuElement.getBoundingClientRect().top}px`;
-          const leftPosition2 = styleMenuDropdownElement.getBoundingClientRect().right - popupMenuElement.getBoundingClientRect().left;
-          const rightPosition2 = popupMenuElement.getBoundingClientRect().right - styleMenuDropdownElement.getBoundingClientRect().left;
-          if (popupMenuElement.getBoundingClientRect().left + leftPosition2 < canvasWrapperCenterX)
+          const leftPosition2 =
+            styleMenuDropdownElement.getBoundingClientRect().right -
+            popupMenuElement.getBoundingClientRect().left;
+          const rightPosition2 =
+            popupMenuElement.getBoundingClientRect().right -
+            styleMenuDropdownElement.getBoundingClientRect().left;
+          if (
+            popupMenuElement.getBoundingClientRect().left + leftPosition2 <
+            canvasWrapperCenterX
+          )
             styleMenuDropdownSubmenuElement.style.left = `${leftPosition2}px`;
-          else styleMenuDropdownSubmenuElement.style.right = `${rightPosition2}px`;
+          else
+            styleMenuDropdownSubmenuElement.style.right = `${rightPosition2}px`;
           for (const styleOption of stylableAttribute.options) {
-            const styleMenuDropdownSubmenuOptionElement = this.createDropdownOptionElement({
-              label: styleOption.label,
-              icon: styleOption.icon,
-              callback: () => {
-                setStyleAttribute(stylableAttribute, styleOption.value);
-                currentStyleAttributes[stylableAttribute.key] = styleOption.value;
-                selectedStyle = styleOption;
-                (0, import_obsidian2.setIcon)(iconElement, styleOption.icon);
-                styleMenuDropdownSubmenuElement.remove();
-              }
-            });
+            const styleMenuDropdownSubmenuOptionElement =
+              this.createDropdownOptionElement({
+                label: styleOption.label,
+                icon: styleOption.icon,
+                callback: () => {
+                  setStyleAttribute(stylableAttribute, styleOption.value);
+                  currentStyleAttributes[stylableAttribute.key] =
+                    styleOption.value;
+                  selectedStyle = styleOption;
+                  (0, import_obsidian2.setIcon)(iconElement, styleOption.icon);
+                  styleMenuDropdownSubmenuElement.remove();
+                },
+              });
             if (selectedStyle === styleOption) {
-              styleMenuDropdownSubmenuOptionElement.classList.add("mod-selected");
-              const selectedIconElement = styleMenuDropdownSubmenuOptionElement.createDiv();
+              styleMenuDropdownSubmenuOptionElement.classList.add(
+                "mod-selected",
+              );
+              const selectedIconElement =
+                styleMenuDropdownSubmenuOptionElement.createDiv();
               selectedIconElement.classList.add("menu-item-icon");
               selectedIconElement.classList.add("mod-selected");
               (0, import_obsidian2.setIcon)(selectedIconElement, "check");
             }
-            styleMenuDropdownSubmenuElement.appendChild(styleMenuDropdownSubmenuOptionElement);
+            styleMenuDropdownSubmenuElement.appendChild(
+              styleMenuDropdownSubmenuOptionElement,
+            );
           }
         });
       }
@@ -579,11 +762,16 @@ var _CanvasHelper = class _CanvasHelper {
   static getBestSideForFloatingEdge(sourcePos, target) {
     const targetBBox = target.getBBox();
     const possibleSides = ["top", "right", "bottom", "left"];
-    const possibleTargetPos = possibleSides.map((side) => [side, BBoxHelper.getCenterOfBBoxSide(targetBBox, side)]);
+    const possibleTargetPos = possibleSides.map((side) => [
+      side,
+      BBoxHelper.getCenterOfBBoxSide(targetBBox, side),
+    ]);
     let bestSide = null;
     let bestDistance = Infinity;
     for (const [side, pos] of possibleTargetPos) {
-      const distance = Math.sqrt(Math.pow(sourcePos.x - pos.x, 2) + Math.pow(sourcePos.y - pos.y, 2));
+      const distance = Math.sqrt(
+        Math.pow(sourcePos.x - pos.x, 2) + Math.pow(sourcePos.y - pos.y, 2),
+      );
       if (distance < bestDistance) {
         bestDistance = distance;
         bestSide = side;
@@ -644,8 +832,16 @@ var SvgPathHelper = class {
       const p3 = positions[i + 2];
       const t1 = (1 - tension) / 2;
       const t2 = 1 - t1;
-      const x = t2 * t2 * t2 * p1.x + 3 * t2 * t2 * t1 * p2.x + 3 * t2 * t1 * t1 * p3.x + t1 * t1 * t1 * p2.x;
-      const y = t2 * t2 * t2 * p1.y + 3 * t2 * t2 * t1 * p2.y + 3 * t2 * t1 * t1 * p3.y + t1 * t1 * t1 * p2.y;
+      const x =
+        t2 * t2 * t2 * p1.x +
+        3 * t2 * t2 * t1 * p2.x +
+        3 * t2 * t1 * t1 * p3.x +
+        t1 * t1 * t1 * p2.x;
+      const y =
+        t2 * t2 * t2 * p1.y +
+        3 * t2 * t2 * t1 * p2.y +
+        3 * t2 * t1 * t1 * p3.y +
+        t1 * t1 * t1 * p2.y;
       newPositions.push({ x, y });
     }
     const lastPoint = positions[positions.length - 1];
@@ -659,23 +855,29 @@ var SvgPathHelper = class {
       const p3 = positions[i + 2];
       const currentDirection = {
         x: p2.x - p1.x,
-        y: p2.y - p1.y
+        y: p2.y - p1.y,
       };
       const nextDirection = {
         x: p3.x - p2.x,
-        y: p3.y - p2.y
+        y: p3.y - p2.y,
       };
-      if (currentDirection.x !== nextDirection.x && currentDirection.y !== nextDirection.y) continue;
+      if (
+        currentDirection.x !== nextDirection.x &&
+        currentDirection.y !== nextDirection.y
+      )
+        continue;
       positions.splice(i + 1, 1);
       i--;
     }
-    return positions.map(
-      (position, index) => `${index === 0 ? "M" : "L"} ${position.x} ${position.y}`
-    ).join(" ");
+    return positions
+      .map(
+        (position, index) =>
+          `${index === 0 ? "M" : "L"} ${position.x} ${position.y}`,
+      )
+      .join(" ");
   }
   static pathArrayToRoundedSvgPath(pathArray, targetRadius) {
-    if (pathArray.length < 3)
-      return this.pathArrayToSvgPath(pathArray);
+    if (pathArray.length < 3) return this.pathArrayToSvgPath(pathArray);
     pathArray = pathArray.filter((position, index) => {
       if (index === 0) return true;
       const previous = pathArray[index - 1];
@@ -687,12 +889,23 @@ var SvgPathHelper = class {
       const previous = pathArray[i - 1];
       const current = pathArray[i];
       const next = pathArray[i + 1];
-      const prevDelta = { x: current.x - previous.x, y: current.y - previous.y };
+      const prevDelta = {
+        x: current.x - previous.x,
+        y: current.y - previous.y,
+      };
       const nextDelta = { x: next.x - current.x, y: next.y - current.y };
-      const prevLen = Math.sqrt(prevDelta.x * prevDelta.x + prevDelta.y * prevDelta.y);
-      const nextLen = Math.sqrt(nextDelta.x * nextDelta.x + nextDelta.y * nextDelta.y);
-      const prevUnit = prevLen ? { x: prevDelta.x / prevLen, y: prevDelta.y / prevLen } : { x: 0, y: 0 };
-      const nextUnit = nextLen ? { x: nextDelta.x / nextLen, y: nextDelta.y / nextLen } : { x: 0, y: 0 };
+      const prevLen = Math.sqrt(
+        prevDelta.x * prevDelta.x + prevDelta.y * prevDelta.y,
+      );
+      const nextLen = Math.sqrt(
+        nextDelta.x * nextDelta.x + nextDelta.y * nextDelta.y,
+      );
+      const prevUnit = prevLen
+        ? { x: prevDelta.x / prevLen, y: prevDelta.y / prevLen }
+        : { x: 0, y: 0 };
+      const nextUnit = nextLen
+        ? { x: nextDelta.x / nextLen, y: nextDelta.y / nextLen }
+        : { x: 0, y: 0 };
       let dot = prevUnit.x * nextUnit.x + prevUnit.y * nextUnit.y;
       dot = Math.max(-1, Math.min(1, dot));
       const angle = Math.acos(dot);
@@ -705,16 +918,18 @@ var SvgPathHelper = class {
       const effectiveRadius = d / Math.tan(angle / 2);
       const firstAnchor = {
         x: current.x - prevUnit.x * d,
-        y: current.y - prevUnit.y * d
+        y: current.y - prevUnit.y * d,
       };
       const secondAnchor = {
         x: current.x + nextUnit.x * d,
-        y: current.y + nextUnit.y * d
+        y: current.y + nextUnit.y * d,
       };
       commands.push(`L ${firstAnchor.x} ${firstAnchor.y}`);
       const cross = prevDelta.x * nextDelta.y - prevDelta.y * nextDelta.x;
       const sweepFlag = cross < 0 ? 0 : 1;
-      commands.push(`A ${effectiveRadius} ${effectiveRadius} 0 0 ${sweepFlag} ${secondAnchor.x} ${secondAnchor.y}`);
+      commands.push(
+        `A ${effectiveRadius} ${effectiveRadius} 0 0 ${sweepFlag} ${secondAnchor.x} ${secondAnchor.y}`,
+      );
     }
     const last = pathArray[pathArray.length - 1];
     commands.push(`L ${last.x} ${last.y}`);
@@ -724,7 +939,18 @@ var SvgPathHelper = class {
 
 // src/canvas-extensions/advanced-styles/edge-pathfinding-methods/edge-pathfinding-method.ts
 var EdgePathfindingMethod = class {
-  constructor(plugin, canvas, fromNodeBBox, fromPos, fromBBoxSidePos, fromSide, toNodeBBox, toPos, toBBoxSidePos, toSide) {
+  constructor(
+    plugin,
+    canvas,
+    fromNodeBBox,
+    fromPos,
+    fromBBoxSidePos,
+    fromSide,
+    toNodeBBox,
+    toPos,
+    toBBoxSidePos,
+    toSide,
+  ) {
     this.plugin = plugin;
     this.canvas = canvas;
     this.fromNodeBBox = fromNodeBBox;
@@ -744,13 +970,13 @@ var BASIC_DIRECTIONS = [
   { dx: 1, dy: 0 },
   { dx: -1, dy: 0 },
   { dx: 0, dy: 1 },
-  { dx: 0, dy: -1 }
+  { dx: 0, dy: -1 },
 ];
 var DIAGONAL_DIRECTIONS = [
   { dx: 1, dy: 1 },
   { dx: -1, dy: 1 },
   { dx: 1, dy: -1 },
-  { dx: -1, dy: -1 }
+  { dx: -1, dy: -1 },
 ];
 var DIAGONAL_COST = Math.sqrt(2);
 var ROUND_PATH_RADIUS = 5;
@@ -771,49 +997,88 @@ var Node = class {
 };
 var EdgePathfindingAStar = class extends EdgePathfindingMethod {
   getPath() {
-    const nodeBBoxes = [...this.canvas.nodes.values()].filter((node) => {
-      const nodeData = node.getData();
-      if (nodeData.portal === true) return false;
-      const nodeBBox = node.getBBox();
-      const nodeContainsFromPos = BBoxHelper.insideBBox(this.fromPos, nodeBBox, true);
-      const nodeContainsToPos = BBoxHelper.insideBBox(this.toPos, nodeBBox, true);
-      return !nodeContainsFromPos && !nodeContainsToPos;
-    }).map((node) => node.getBBox());
-    const fromPosWithMargin = BBoxHelper.moveInDirection(this.fromPos, this.fromSide, 10);
-    const toPosWithMargin = BBoxHelper.moveInDirection(this.toPos, this.toSide, 10);
-    const allowDiagonal = this.plugin.settings.getSetting("edgeStylePathfinderAllowDiagonal");
-    const pathArray = this.aStarAlgorithm(fromPosWithMargin, toPosWithMargin, nodeBBoxes, CanvasHelper.GRID_SIZE / 2, allowDiagonal);
+    const nodeBBoxes = [...this.canvas.nodes.values()]
+      .filter((node) => {
+        const nodeData = node.getData();
+        if (nodeData.portal === true) return false;
+        const nodeBBox = node.getBBox();
+        const nodeContainsFromPos = BBoxHelper.insideBBox(
+          this.fromPos,
+          nodeBBox,
+          true,
+        );
+        const nodeContainsToPos = BBoxHelper.insideBBox(
+          this.toPos,
+          nodeBBox,
+          true,
+        );
+        return !nodeContainsFromPos && !nodeContainsToPos;
+      })
+      .map((node) => node.getBBox());
+    const fromPosWithMargin = BBoxHelper.moveInDirection(
+      this.fromPos,
+      this.fromSide,
+      10,
+    );
+    const toPosWithMargin = BBoxHelper.moveInDirection(
+      this.toPos,
+      this.toSide,
+      10,
+    );
+    const allowDiagonal = this.plugin.settings.getSetting(
+      "edgeStylePathfinderAllowDiagonal",
+    );
+    const pathArray = this.aStarAlgorithm(
+      fromPosWithMargin,
+      toPosWithMargin,
+      nodeBBoxes,
+      CanvasHelper.GRID_SIZE / 2,
+      allowDiagonal,
+    );
     if (!pathArray) return null;
     pathArray.splice(0, 0, this.fromPos);
     pathArray.splice(pathArray.length, 0, this.toPos);
     let svgPath;
-    const roundPath = this.plugin.settings.getSetting("edgeStylePathfinderPathRounded");
+    const roundPath = this.plugin.settings.getSetting(
+      "edgeStylePathfinderPathRounded",
+    );
     if (roundPath) {
       if (allowDiagonal)
-        svgPath = SvgPathHelper.pathArrayToSvgPath(SvgPathHelper.smoothenPathArray(pathArray, SMOOTHEN_PATH_TENSION));
+        svgPath = SvgPathHelper.pathArrayToSvgPath(
+          SvgPathHelper.smoothenPathArray(pathArray, SMOOTHEN_PATH_TENSION),
+        );
       else
-        svgPath = SvgPathHelper.pathArrayToRoundedSvgPath(pathArray, ROUND_PATH_RADIUS);
+        svgPath = SvgPathHelper.pathArrayToRoundedSvgPath(
+          pathArray,
+          ROUND_PATH_RADIUS,
+        );
     } else svgPath = SvgPathHelper.pathArrayToSvgPath(pathArray);
     return {
       svgPath,
       center: pathArray[Math.floor(pathArray.length / 2)],
-      rotateArrows: false
+      rotateArrows: false,
     };
   }
   aStarAlgorithm(fromPos, toPos, obstacles, gridResolution, allowDiagonal) {
     const start = new Node(
       Math.floor(fromPos.x / gridResolution) * gridResolution,
-      Math.floor(fromPos.y / gridResolution) * gridResolution
+      Math.floor(fromPos.y / gridResolution) * gridResolution,
     );
-    if (this.fromSide === "right" && fromPos.x !== start.x) start.x += gridResolution;
-    if (this.fromSide === "bottom" && fromPos.y !== start.y) start.y += gridResolution;
+    if (this.fromSide === "right" && fromPos.x !== start.x)
+      start.x += gridResolution;
+    if (this.fromSide === "bottom" && fromPos.y !== start.y)
+      start.y += gridResolution;
     const end = new Node(
       Math.floor(toPos.x / gridResolution) * gridResolution,
-      Math.floor(toPos.y / gridResolution) * gridResolution
+      Math.floor(toPos.y / gridResolution) * gridResolution,
     );
     if (this.toSide === "right" && toPos.x !== end.x) end.x += gridResolution;
     if (this.toSide === "bottom" && toPos.y !== end.y) end.y += gridResolution;
-    if (this.isInsideObstacle(start, obstacles) || this.isInsideObstacle(end, obstacles)) return null;
+    if (
+      this.isInsideObstacle(start, obstacles) ||
+      this.isInsideObstacle(end, obstacles)
+    )
+      return null;
     const openSet = [start];
     const closedSet = [];
     const startTimestamp = performance.now();
@@ -826,23 +1091,34 @@ var EdgePathfindingAStar = class extends EdgePathfindingMethod {
           lowestFCost = node.fCost;
         }
       }
-      if (performance.now() - startTimestamp > MAX_MS_CALCULATION)
-        return null;
-      if (!current)
-        return null;
+      if (performance.now() - startTimestamp > MAX_MS_CALCULATION) return null;
+      if (!current) return null;
       openSet.splice(openSet.indexOf(current), 1);
       closedSet.push(current);
       if (current.x === end.x && current.y === end.y)
-        return [fromPos, ...this.reconstructPath(current), toPos].map((node) => ({ x: node.x, y: node.y }));
-      if (!(current.x === start.x && current.y === start.y) && this.isTouchingObstacle(current, obstacles))
+        return [fromPos, ...this.reconstructPath(current), toPos].map(
+          (node) => ({ x: node.x, y: node.y }),
+        );
+      if (
+        !(current.x === start.x && current.y === start.y) &&
+        this.isTouchingObstacle(current, obstacles)
+      )
         continue;
-      for (const neighbor of this.getPossibleNeighbors(current, obstacles, gridResolution, allowDiagonal)) {
-        if (neighbor.inList(closedSet))
-          continue;
-        const tentativeGCost = current.gCost + (allowDiagonal ? this.getMovementCost({
-          dx: neighbor.x - current.x,
-          dy: neighbor.y - current.y
-        }) : 1);
+      for (const neighbor of this.getPossibleNeighbors(
+        current,
+        obstacles,
+        gridResolution,
+        allowDiagonal,
+      )) {
+        if (neighbor.inList(closedSet)) continue;
+        const tentativeGCost =
+          current.gCost +
+          (allowDiagonal
+            ? this.getMovementCost({
+                dx: neighbor.x - current.x,
+                dy: neighbor.y - current.y,
+              })
+            : 1);
         if (!neighbor.inList(openSet) || tentativeGCost < neighbor.gCost) {
           neighbor.parent = current;
           neighbor.gCost = tentativeGCost;
@@ -860,10 +1136,14 @@ var EdgePathfindingAStar = class extends EdgePathfindingMethod {
   }
   // Define a function to check if a position isn't inside any obstacle
   isTouchingObstacle(node, obstacles) {
-    return obstacles.some((obstacle) => BBoxHelper.insideBBox(node, obstacle, true));
+    return obstacles.some((obstacle) =>
+      BBoxHelper.insideBBox(node, obstacle, true),
+    );
   }
   isInsideObstacle(node, obstacles) {
-    return obstacles.some((obstacle) => BBoxHelper.insideBBox(node, obstacle, false));
+    return obstacles.some((obstacle) =>
+      BBoxHelper.insideBBox(node, obstacle, false),
+    );
   }
   // Define a function to calculate movement cost based on direction
   getMovementCost(direction) {
@@ -871,11 +1151,13 @@ var EdgePathfindingAStar = class extends EdgePathfindingMethod {
   }
   getPossibleNeighbors(node, obstacles, gridResolution, allowDiagonal) {
     const neighbors = [];
-    const availableDirections = allowDiagonal ? [...BASIC_DIRECTIONS, ...DIAGONAL_DIRECTIONS] : BASIC_DIRECTIONS;
+    const availableDirections = allowDiagonal
+      ? [...BASIC_DIRECTIONS, ...DIAGONAL_DIRECTIONS]
+      : BASIC_DIRECTIONS;
     for (const direction of availableDirections) {
       const neighbor = new Node(
         node.x + direction.dx * gridResolution,
-        node.y + direction.dy * gridResolution
+        node.y + direction.dy * gridResolution,
       );
       neighbor.gCost = node.gCost + this.getMovementCost(direction);
       if (this.isInsideObstacle(neighbor, obstacles)) continue;
@@ -900,9 +1182,9 @@ var EdgePathfindingDirect = class extends EdgePathfindingMethod {
       svgPath: SvgPathHelper.pathArrayToSvgPath([this.fromPos, this.toPos]),
       center: {
         x: (this.fromPos.x + this.toPos.x) / 2,
-        y: (this.fromPos.y + this.toPos.y) / 2
+        y: (this.fromPos.y + this.toPos.y) / 2,
       },
-      rotateArrows: true
+      rotateArrows: true,
     };
   }
 };
@@ -914,45 +1196,91 @@ var EdgePathfindingSquare = class extends EdgePathfindingMethod {
     const pathArray = [];
     let center = {
       x: (this.fromPos.x + this.toPos.x) / 2,
-      y: (this.fromPos.y + this.toPos.y) / 2
+      y: (this.fromPos.y + this.toPos.y) / 2,
     };
-    const idealCenter = BBoxHelper.isHorizontal(this.fromSide) ? {
-      x: this.toBBoxSidePos.x,
-      y: this.fromBBoxSidePos.y
-    } : {
-      x: this.fromBBoxSidePos.x,
-      y: this.toBBoxSidePos.y
-    };
-    const isPathCollidingAtFrom = this.fromSide === "top" && idealCenter.y > this.fromPos.y || this.fromSide === "bottom" && idealCenter.y < this.fromPos.y || this.fromSide === "left" && idealCenter.x > this.fromPos.x || this.fromSide === "right" && idealCenter.x < this.fromPos.x;
-    const isPathCollidingAtTo = this.toSide === "top" && idealCenter.y > this.toPos.y || this.toSide === "bottom" && idealCenter.y < this.toPos.y || this.toSide === "left" && idealCenter.x > this.toPos.x || this.toSide === "right" && idealCenter.x < this.toPos.x;
+    const idealCenter = BBoxHelper.isHorizontal(this.fromSide)
+      ? {
+          x: this.toBBoxSidePos.x,
+          y: this.fromBBoxSidePos.y,
+        }
+      : {
+          x: this.fromBBoxSidePos.x,
+          y: this.toBBoxSidePos.y,
+        };
+    const isPathCollidingAtFrom =
+      (this.fromSide === "top" && idealCenter.y > this.fromPos.y) ||
+      (this.fromSide === "bottom" && idealCenter.y < this.fromPos.y) ||
+      (this.fromSide === "left" && idealCenter.x > this.fromPos.x) ||
+      (this.fromSide === "right" && idealCenter.x < this.fromPos.x);
+    const isPathCollidingAtTo =
+      (this.toSide === "top" && idealCenter.y > this.toPos.y) ||
+      (this.toSide === "bottom" && idealCenter.y < this.toPos.y) ||
+      (this.toSide === "left" && idealCenter.x > this.toPos.x) ||
+      (this.toSide === "right" && idealCenter.x < this.toPos.x);
     if (this.fromSide === this.toSide) {
-      const uPath = this.getUPath(this.fromPos, this.toPos, this.fromSide, this.toSide);
+      const uPath = this.getUPath(
+        this.fromPos,
+        this.toPos,
+        this.fromSide,
+        this.toSide,
+      );
       pathArray.push(...uPath.pathArray);
       center = uPath.center;
-    } else if (BBoxHelper.isHorizontal(this.fromSide) === BBoxHelper.isHorizontal(this.toSide)) {
+    } else if (
+      BBoxHelper.isHorizontal(this.fromSide) ===
+      BBoxHelper.isHorizontal(this.toSide)
+    ) {
       let zPath;
       if (!isPathCollidingAtFrom || !isPathCollidingAtTo) {
-        zPath = this.getZPath(this.fromPos, this.toPos, this.fromSide, this.toSide);
+        zPath = this.getZPath(
+          this.fromPos,
+          this.toPos,
+          this.fromSide,
+          this.toSide,
+        );
         pathArray.push(...zPath.pathArray);
       } else {
         const fromDirection = BBoxHelper.direction(this.fromSide);
-        const firstFromDetourPoint = BBoxHelper.isHorizontal(this.fromSide) ? {
-          x: CanvasHelper.alignToGrid(this.fromBBoxSidePos.x + fromDirection * CanvasHelper.GRID_SIZE),
-          y: this.fromBBoxSidePos.y
-        } : {
-          x: this.fromBBoxSidePos.x,
-          y: CanvasHelper.alignToGrid(this.fromBBoxSidePos.y + fromDirection * CanvasHelper.GRID_SIZE)
-        };
+        const firstFromDetourPoint = BBoxHelper.isHorizontal(this.fromSide)
+          ? {
+              x: CanvasHelper.alignToGrid(
+                this.fromBBoxSidePos.x + fromDirection * CanvasHelper.GRID_SIZE,
+              ),
+              y: this.fromBBoxSidePos.y,
+            }
+          : {
+              x: this.fromBBoxSidePos.x,
+              y: CanvasHelper.alignToGrid(
+                this.fromBBoxSidePos.y + fromDirection * CanvasHelper.GRID_SIZE,
+              ),
+            };
         const toDirection = BBoxHelper.direction(this.toSide);
-        const firstToDetourPoint = BBoxHelper.isHorizontal(this.toSide) ? {
-          x: CanvasHelper.alignToGrid(this.toBBoxSidePos.x + toDirection * CanvasHelper.GRID_SIZE),
-          y: this.toBBoxSidePos.y
-        } : {
-          x: this.toBBoxSidePos.x,
-          y: CanvasHelper.alignToGrid(this.toBBoxSidePos.y + toDirection * CanvasHelper.GRID_SIZE)
-        };
-        const newFromSide = BBoxHelper.isHorizontal(this.fromSide) ? firstFromDetourPoint.y < this.fromPos.y ? "top" : "bottom" : firstFromDetourPoint.x < firstToDetourPoint.x ? "right" : "left";
-        zPath = this.getZPath(firstFromDetourPoint, firstToDetourPoint, newFromSide, BBoxHelper.getOppositeSide(newFromSide));
+        const firstToDetourPoint = BBoxHelper.isHorizontal(this.toSide)
+          ? {
+              x: CanvasHelper.alignToGrid(
+                this.toBBoxSidePos.x + toDirection * CanvasHelper.GRID_SIZE,
+              ),
+              y: this.toBBoxSidePos.y,
+            }
+          : {
+              x: this.toBBoxSidePos.x,
+              y: CanvasHelper.alignToGrid(
+                this.toBBoxSidePos.y + toDirection * CanvasHelper.GRID_SIZE,
+              ),
+            };
+        const newFromSide = BBoxHelper.isHorizontal(this.fromSide)
+          ? firstFromDetourPoint.y < this.fromPos.y
+            ? "top"
+            : "bottom"
+          : firstFromDetourPoint.x < firstToDetourPoint.x
+            ? "right"
+            : "left";
+        zPath = this.getZPath(
+          firstFromDetourPoint,
+          firstToDetourPoint,
+          newFromSide,
+          BBoxHelper.getOppositeSide(newFromSide),
+        );
         pathArray.push(this.fromPos);
         pathArray.push(...zPath.pathArray);
         pathArray.push(this.toPos);
@@ -965,27 +1293,46 @@ var EdgePathfindingSquare = class extends EdgePathfindingMethod {
           let firstFromDetourPoint;
           let secondFromDetourPoint;
           if (BBoxHelper.isHorizontal(this.fromSide)) {
-            const combinedBBoxes = BBoxHelper.combineBBoxes([this.fromNodeBBox, this.toNodeBBox]);
+            const combinedBBoxes = BBoxHelper.combineBBoxes([
+              this.fromNodeBBox,
+              this.toNodeBBox,
+            ]);
             firstFromDetourPoint = {
-              x: CanvasHelper.alignToGrid((direction > 0 ? combinedBBoxes.maxX : combinedBBoxes.minX) + direction * CanvasHelper.GRID_SIZE),
-              y: this.fromBBoxSidePos.y
+              x: CanvasHelper.alignToGrid(
+                (direction > 0 ? combinedBBoxes.maxX : combinedBBoxes.minX) +
+                  direction * CanvasHelper.GRID_SIZE,
+              ),
+              y: this.fromBBoxSidePos.y,
             };
             secondFromDetourPoint = {
               x: firstFromDetourPoint.x,
-              y: BBoxHelper.getCenterOfBBoxSide(this.fromNodeBBox, this.toSide).y
+              y: BBoxHelper.getCenterOfBBoxSide(this.fromNodeBBox, this.toSide)
+                .y,
             };
           } else {
-            const combinedBBoxes = BBoxHelper.combineBBoxes([this.fromNodeBBox, this.toNodeBBox]);
+            const combinedBBoxes = BBoxHelper.combineBBoxes([
+              this.fromNodeBBox,
+              this.toNodeBBox,
+            ]);
             firstFromDetourPoint = {
               x: this.fromBBoxSidePos.x,
-              y: CanvasHelper.alignToGrid((direction > 0 ? combinedBBoxes.maxY : combinedBBoxes.minY) + direction * CanvasHelper.GRID_SIZE)
+              y: CanvasHelper.alignToGrid(
+                (direction > 0 ? combinedBBoxes.maxY : combinedBBoxes.minY) +
+                  direction * CanvasHelper.GRID_SIZE,
+              ),
             };
             secondFromDetourPoint = {
-              x: BBoxHelper.getCenterOfBBoxSide(this.fromNodeBBox, this.toSide).x,
-              y: firstFromDetourPoint.y
+              x: BBoxHelper.getCenterOfBBoxSide(this.fromNodeBBox, this.toSide)
+                .x,
+              y: firstFromDetourPoint.y,
             };
           }
-          const uPath = this.getUPath(secondFromDetourPoint, this.toPos, this.toSide, this.toSide);
+          const uPath = this.getUPath(
+            secondFromDetourPoint,
+            this.toPos,
+            this.toSide,
+            this.toSide,
+          );
           pathArray.push(this.fromPos);
           pathArray.push(firstFromDetourPoint);
           pathArray.push(...uPath.pathArray);
@@ -993,23 +1340,63 @@ var EdgePathfindingSquare = class extends EdgePathfindingMethod {
         } else {
           if (isPathCollidingAtFrom) {
             const direction = BBoxHelper.direction(this.fromSide);
-            const firstFromDetourPoint = BBoxHelper.isHorizontal(this.fromSide) ? {
-              x: CanvasHelper.alignToGrid(this.fromBBoxSidePos.x + direction * CanvasHelper.GRID_SIZE),
-              y: this.fromBBoxSidePos.y
-            } : {
-              x: this.fromBBoxSidePos.x,
-              y: CanvasHelper.alignToGrid(this.fromBBoxSidePos.y + direction * CanvasHelper.GRID_SIZE)
-            };
-            const useUPath = BBoxHelper.isHorizontal(this.fromSide) ? this.toPos.y > BBoxHelper.getCenterOfBBoxSide(this.fromNodeBBox, BBoxHelper.getOppositeSide(this.toSide)).y === BBoxHelper.direction(this.toSide) > 0 : this.toPos.x > BBoxHelper.getCenterOfBBoxSide(this.fromNodeBBox, BBoxHelper.getOppositeSide(this.toSide)).x === BBoxHelper.direction(this.toSide) > 0;
-            const connectionSide = useUPath ? this.toSide : BBoxHelper.getOppositeSide(this.toSide);
-            const secondFromDetourPoint = BBoxHelper.isHorizontal(this.fromSide) ? {
-              x: firstFromDetourPoint.x,
-              y: BBoxHelper.getCenterOfBBoxSide(this.fromNodeBBox, connectionSide).y
-            } : {
-              x: BBoxHelper.getCenterOfBBoxSide(this.fromNodeBBox, connectionSide).x,
-              y: firstFromDetourPoint.y
-            };
-            const path = useUPath ? this.getUPath(secondFromDetourPoint, this.toPos, this.toSide, this.toSide) : this.getZPath(secondFromDetourPoint, this.toPos, this.toSide, this.toSide);
+            const firstFromDetourPoint = BBoxHelper.isHorizontal(this.fromSide)
+              ? {
+                  x: CanvasHelper.alignToGrid(
+                    this.fromBBoxSidePos.x + direction * CanvasHelper.GRID_SIZE,
+                  ),
+                  y: this.fromBBoxSidePos.y,
+                }
+              : {
+                  x: this.fromBBoxSidePos.x,
+                  y: CanvasHelper.alignToGrid(
+                    this.fromBBoxSidePos.y + direction * CanvasHelper.GRID_SIZE,
+                  ),
+                };
+            const useUPath = BBoxHelper.isHorizontal(this.fromSide)
+              ? this.toPos.y >
+                  BBoxHelper.getCenterOfBBoxSide(
+                    this.fromNodeBBox,
+                    BBoxHelper.getOppositeSide(this.toSide),
+                  ).y ===
+                BBoxHelper.direction(this.toSide) > 0
+              : this.toPos.x >
+                  BBoxHelper.getCenterOfBBoxSide(
+                    this.fromNodeBBox,
+                    BBoxHelper.getOppositeSide(this.toSide),
+                  ).x ===
+                BBoxHelper.direction(this.toSide) > 0;
+            const connectionSide = useUPath
+              ? this.toSide
+              : BBoxHelper.getOppositeSide(this.toSide);
+            const secondFromDetourPoint = BBoxHelper.isHorizontal(this.fromSide)
+              ? {
+                  x: firstFromDetourPoint.x,
+                  y: BBoxHelper.getCenterOfBBoxSide(
+                    this.fromNodeBBox,
+                    connectionSide,
+                  ).y,
+                }
+              : {
+                  x: BBoxHelper.getCenterOfBBoxSide(
+                    this.fromNodeBBox,
+                    connectionSide,
+                  ).x,
+                  y: firstFromDetourPoint.y,
+                };
+            const path = useUPath
+              ? this.getUPath(
+                  secondFromDetourPoint,
+                  this.toPos,
+                  this.toSide,
+                  this.toSide,
+                )
+              : this.getZPath(
+                  secondFromDetourPoint,
+                  this.toPos,
+                  this.toSide,
+                  this.toSide,
+                );
             pathArray.push(this.fromPos);
             pathArray.push(firstFromDetourPoint);
             pathArray.push(...path.pathArray);
@@ -1017,23 +1404,63 @@ var EdgePathfindingSquare = class extends EdgePathfindingMethod {
           }
           if (isPathCollidingAtTo) {
             const direction = BBoxHelper.direction(this.toSide);
-            const firstToDetourPoint = BBoxHelper.isHorizontal(this.toSide) ? {
-              x: CanvasHelper.alignToGrid(this.toBBoxSidePos.x + direction * CanvasHelper.GRID_SIZE),
-              y: this.toBBoxSidePos.y
-            } : {
-              x: this.toBBoxSidePos.x,
-              y: CanvasHelper.alignToGrid(this.toBBoxSidePos.y + direction * CanvasHelper.GRID_SIZE)
-            };
-            const useUPath = BBoxHelper.isHorizontal(this.toSide) ? this.fromPos.y > BBoxHelper.getCenterOfBBoxSide(this.toNodeBBox, BBoxHelper.getOppositeSide(this.fromSide)).y === BBoxHelper.direction(this.fromSide) > 0 : this.fromPos.x > BBoxHelper.getCenterOfBBoxSide(this.toNodeBBox, BBoxHelper.getOppositeSide(this.fromSide)).x === BBoxHelper.direction(this.fromSide) > 0;
-            const connectionSide = useUPath ? this.fromSide : BBoxHelper.getOppositeSide(this.fromSide);
-            const secondToDetourPoint = BBoxHelper.isHorizontal(this.toSide) ? {
-              x: firstToDetourPoint.x,
-              y: BBoxHelper.getCenterOfBBoxSide(this.toNodeBBox, connectionSide).y
-            } : {
-              x: BBoxHelper.getCenterOfBBoxSide(this.toNodeBBox, connectionSide).x,
-              y: firstToDetourPoint.y
-            };
-            const path = useUPath ? this.getUPath(this.fromPos, secondToDetourPoint, this.fromSide, this.fromSide) : this.getZPath(this.fromPos, secondToDetourPoint, this.fromSide, this.fromSide);
+            const firstToDetourPoint = BBoxHelper.isHorizontal(this.toSide)
+              ? {
+                  x: CanvasHelper.alignToGrid(
+                    this.toBBoxSidePos.x + direction * CanvasHelper.GRID_SIZE,
+                  ),
+                  y: this.toBBoxSidePos.y,
+                }
+              : {
+                  x: this.toBBoxSidePos.x,
+                  y: CanvasHelper.alignToGrid(
+                    this.toBBoxSidePos.y + direction * CanvasHelper.GRID_SIZE,
+                  ),
+                };
+            const useUPath = BBoxHelper.isHorizontal(this.toSide)
+              ? this.fromPos.y >
+                  BBoxHelper.getCenterOfBBoxSide(
+                    this.toNodeBBox,
+                    BBoxHelper.getOppositeSide(this.fromSide),
+                  ).y ===
+                BBoxHelper.direction(this.fromSide) > 0
+              : this.fromPos.x >
+                  BBoxHelper.getCenterOfBBoxSide(
+                    this.toNodeBBox,
+                    BBoxHelper.getOppositeSide(this.fromSide),
+                  ).x ===
+                BBoxHelper.direction(this.fromSide) > 0;
+            const connectionSide = useUPath
+              ? this.fromSide
+              : BBoxHelper.getOppositeSide(this.fromSide);
+            const secondToDetourPoint = BBoxHelper.isHorizontal(this.toSide)
+              ? {
+                  x: firstToDetourPoint.x,
+                  y: BBoxHelper.getCenterOfBBoxSide(
+                    this.toNodeBBox,
+                    connectionSide,
+                  ).y,
+                }
+              : {
+                  x: BBoxHelper.getCenterOfBBoxSide(
+                    this.toNodeBBox,
+                    connectionSide,
+                  ).x,
+                  y: firstToDetourPoint.y,
+                };
+            const path = useUPath
+              ? this.getUPath(
+                  this.fromPos,
+                  secondToDetourPoint,
+                  this.fromSide,
+                  this.fromSide,
+                )
+              : this.getZPath(
+                  this.fromPos,
+                  secondToDetourPoint,
+                  this.fromSide,
+                  this.fromSide,
+                );
             pathArray.push(...path.pathArray);
             pathArray.push(secondToDetourPoint);
             pathArray.push(firstToDetourPoint);
@@ -1042,51 +1469,51 @@ var EdgePathfindingSquare = class extends EdgePathfindingMethod {
           }
         }
       } else {
-        pathArray.push(
-          this.fromPos,
-          idealCenter,
-          this.toPos
-        );
+        pathArray.push(this.fromPos, idealCenter, this.toPos);
         center = {
           x: pathArray[1].x,
-          y: pathArray[1].y
+          y: pathArray[1].y,
         };
       }
     }
-    const svgPath = this.plugin.settings.getSetting("edgeStyleSquarePathRounded") ? SvgPathHelper.pathArrayToRoundedSvgPath(pathArray, ROUNDED_EDGE_RADIUS) : SvgPathHelper.pathArrayToSvgPath(pathArray);
+    const svgPath = this.plugin.settings.getSetting(
+      "edgeStyleSquarePathRounded",
+    )
+      ? SvgPathHelper.pathArrayToRoundedSvgPath(pathArray, ROUNDED_EDGE_RADIUS)
+      : SvgPathHelper.pathArrayToSvgPath(pathArray);
     return { svgPath, center, rotateArrows: false };
   }
   getUPath(fromPos, toPos, fromSide, toSide) {
     const direction = BBoxHelper.direction(fromSide);
     if (BBoxHelper.isHorizontal(fromSide)) {
-      const xExtremum = direction > 0 ? Math.max(fromPos.x, toPos.x) : Math.min(fromPos.x, toPos.x);
-      const x = CanvasHelper.alignToGrid(xExtremum + direction * CanvasHelper.GRID_SIZE);
+      const xExtremum =
+        direction > 0
+          ? Math.max(fromPos.x, toPos.x)
+          : Math.min(fromPos.x, toPos.x);
+      const x = CanvasHelper.alignToGrid(
+        xExtremum + direction * CanvasHelper.GRID_SIZE,
+      );
       return {
-        pathArray: [
-          fromPos,
-          { x, y: fromPos.y },
-          { x, y: toPos.y },
-          toPos
-        ],
+        pathArray: [fromPos, { x, y: fromPos.y }, { x, y: toPos.y }, toPos],
         center: {
           x,
-          y: (fromPos.y + toPos.y) / 2
-        }
+          y: (fromPos.y + toPos.y) / 2,
+        },
       };
     } else {
-      const yExtremum = direction > 0 ? Math.max(fromPos.y, toPos.y) : Math.min(fromPos.y, toPos.y);
-      const y = CanvasHelper.alignToGrid(yExtremum + direction * CanvasHelper.GRID_SIZE);
+      const yExtremum =
+        direction > 0
+          ? Math.max(fromPos.y, toPos.y)
+          : Math.min(fromPos.y, toPos.y);
+      const y = CanvasHelper.alignToGrid(
+        yExtremum + direction * CanvasHelper.GRID_SIZE,
+      );
       return {
-        pathArray: [
-          fromPos,
-          { x: fromPos.x, y },
-          { x: toPos.x, y },
-          toPos
-        ],
+        pathArray: [fromPos, { x: fromPos.x, y }, { x: toPos.x, y }, toPos],
         center: {
           x: (fromPos.x + toPos.x) / 2,
-          y
-        }
+          y,
+        },
       };
     }
   }
@@ -1098,12 +1525,12 @@ var EdgePathfindingSquare = class extends EdgePathfindingMethod {
           fromPos,
           { x: midX, y: fromPos.y },
           { x: midX, y: toPos.y },
-          toPos
+          toPos,
         ],
         center: {
           x: midX,
-          y: (fromPos.y + toPos.y) / 2
-        }
+          y: (fromPos.y + toPos.y) / 2,
+        },
       };
     } else {
       const midY = fromPos.y + (toPos.y - fromPos.y) / 2;
@@ -1112,12 +1539,12 @@ var EdgePathfindingSquare = class extends EdgePathfindingMethod {
           fromPos,
           { x: fromPos.x, y: midY },
           { x: toPos.x, y: midY },
-          toPos
+          toPos,
         ],
         center: {
           x: (fromPos.x + toPos.x) / 2,
-          y: midY
-        }
+          y: midY,
+        },
       };
     }
   }
@@ -1129,7 +1556,11 @@ var TextHelper = class {
     return str.replace(/-./g, (x) => x[1].toUpperCase());
   }
   static toTitleCase(str) {
-    return str.toLowerCase().split(" ").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   }
 };
 
@@ -1140,8 +1571,12 @@ function styleAttributeValidator(json) {
   const hasLabel = json.label !== void 0;
   const hasOptions = Array.isArray(json.options);
   if (!hasKey) console.error('Style attribute is missing the "key" property');
-  if (!hasLabel) console.error('Style attribute is missing the "label" property');
-  if (!hasOptions) console.error('Style attribute is missing the "options" property or it is not an array');
+  if (!hasLabel)
+    console.error('Style attribute is missing the "label" property');
+  if (!hasOptions)
+    console.error(
+      'Style attribute is missing the "options" property or it is not an array',
+    );
   json.key = TextHelper.toCamelCase(json.key);
   let optionsValid = true;
   let hasDefault = false;
@@ -1149,14 +1584,27 @@ function styleAttributeValidator(json) {
     const hasIcon = option.icon !== void 0;
     const hasLabel2 = option.label !== void 0;
     const hasValue = option.value !== void 0;
-    if (!hasIcon) console.error(`Style attribute option (${(_a = option.value) != null ? _a : option.label}) is missing the "icon" property`);
-    if (!hasLabel2) console.error(`Style attribute option (${option.value}) is missing the "label" property`);
-    if (!hasValue) console.error(`Style attribute option (${option.label}) is missing the "value" property`);
+    if (!hasIcon)
+      console.error(
+        `Style attribute option (${(_a = option.value) != null ? _a : option.label}) is missing the "icon" property`,
+      );
+    if (!hasLabel2)
+      console.error(
+        `Style attribute option (${option.value}) is missing the "label" property`,
+      );
+    if (!hasValue)
+      console.error(
+        `Style attribute option (${option.label}) is missing the "value" property`,
+      );
     if (!hasIcon || !hasLabel2 || !hasValue) optionsValid = false;
     if (option.value === null) hasDefault = true;
   }
-  if (!hasDefault) console.error('Style attribute is missing a default option (option with a "value" of null)');
-  const isValid = hasKey && hasLabel && hasOptions && optionsValid && hasDefault;
+  if (!hasDefault)
+    console.error(
+      'Style attribute is missing a default option (option with a "value" of null)',
+    );
+  const isValid =
+    hasKey && hasLabel && hasOptions && optionsValid && hasDefault;
   return isValid ? json : null;
 }
 var BUILTIN_NODE_STYLE_ATTRIBUTES = [
@@ -1168,19 +1616,19 @@ var BUILTIN_NODE_STYLE_ATTRIBUTES = [
       {
         icon: "align-left",
         label: "Left",
-        value: null
+        value: null,
       },
       {
         icon: "align-center",
         label: "Center",
-        value: "center"
+        value: "center",
       },
       {
         icon: "align-right",
         label: "Right",
-        value: "right"
-      }
-    ]
+        value: "right",
+      },
+    ],
   },
   {
     key: "shape",
@@ -1190,44 +1638,44 @@ var BUILTIN_NODE_STYLE_ATTRIBUTES = [
       {
         icon: "rectangle-horizontal",
         label: "Round Rectangle",
-        value: null
+        value: null,
       },
       {
         icon: "shape-pill",
         label: "Pill",
-        value: "pill"
+        value: "pill",
       },
       {
         icon: "diamond",
         label: "Diamond",
-        value: "diamond"
+        value: "diamond",
       },
       {
         icon: "shape-parallelogram",
         label: "Parallelogram",
-        value: "parallelogram"
+        value: "parallelogram",
       },
       {
         icon: "circle",
         label: "Circle",
-        value: "circle"
+        value: "circle",
       },
       {
         icon: "shape-predefined-process",
         label: "Predefined Process",
-        value: "predefined-process"
+        value: "predefined-process",
       },
       {
         icon: "shape-document",
         label: "Document",
-        value: "document"
+        value: "document",
       },
       {
         icon: "shape-database",
         label: "Database",
-        value: "database"
-      }
-    ]
+        value: "database",
+      },
+    ],
   },
   {
     key: "border",
@@ -1236,25 +1684,25 @@ var BUILTIN_NODE_STYLE_ATTRIBUTES = [
       {
         icon: "border-solid",
         label: "Solid",
-        value: null
+        value: null,
       },
       {
         icon: "border-dashed",
         label: "Dashed",
-        value: "dashed"
+        value: "dashed",
       },
       {
         icon: "border-dotted",
         label: "Dotted",
-        value: "dotted"
+        value: "dotted",
       },
       {
         icon: "eye-off",
         label: "Invisible",
-        value: "invisible"
-      }
-    ]
-  }
+        value: "invisible",
+      },
+    ],
+  },
 ];
 var BUILTIN_EDGE_STYLE_ATTRIBUTES = [
   {
@@ -1264,24 +1712,24 @@ var BUILTIN_EDGE_STYLE_ATTRIBUTES = [
       {
         icon: "path-solid",
         label: "Solid",
-        value: null
+        value: null,
       },
       {
         icon: "path-dotted",
         label: "Dotted",
-        value: "dotted"
+        value: "dotted",
       },
       {
         icon: "path-short-dashed",
         label: "Short Dashed",
-        value: "short-dashed"
+        value: "short-dashed",
       },
       {
         icon: "path-long-dashed",
         label: "Long Dashed",
-        value: "long-dashed"
-      }
-    ]
+        value: "long-dashed",
+      },
+    ],
   },
   {
     key: "arrow",
@@ -1290,49 +1738,49 @@ var BUILTIN_EDGE_STYLE_ATTRIBUTES = [
       {
         icon: "arrow-triangle",
         label: "Triangle",
-        value: null
+        value: null,
       },
       {
         icon: "arrow-triangle-outline",
         label: "Triangle Outline",
-        value: "triangle-outline"
+        value: "triangle-outline",
       },
       {
         icon: "arrow-thin-triangle",
         label: "Thin Triangle",
-        value: "thin-triangle"
+        value: "thin-triangle",
       },
       {
         icon: "arrow-halved-triangle",
         label: "Halved Triangle",
-        value: "halved-triangle"
+        value: "halved-triangle",
       },
       {
         icon: "arrow-diamond",
         label: "Diamond",
-        value: "diamond"
+        value: "diamond",
       },
       {
         icon: "arrow-diamond-outline",
         label: "Diamond Outline",
-        value: "diamond-outline"
+        value: "diamond-outline",
       },
       {
         icon: "arrow-circle",
         label: "Circle",
-        value: "circle"
+        value: "circle",
       },
       {
         icon: "arrow-circle-outline",
         label: "Circle Outline",
-        value: "circle-outline"
+        value: "circle-outline",
       },
       {
         icon: "tally-1",
         label: "Blunt",
-        value: "blunt"
-      }
-    ]
+        value: "blunt",
+      },
+    ],
   },
   {
     key: "pathfindingMethod",
@@ -1341,25 +1789,25 @@ var BUILTIN_EDGE_STYLE_ATTRIBUTES = [
       {
         icon: "pathfinding-method-bezier",
         label: "Bezier",
-        value: null
+        value: null,
       },
       {
         icon: "slash",
         label: "Direct",
-        value: "direct"
+        value: "direct",
       },
       {
         icon: "pathfinding-method-square",
         label: "Square",
-        value: "square"
+        value: "square",
       },
       {
         icon: "map",
         label: "A*",
-        value: "a-star"
-      }
-    ]
-  }
+        value: "a-star",
+      },
+    ],
+  },
 ];
 
 // src/managers/css-styles-config-manager.ts
@@ -1369,13 +1817,15 @@ var CssStylesConfigManager = class {
     this.plugin = plugin;
     this.validate = validate;
     this.cachedConfig = null;
-    this.configRegex = new RegExp(`\\/\\*\\s*@${trigger}\\s*\\n([\\s\\S]*?)\\*\\/`, "g");
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "css-change",
-      () => {
+    this.configRegex = new RegExp(
+      `\\/\\*\\s*@${trigger}\\s*\\n([\\s\\S]*?)\\*\\/`,
+      "g",
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("css-change", () => {
         this.cachedConfig = null;
-      }
-    ));
+      }),
+    );
   }
   getStyles() {
     if (this.cachedConfig) return this.cachedConfig;
@@ -1395,7 +1845,13 @@ var CssStylesConfigManager = class {
   }
   parseStyleConfigsFromCSS(sheet) {
     var _a, _b;
-    const textContent = (_b = (_a = sheet == null ? void 0 : sheet.ownerNode) == null ? void 0 : _a.textContent) == null ? void 0 : _b.trim();
+    const textContent =
+      (_b =
+        (_a = sheet == null ? void 0 : sheet.ownerNode) == null
+          ? void 0
+          : _a.textContent) == null
+        ? void 0
+        : _b.trim();
     if (!textContent) return [];
     const configs = [];
     const matches = textContent.matchAll(this.configRegex);
@@ -1410,11 +1866,16 @@ var CssStylesConfigManager = class {
 };
 
 // src/canvas-extensions/advanced-styles/edge-styles.ts
-var GET_EDGE_CSS_STYLES_MANAGER = (plugin) => new CssStylesConfigManager(plugin, "advanced-canvas-edge-style", styleAttributeValidator);
+var GET_EDGE_CSS_STYLES_MANAGER = (plugin) =>
+  new CssStylesConfigManager(
+    plugin,
+    "advanced-canvas-edge-style",
+    styleAttributeValidator,
+  );
 var EDGE_PATHFINDING_METHODS = {
-  "direct": EdgePathfindingDirect,
-  "square": EdgePathfindingSquare,
-  "a-star": EdgePathfindingAStar
+  direct: EdgePathfindingDirect,
+  square: EdgePathfindingSquare,
+  "a-star": EdgePathfindingAStar,
 };
 var MAX_LIVE_UPDATE_SELECTION_SIZE = 5;
 var EdgeStylesExtension = class extends CanvasExtension {
@@ -1423,53 +1884,86 @@ var EdgeStylesExtension = class extends CanvasExtension {
   }
   init() {
     this.cssStylesManager = GET_EDGE_CSS_STYLES_MANAGER(this.plugin);
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.onPopupMenuCreated(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:edge-changed",
-      (canvas, edge) => this.onEdgeChanged(canvas, edge)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:edge-center-requested",
-      (canvas, edge, center) => this.onEdgeCenterRequested(canvas, edge, center)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-added",
-      (canvas, node) => {
-        if (canvas.dirty.size > 1 && !canvas.isPasting) return;
-        this.updateAllEdgesInArea(canvas, node.getBBox());
-      }
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-moved",
-      // Only update edges this way if a node got moved with the arrow keys
-      (canvas, node, keyboard) => node.initialized && keyboard ? this.updateAllEdgesInArea(canvas, node.getBBox()) : void 0
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-removed",
-      (canvas, node) => this.updateAllEdgesInArea(canvas, node.getBBox())
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:dragging-state-changed",
-      (canvas, isDragging) => {
-        if (isDragging) return;
-        const selectedNodes = canvas.getSelectionData().nodes.map((nodeData) => canvas.nodes.get(nodeData.id)).filter((node) => node !== void 0);
-        const selectedNodeBBoxes = selectedNodes.map((node) => node.getBBox());
-        const selectedNodeBBox = BBoxHelper.combineBBoxes(selectedNodeBBoxes);
-        this.updateAllEdgesInArea(canvas, selectedNodeBBox);
-      }
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.onPopupMenuCreated(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:edge-changed",
+        (canvas, edge) => this.onEdgeChanged(canvas, edge),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:edge-center-requested",
+        (canvas, edge, center) =>
+          this.onEdgeCenterRequested(canvas, edge, center),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-added",
+        (canvas, node) => {
+          if (canvas.dirty.size > 1 && !canvas.isPasting) return;
+          this.updateAllEdgesInArea(canvas, node.getBBox());
+        },
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-moved",
+        // Only update edges this way if a node got moved with the arrow keys
+        (canvas, node, keyboard) =>
+          node.initialized && keyboard
+            ? this.updateAllEdgesInArea(canvas, node.getBBox())
+            : void 0,
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-removed",
+        (canvas, node) => this.updateAllEdgesInArea(canvas, node.getBBox()),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:dragging-state-changed",
+        (canvas, isDragging) => {
+          if (isDragging) return;
+          const selectedNodes = canvas
+            .getSelectionData()
+            .nodes.map((nodeData) => canvas.nodes.get(nodeData.id))
+            .filter((node) => node !== void 0);
+          const selectedNodeBBoxes = selectedNodes.map((node) =>
+            node.getBBox(),
+          );
+          const selectedNodeBBox = BBoxHelper.combineBBoxes(selectedNodeBBoxes);
+          this.updateAllEdgesInArea(canvas, selectedNodeBBox);
+        },
+      ),
+    );
   }
   // Skip if isDragging and setting isn't enabled and not connecting an edge
   shouldUpdateEdge(canvas) {
-    return !canvas.isDragging || this.plugin.settings.getSetting("edgeStyleUpdateWhileDragging") || canvas.canvasEl.hasClass("is-connecting");
+    return (
+      !canvas.isDragging ||
+      this.plugin.settings.getSetting("edgeStyleUpdateWhileDragging") ||
+      canvas.canvasEl.hasClass("is-connecting")
+    );
   }
   onPopupMenuCreated(canvas) {
     var _a;
-    const selectedEdges = [...canvas.selection].filter((item) => item.path !== void 0);
-    if (canvas.readonly || selectedEdges.length === 0 || selectedEdges.length !== canvas.selection.size)
+    const selectedEdges = [...canvas.selection].filter(
+      (item) => item.path !== void 0,
+    );
+    if (
+      canvas.readonly ||
+      selectedEdges.length === 0 ||
+      selectedEdges.length !== canvas.selection.size
+    )
       return;
     CanvasHelper.addStyleAttributesToPopup(
       this.plugin,
@@ -1478,22 +1972,25 @@ var EdgeStylesExtension = class extends CanvasExtension {
         ...BUILTIN_EDGE_STYLE_ATTRIBUTES,
         /* Legacy */
         ...this.plugin.settings.getSetting("customEdgeStyleAttributes"),
-        ...this.cssStylesManager.getStyles()
+        ...this.cssStylesManager.getStyles(),
       ],
       (_a = selectedEdges[0].getData().styleAttributes) != null ? _a : {},
-      (attribute, value) => this.setStyleAttributeForSelection(canvas, attribute, value)
+      (attribute, value) =>
+        this.setStyleAttributeForSelection(canvas, attribute, value),
     );
   }
   setStyleAttributeForSelection(canvas, attribute, value) {
-    const selectedEdges = [...canvas.selection].filter((item) => item.path !== void 0);
+    const selectedEdges = [...canvas.selection].filter(
+      (item) => item.path !== void 0,
+    );
     for (const edge of selectedEdges) {
       const edgeData = edge.getData();
       edge.setData({
         ...edgeData,
         styleAttributes: {
           ...edgeData.styleAttributes,
-          [attribute.key]: value
-        }
+          [attribute.key]: value,
+        },
       });
     }
     canvas.pushHistory(canvas.getData());
@@ -1509,7 +2006,8 @@ var EdgeStylesExtension = class extends CanvasExtension {
     var _a, _b, _c, _d, _e, _f, _g;
     if (!canvas.dirty.has(edge) && !canvas.selection.has(edge)) return;
     if (!this.shouldUpdateEdge(canvas)) {
-      const tooManySelected = canvas.selection.size > MAX_LIVE_UPDATE_SELECTION_SIZE;
+      const tooManySelected =
+        canvas.selection.size > MAX_LIVE_UPDATE_SELECTION_SIZE;
       if (tooManySelected) return;
       const groupNodesSelected = [...canvas.selection].some((item) => {
         var _a2;
@@ -1521,15 +2019,24 @@ var EdgeStylesExtension = class extends CanvasExtension {
     if (!edge.bezier) return;
     edge.center = void 0;
     edge.updatePath();
-    const pathfindingMethod = (_a = edgeData.styleAttributes) == null ? void 0 : _a.pathfindingMethod;
+    const pathfindingMethod =
+      (_a = edgeData.styleAttributes) == null ? void 0 : _a.pathfindingMethod;
     if (pathfindingMethod && pathfindingMethod in EDGE_PATHFINDING_METHODS) {
       const fromNodeBBox = edge.from.node.getBBox();
-      const fromBBoxSidePos = BBoxHelper.getCenterOfBBoxSide(fromNodeBBox, edge.from.side);
-      const fromPos = edge.from.end === "none" ? fromBBoxSidePos : edge.bezier.from;
+      const fromBBoxSidePos = BBoxHelper.getCenterOfBBoxSide(
+        fromNodeBBox,
+        edge.from.side,
+      );
+      const fromPos =
+        edge.from.end === "none" ? fromBBoxSidePos : edge.bezier.from;
       const toNodeBBox = edge.to.node.getBBox();
-      const toBBoxSidePos = BBoxHelper.getCenterOfBBoxSide(toNodeBBox, edge.to.side);
+      const toBBoxSidePos = BBoxHelper.getCenterOfBBoxSide(
+        toNodeBBox,
+        edge.to.side,
+      );
       const toPos = edge.to.end === "none" ? toBBoxSidePos : edge.bezier.to;
-      const PathfindingConstructor = EDGE_PATHFINDING_METHODS[pathfindingMethod];
+      const PathfindingConstructor =
+        EDGE_PATHFINDING_METHODS[pathfindingMethod];
       const path = new PathfindingConstructor(
         this.plugin,
         canvas,
@@ -1540,7 +2047,7 @@ var EdgeStylesExtension = class extends CanvasExtension {
         toNodeBBox,
         toPos,
         toBBoxSidePos,
-        edge.to.side
+        edge.to.side,
       ).getPath();
       if (!path) return;
       edge.center = path.center;
@@ -1548,62 +2055,87 @@ var EdgeStylesExtension = class extends CanvasExtension {
       edge.path.display.setAttr("d", path == null ? void 0 : path.svgPath);
     }
     (_b = edge.labelElement) == null ? void 0 : _b.render();
-    const arrowPolygonPoints = this.getArrowPolygonPoints((_c = edgeData.styleAttributes) == null ? void 0 : _c.arrow);
-    if ((_d = edge.fromLineEnd) == null ? void 0 : _d.el) (_e = edge.fromLineEnd.el.querySelector("polygon")) == null ? void 0 : _e.setAttribute("points", arrowPolygonPoints);
-    if ((_f = edge.toLineEnd) == null ? void 0 : _f.el) (_g = edge.toLineEnd.el.querySelector("polygon")) == null ? void 0 : _g.setAttribute("points", arrowPolygonPoints);
+    const arrowPolygonPoints = this.getArrowPolygonPoints(
+      (_c = edgeData.styleAttributes) == null ? void 0 : _c.arrow,
+    );
+    if ((_d = edge.fromLineEnd) == null ? void 0 : _d.el)
+      (_e = edge.fromLineEnd.el.querySelector("polygon")) == null
+        ? void 0
+        : _e.setAttribute("points", arrowPolygonPoints);
+    if ((_f = edge.toLineEnd) == null ? void 0 : _f.el)
+      (_g = edge.toLineEnd.el.querySelector("polygon")) == null
+        ? void 0
+        : _g.setAttribute("points", arrowPolygonPoints);
   }
   onEdgeCenterRequested(_canvas, edge, center) {
     var _a, _b, _c, _d;
-    center.x = (_b = (_a = edge.center) == null ? void 0 : _a.x) != null ? _b : center.x;
-    center.y = (_d = (_c = edge.center) == null ? void 0 : _c.y) != null ? _d : center.y;
+    center.x =
+      (_b = (_a = edge.center) == null ? void 0 : _a.x) != null ? _b : center.x;
+    center.y =
+      (_d = (_c = edge.center) == null ? void 0 : _c.y) != null ? _d : center.y;
   }
   getArrowPolygonPoints(arrowStyle) {
-    if (arrowStyle === "halved-triangle")
-      return `-2,0 7.5,12 -2,12`;
+    if (arrowStyle === "halved-triangle") return `-2,0 7.5,12 -2,12`;
     else if (arrowStyle === "thin-triangle")
       return `0,0 7,10 0,0 0,10 0,0 -7,10`;
     else if (arrowStyle === "diamond" || arrowStyle === "diamond-outline")
       return `0,0 5,10 0,20 -5,10`;
     else if (arrowStyle === "circle" || arrowStyle === "circle-outline")
       return `0 0, 4.95 1.8, 7.5 6.45, 6.6 11.7, 2.7 15, -2.7 15, -6.6 11.7, -7.5 6.45, -4.95 1.8`;
-    else if (arrowStyle === "blunt")
-      return `-10,8 10,8 10,6 -10,6`;
-    else
-      return `0,0 6.5,10.4 -6.5,10.4`;
+    else if (arrowStyle === "blunt") return `-10,8 10,8 10,6 -10,6`;
+    else return `0,0 6.5,10.4 -6.5,10.4`;
   }
 };
 
 // src/canvas-extensions/advanced-styles/node-styles.ts
-var GET_NODE_CSS_STYLES_MANAGER = (plugin) => new CssStylesConfigManager(plugin, "advanced-canvas-node-style", styleAttributeValidator);
+var GET_NODE_CSS_STYLES_MANAGER = (plugin) =>
+  new CssStylesConfigManager(
+    plugin,
+    "advanced-canvas-node-style",
+    styleAttributeValidator,
+  );
 var NodeStylesExtension = class extends CanvasExtension {
   isEnabled() {
     return "nodeStylingFeatureEnabled";
   }
   init() {
     this.cssStylesManager = GET_NODE_CSS_STYLES_MANAGER(this.plugin);
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.onPopupMenuCreated(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.onPopupMenuCreated(canvas),
+      ),
+    );
   }
   onPopupMenuCreated(canvas) {
     var _a;
     const selectionNodeData = canvas.getSelectionData().nodes;
-    if (canvas.readonly || selectionNodeData.length === 0 || selectionNodeData.length !== canvas.selection.size)
+    if (
+      canvas.readonly ||
+      selectionNodeData.length === 0 ||
+      selectionNodeData.length !== canvas.selection.size
+    )
       return;
-    const selectedNodeTypes = new Set(selectionNodeData.map((node) => node.type));
+    const selectedNodeTypes = new Set(
+      selectionNodeData.map((node) => node.type),
+    );
     const availableNodeStyles = [
       ...BUILTIN_NODE_STYLE_ATTRIBUTES,
       /* Legacy */
       ...this.plugin.settings.getSetting("customNodeStyleAttributes"),
-      ...this.cssStylesManager.getStyles()
-    ].filter((style) => !style.nodeTypes || style.nodeTypes.some((type) => selectedNodeTypes.has(type)));
+      ...this.cssStylesManager.getStyles(),
+    ].filter(
+      (style) =>
+        !style.nodeTypes ||
+        style.nodeTypes.some((type) => selectedNodeTypes.has(type)),
+    );
     CanvasHelper.addStyleAttributesToPopup(
       this.plugin,
       canvas,
       availableNodeStyles,
       (_a = selectionNodeData[0].styleAttributes) != null ? _a : {},
-      (attribute, value) => this.setStyleAttributeForSelection(canvas, attribute, value)
+      (attribute, value) =>
+        this.setStyleAttributeForSelection(canvas, attribute, value),
     );
   }
   setStyleAttributeForSelection(canvas, attribute, value) {
@@ -1611,13 +2143,14 @@ var NodeStylesExtension = class extends CanvasExtension {
     for (const nodeData of selectionNodeData) {
       const node = canvas.nodes.get(nodeData.id);
       if (!node) continue;
-      if (attribute.nodeTypes && !attribute.nodeTypes.includes(nodeData.type)) continue;
+      if (attribute.nodeTypes && !attribute.nodeTypes.includes(nodeData.type))
+        continue;
       node.setData({
         ...nodeData,
         styleAttributes: {
           ...nodeData.styleAttributes,
-          [attribute.key]: value
-        }
+          [attribute.key]: value,
+        },
       });
     }
     canvas.pushHistory(canvas.getData());
@@ -1631,18 +2164,26 @@ var VariableBreakpointCanvasExtension = class extends CanvasExtension {
     return "variableBreakpointFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-breakpoint-changed",
-      (canvas, node, breakpointRef) => this.onNodeBreakpointChanged(canvas, node, breakpointRef)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-breakpoint-changed",
+        (canvas, node, breakpointRef) =>
+          this.onNodeBreakpointChanged(canvas, node, breakpointRef),
+      ),
+    );
   }
   onNodeBreakpointChanged(canvas, node, breakpointRef) {
     if (!node.initialized) return;
     if (node.breakpoint === void 0) {
       const computedStyle = window.getComputedStyle(node.nodeEl);
-      const variableBreakpointString = computedStyle.getPropertyValue(VARIABLE_BREAKPOINT_CSS_VAR);
+      const variableBreakpointString = computedStyle.getPropertyValue(
+        VARIABLE_BREAKPOINT_CSS_VAR,
+      );
       let numberBreakpoint;
-      if (variableBreakpointString.length > 0 && !isNaN(numberBreakpoint = parseFloat(variableBreakpointString)))
+      if (
+        variableBreakpointString.length > 0 &&
+        !isNaN((numberBreakpoint = parseFloat(variableBreakpointString)))
+      )
         node.breakpoint = numberBreakpoint;
       else node.breakpoint = null;
     }
@@ -1652,9 +2193,11 @@ var VariableBreakpointCanvasExtension = class extends CanvasExtension {
 };
 
 // src/settings.ts
-var README_URL = "https://github.com/Developer-Mike/obsidian-advanced-canvas?tab=readme-ov-file";
+var README_URL =
+  "https://github.com/Developer-Mike/obsidian-advanced-canvas?tab=readme-ov-file";
 var KOFI_PAGE_URL = "https://ko-fi.com/X8X27IA08";
-var KOFI_BADGE_URI = "data:image/webp;base64,UklGRrosAABXRUJQVlA4TK4sAAAv1wNDEL/CoJEkRXUCbvwrekfM/BYQspGkHsCNw/nbvcAzahtJkue7R/GnubUAykDaNvFv9r2CqU3bgHHKGHIH7H9DeOynEYZHCKFOj1neMfXZ0SmmUzuYgs6P2cH0fjuY11JBq5hO7ejVDqZTnWJ29Op+1twlRYq6rzLHZ6dIkSJFCnjb/mlP41jbjKzG2JjQKAiRUTrz/JCnNasnK3MmnnWm07aORtgyyHpA3/+r2BiOqvpXifW0bRH9h4ZtO9DqlUuZ7LSRz/d9JOv8Ofs/iSZZzKPZdHr9ykynsyheLEGwfD6k6WTvcCZ7h/M/ZfHNZ9ejcOBthqPJLJaMLokmw8DraK6m8fJ/tMJGk5FXbvfL/7NYgjyYXQXEg5nE/zP12uw6GPCaYBQlrD5vRzzHchX9VwTLOJpcj4bhixmOriazeIFImh44snA0mkzni1MR8SQcyJjhZMF1XCPGQwmvk/9qlDKhZ1kyjWFOVvNn0tT7yE5An2AgacIoYQjPflwjQ4IvkyRZxHE8j17MbLpvJtdSZnrARHsmfjHPR7a0rJRBp+liKvEYXp9yHslzZpc31zF1TeYkpfTksYijaPZyuhi9EKPBQJV5Ia1HL6ecaB7Hiigl8fQSXC/gi7HwBKkPitLlWPl/FsgdiZ6TSBw9VyqvhuHAGBM+n12ms7neU0t8hU7TLd8O94qWE26FowTHXomHktQH+tstF9Hs+uqZFjDQBKOraRQvDStmwgi+xhlGJ9ka9sryM+kjeYvLV/ZhQtkY3UQNdzoZs38kVwk8cXqdnJhr4l97DJBpwwTxtclwYKZRy52WSZFv4aucYXRarkmnqxlG/pmBfdyzZ22fPjCj2QIZiyH4mT8ZydGMJxEiplwlna6WVygH8hmUz6BHTHg9hwJIITBjKsckP+qr5cmDxet8he2ZAFWchwm0wMH2qgCkx3IEfuafB8IJ8MRYIHhoAtybYxYhCozqjt1Gl77IQjq1DJcce52Uiz8PDTrUIgA7joU4W9m+NWktQyDMA+wz/wzh2x+dMPhMC2kawB3Hol/j1it8mmGTdMkIhMlzsuiqahIt4S2SIuBeNCOMqN9i19XmMCXM7DTB54HlZG4iWZ/vyZUIxwLUvcHJ0yA5VYL10cJTkzyJArwF4tYSydMTIIwVopO027WvzK5LwfD6iLpUnAnLWJM8bd7u8/3DB617x69O6yepF7/AK93V22Ll7o4aty7KZiePtK0eDh9Stt7WLAfzmYjv6bSywDr6zz3ZgEBeJ8ZbLQLW3F64O5rJ1ts2FfSp1pnfwbjHlqGEwPHtN2mbaGGDVPcGr3V+dpLFv3vJ7UxmXXUiaNekQ3GPHZlX02ucSd1agUsW2zVVuS2Ksmw4ypKRTK0z3e0f2basyUeWnBKWK7Nv3R2vWdWdwBrZUFdGnJzJXjdvBTCmlzJPx0qZFZ2mm7ETIGm9XXGWVtenlU2f/Hw48j/vGsCRzHRrB6Tdntm1B0xTs5n2iOn2jSEii7f0CpsATRckrDZ9WvsmwNPn5c8Z8zr0SrplOxBXi3stxCupXde2dV2VZVEUD+v1yjmX3eGa7PmoVuv1+oXuLav6RdwBUbGOmANRM3smk+JGr5hJwil+6/+3Tk8mW++tga/sWKmQh47ihRpH2rV1VRbF2rk7E8zzGebhpXrbdjp4WiEJFe1MmlWUPzg+YMlnK+Ln7/25BydCAxOGNYA89MSAirmkdTtKOmVQrmYXI5bFwzMZYJjJVutt1e5EQkH4dfRyZt0Rjvu5HONak1nik0BeTj5ZtyuMgq2jouQ/kIrg4KhrdfX2WeRgqFk9VNwyzXAB4Fdnogku+hyjjHGpJyanghoMS0kA7llCHUcMYdP6sGaAqUG3TYqnEBZKp5bMn4ShM1dax1UX7MdNQInoE1JJuSVapGXEYvn4yla/1DIK2oT9HtkqKDshmcYj3+fceP7di97HFZGHtgJL6CnBCpna3xG27b2ZRD9Rb6jFiT4JSJZt6STQvP7y5bxm/QixDFY9l2Aqlp0cp2rH78w4wq/uTDV8KoGimiNjipXJ8XyiVgAWz+UJE3v6TAXrWLqjNWiEdLr0xpyF7dsrZl3zLGL7MOf49UFwiVoBjio8XWLYOcwkzlHgQKTTqb/AgXGtP4JvO/FlhFJlq44DjDxtPQuVXseIT3QCHVl9+DBQ3i/0FjjQ2b79ZDiivhahIxv+qlrK+m4onNt5rweC4owLck2Fs3GWcgYecogR+3rlM+pbgFTZHhm1FVYw5OKsz/2wrBxTtsaUxk8FOJMm7IX8VT/R35TuQpQBLV8cOKXKpMcRErCFTt0PHi6iM/S6IBIvZ7KH3q6WUowZUUsbuV0Aa52706KN6FuSxTbtURfTWYpxJvt7pwWv2wknN0yBbu2FixNEHb2EF/scdTGdyIMzyaAd0POeYcIqM3fyao6ACb48KaIa0yy646EKAxjJxEcRhvwx977nkJPvU0uzVjFTwPaUQKQ5f60pMnOcCuOQLDE/fuR96bnjjnzsHaO4LBQywRd+x3Fq7NOqSNjdwW0Ek3K8MLY/fhVt+eY+LZHQsv0a2N7d++HEcDunK1l3GEdRMTCgIoI1XQsdr3IdJMSkCZFUUqIFpBVPC8XV1CkhRL32hiP+IiZB4sOdeQa1ZQBXM50hXn2pItoTEW9Jb6hjE6tS7egaMW855Ii9GkXHJj1fEFzBTSrTFG+jp10YFqu4nDO/u4N94ZplnxKsr9JP+bMp9s2mPGpqX1OVPmZTvDL5nnHPBm1h6xV4DMjezMiykFMwyFv/QOqqlxmKvI7a7HeMJy/P3Kf7YlNWL72Ne/Uujtsl+u6lG/SX802euwx0uWKoNHXCKWVH11wAk5v3s6te1rR6lUlgqA6/1HRE+x4ka7i8KKtm1w2MMOmubaqyyJ3YQm+nMycQkoAvNKApb8iYC1+bZQ/EAuKHQAnuUFASMQbgTGb5pmq6gV1m12zyDCWykE5dSROShfeJHZRSvGAYm+fkehQeLVnD4ctQV+2+243Q30+ROSCjx90xOOQK00SfNvXhfS0Lytxx65pjlwCyxHG4yT3lbW+yiCZXDBeaGV5ZPGD6yAKNrw4fA7Jb89AHRZ0OTDVdfS8vPw+Wvtsw/FVYie6Kr43wMp7wDuMxGM1iUzH0TY13/YREkCbKG2t82Ppbv+eUYdNy4Rg0aXqRXA+4CW/uNTJ6saFwGt9HYt43kKaJsvII1W/t7o6pD1mqE4AKJBtUGWfNoOm4jOl3xNIHN0Mw9t6np+Dt0tfSge2mzXn6kKU5MSG09I6obXM78oVGDvj0m8fS9wNzKrFTECSW+ZDzQyEMD15whPF3/MocmNP/1qvOCfvKBeAIwsIoMS40govDOO2gIxKkibJmYKmR7XymJTkhKkO38JL84Lb8xxzDo23BR55YacOro0XWhxnSYnY94ctxVWUhr4DwfTkArI8BpnFu56/as5yFiMP9Mbbz01Zda6bDlQ5obYjI1+XqJagHd9oSlN0i2LS54mwXIK8EsHw9hMfeXJnZ0FByffBwsbUhRvzl3dPAToPRrejOv53opR82CHDH1VaB976AHphnGNkpNO/UditQAbNrphSaqKbbfvF0IupuC99YHQQ81SpBe7gO0AffZuX2ozo0B6odwNoQlO2cZHvIpPcSu0yPSy+QhCaQnKRC67D6FjZuO3XoXqf2DFgbgrC9I+3RT2Yj4AQzP1QYgGx03ykeS7oxe8vHjEax57CvDCgaAo+kq0P3lCkFnABYD/IwgxgqtFbPmX3KMLk6VIcKH+z+jeeeyGgFTl+tguTGOwwgtllslQ+13Q7MfUNr3D6wibo9ISjD1H0XiJ9t0/KhBQEgI2mlfiScduiky25jkmz3CCIbQsihHx4Y/v5eimyFcN3cDRYqqB76tJuRFZ6hDduNTPHDXbwn/iKHlJIwe810GfOF7oETZybYM4thpUA4NwELG7YdVjp1HfcrDcHtOVPLyxRTrCS3hrsm7AkQKhLdhk0DrbxLeGXiWcXtV5ennrXW9YqD61f6Xvz+NvaH2rpevR7S7l6HmKnFocYm6K4WQoQlpXjnlpq7vnVZGKMtHVDngBUcXdrJfQttVawy0l02VG1q69sO/ZCx+8ER7Dtxdg2hcejACzuC23+mkt7MkTi1DrhoYhyaJ95QOIPYIql5C+sy5twNYIKKCDyMmiAz70HjhCVUGRC9XsIWTWw32rBiPv+VfGPPnBnUo1qlDE9+PWHiJahkLyRrXWdtM0VfFc/10TXjfRfVskT0DqadEZhfJeCTyQy9bWdg9FMDYn30TKwZGhf2+owQcuWdMk2m5w9/WdlDLVnUVyxogHrUWd1pfYv0SfCIV3Vn3XIJ+QrGBS4qsRiJV8G5ZJUS7cTw5Z+//+HHn25ubn784fs/f8WIr755/+OPz3/tTz++/+Z3XwihlBiHaSnKzN7AVP6EqFKGxKJhEL2PHctiTMidrvVUx/ioQ8qH3ELt/dX3Nx9vj5iPP339JQN+9/fjf+6/fvyzwEudJ+dNKpJMUci7tlO6T7uGYDW2hi1LLVJzmfaXj1BHEe2DlSC5F8AXf/9w62l++jPxz/3+xv/P5cajDAOr4HoBmpjcPULtw72mY+WtKSE3epBVxAwCZENSxxUblFd+9/MtxfzyNeUk9JH25/JiJVNHb7mEi9DEJFThVUutiUdj1DJTEFK0f9EN/6tkN2b9kFvuyvxeWU9b8Y3mu701lBXK9yGyudUT0kH58Q6gXNPKTB0onGmNvv47oBzGNa0lrHeGSnnxXNgzmB+8z0IMJyI+SJWfD3KS89KiUXywCSv0jYQz1rknckiM6/HUDmMAZAlNlogQ8st/3d7eipwZ/vbxlsf8nQ1Sd/FRyQV8QAGkH8/YmHV5BokVezZq1pi+/5wtDtJxTGlE0Y5XG8afhucyv/75CP5xu2d4PDkhUOp3cgHtGYbXlstX60g4FSJQqeWWFQcqzTCeqwMHIjA8hlZeUvOPW07z9UH8eHvLuHzFBpkw3jmM4YpJ9vilLHE+gMuJKWZoRFyFvMSkLj6RBpnQpnDXqXM1240JjziJopIPP97ymm8P8N9vblnNr1+LI0v56fiajJ05YAm0c4rZCp/piwtzz3R/ZCVlkX/KDo/U6H5z4K7v+FdIKSHfS/k0PyIqb1ENrxVZ/Zn/72WBlLOROqE2WiHa8q3O4MlfWlr93IS+Eh3WKTsFua/itM59v8PNXlWCjfQ652QnN3yv8puvXp2G+M3vpJFRsplUBagyBsXABrnBkyERzIRrbMoaVnbHaxVZXnLwB8JECi2/5WS+Sf29v34lXdFu/dFK6fltzH2vR/U8w6EBrcg6bIhH2zZluTdmwpptcFcLOnOyEMWfbkXMzTPn/lbE/PIFGWJJvZMSnOdGBdI/NuaHlBKGa452X6Zo92p0wFy9mjPFBKHzpRahMY8qw6tjNOBExyMv/0UGt//+5Uehv/dGGCv2v9eZGlfFYFcmjF03Jk4BH8P4toIR6/C2LjHRqgI9Bmz8eCtlfrmVMt/K4i7ljiqzNK4tj7VgCZeEKT7lnk7BpdQlwWoAWGKx8fWtOvPrl7LYvYCVPUvmspgSiMfqWji9llJzvzqcxCJqbiUADLGi4PHTZ25kURMoeRm0psTAaNXswOcVXwWi0zJH9DgHhR0WHP+41Wh+J4qSwHmTQW0IdgxvpLA+whMhYcwOIDMmHGBKTlozLDi+vFWJG1FswVAaGkOpUjmHxD4GGwrTVQyqvmpah99BdCYNln10OpIowLCxU7+ttKVJW7DEm6LG0esVDhLkAQ16hyIBj1+U4sYO5FbgfmCU+ny2I+2y/AxxbA48FYu8D3CxPJMHRyxaHTOwsrLxWOfM+UAWkDPV9XZ5dBJK+wCEyR7Ax41a/GAGMjvUVhlPe1ZEPhxhUsUvOx2oWfQZBjME0EOrxa9fWLGbEffYzGBLu/iIgJ4H7re65zD4HAAM23o35VBhobMBLUMg5Sc7baRxsjdrbeCoTNgNPsiNYvwghwYLOyO10dUEMuK6cmESBwN0lDZElIDjo2L8Aqi/uhJBa0sPDsRbq+snL/8BgPULKNr90PjjrWbzBQPY2484kfYmtYm2s4DtoMz0E7ju+SbAwfeq8RcprMHah1Ym9nq656fc63RCtz/HdW3bSUV+jtOfw3+oxndSqNiL07UN6quyQ+CqTGAonkJ4mdzO4zPfxRAGGDeq8SMd7IRPK4NCO3KWsseZINfvGxSAPkXmWXEiz6DTiAcbGXxQjf8vhDV/ebplv8iI2qbV1t3rf9UzeGjZx+MkOYVArmbwwuwv8VY1fhFCjda/cW6BtbG/iUwi/3X7ldzXtzrMPWeKKtKKWz9sq6ZN5fGUiU6U47KXcCsDJ5DMGiq0K6Mb5EIM7LVrymLl/OdT8DkTi+fhVCqtEAfcJRmPE54ox88EUdPwziiwdHoANPwPp/xynUyurU7LNaGzq0efGzLVPsV8623TiaDkSmEN2+TCDvsbW5pmi7XNTVw34HLNcPCGwrTa8mfg9mmlbQ74kDqbfuLaZdTbcLScJ9RtuW7L5drhcHCtRMbAxMwV0zZRdDwSEoyJcmTo9bUP4ToJSv7eKrhuYJjrnYAxc7t74hvoh6qJomO0IBPlKIaKht8YBSeTB1shyVBn1xu9Hmu1JVijXoHQ1bhrwh8Foj5DxdKg7JITpWG7/crOG79PZUrUlgr91qZOWvm/wfQBYDgtmmatjY/Bhti2b+eLyeGrJbHCYn2YWmbwME6oOrozzg6cLdjiKuK5nUWz1vZITxpbHHFqsBS6CtqWiP/chzldJq4khhlSSzWVaNWnVaZrJVgX8S7D5hmkj1YxXiqkE/JUCAUR/0+3XjrjNPXlVSpXolaKwXm3I3ZOF1Xlz3pAXrqV5tNnA1hvbP0v7iAyXp3CsnZktGL/9Q7Zp02dilaAd2QYpzG2F9qUwNCtYVqT2trUeBUzl5IjnuI0j/xGNX5PnjoV3t9+wok1gKq1WrtCS1xBdY3dZ0TqzLqiU412QyGI+K1qvFNxxzBbOlRbiwe0VkF/b2uT6j9ZB8ehzFJq4IhTL9vZ1a/aB6gWeoTvd8cPvSPB8U5I5m12DvtkVdmlK7CFK05i4i0PCeFGMX5CQsnXDwFwkhWa9GmOATLZt7nFZvN3mV0sSllZBnFzDjRMhPeK8Q1Sb1aSHc+XGnVWTdyb73tMHXbV6NEumeKjMA+QNq0eMdAwEf5o8yuMqbqzBikznEUosGtPGXRTG2GCHYt+WRM3F6zddnfkF3rglS2p/yxjcPfAi51Nk3oL3hlGaxKZlOHxgnY0lZjED7k/jJKc/4CDSrb7zlJ/92Tmzjhqh12SFza1jG196Te0wCOR4QO0Vm1+BYOdcHfbpWU9++c2ocJmKGY2KQ1sJVWoWPlsryNlRT0gbxq7zSvhqVmgsKUJr5KbeS9sAMtkk06nDo+N2tLmjyrgzBvVwKadv8Gx0p1tFwqLHRtfYfsuc2gqJLVLppiCakRNSB0mVlIXVfiN1r0V2LvaJty1QsqrRuUubCqkMQQNXHpY014YMY8j2CKVmH9qsOsBI2x6q0er0GBz1JxNo+Ct8JSKU5Lk/JJ5HMEWBX6nwN51nLDprVZWocJug5dp51YylcewczWxoDT87uSqtzdWu02GcO2nQjFBqeWuKMwl0VPlykA85XELy9qZURqSpXI3wvNHo92SrCtqGLKOK6R9AWtssbwpjWwA56/J8yLcEsO3Tzkci91uTR+SjHqIcxwaCHza1Luu69oK69oc4Ao7rU2j4D1eLQN9YUhqSObkKrh/NNitMvp1b03DXYUm0Ge5oY22QCzKS2i0ZqEDqQBSAi6YL3jH4VirutquGfTJOGGV14N8bbSDvXegpufRABcnCUUxvRAsld7pUnb7IO52jywDA+OEVV45Yr8RGxQap4cB+N3dkzTd/LAhqVaZouz2F/E1Hk4nK6zyyiA7Ai8xsD0UBBpNv6n2OdKO516oRW88+4OV+7RrpvbVvLDKS/6ggJeif7E+mhxgA14L3Aao48EfTfRrtxlbdyj8MEgrpiNBtPZzj5W9mr7cWCNKPf3IuEuaQozoHSr/h3UNTbqq4COJGwnhu0FaMa0whX4cWDPb5bBF+51JKHxD4p3wQ4nb7Obqpe8/DfHrDpuXaVYvVqz54GlgAaQqKRwJF4BMqhBqLj60DKRQvrMEpSzLk7UJmITgvGbCu4/a/YhpCcJen1szbLQtDTWSH55aNXTLdGdT3861VEgB3eqE0hPqgzBb+mszNGEaUDtIyDCmpWiJywksoRRiHHQVOjPqssQrFKwoLU4SP2wow2+0Isx3TC0jQe30zB6sBCHaziaFQgFNOuX91tLdkaZsIuCkGjO+Wu4NPP6dq2Ukpg1hb+0Mi6YBqUA29G8ViYlcQfMwN0eg/ayPyKH0FJxLTP9Mx4Z3H8DxM9PBp6AZNKEN8sci4XkBUqwN0G96q4Mskg0SnG+Fa6asJ4IJJaqUpM5pQQQfvuBqzi1qSX4m4W4tCx6aEP6mMjPkryG16ZUKm6VzTZqKDSevz/lHCxRhNpDX0rug3Tqp7l0AsWY4XUNhg8zxHuQ9oZXOWsBfkqIqAMat/bUB+m054uBIwoQKi4TnD8j3/wWFFvBLwN1EYX8+YGNIutRIhTBa1veo+Miotir1DeW0jzY+o8GmXXLBPenoFHQujvKRpVZE2h2lXbB/DBTKji1hPOrql4+/ZVQ+FwpGbJc1pQ7eSfsu+tAigOYg6eeVRrjHq9fYPwYKZccUQ6fzvUYrzhNZ7aj3b0GF9l3wvFUA1ak8Br9hg3uchNXwI0SMWQOuB8qXDy8W+JWsJN9vDXmKENTvgganIQjq95ZbeItGKXopkpC6TCxAhqP+XnWT0AxuDrfC5Mw4rLDl5hpuxnyD5nfsmKyIBbLh3MobAlNh2Q64F0CL+4prGe/JZGIU7io0tGxiDpwDy6H5Gyv9TBd6IgWj5hakgB3MbKp/rbcDhw37zIyxPjArU/3dg7PScBs4zj6UDssOsvqd7bBulQZXCtagIyZdG2yQwdzIzW8/wOBf74AHfeE4hn8Y8Uyti/53kKLS9Q5Ys/PI9CCvWrQ8ITN3MxomvIRjy7+8Q1n+SZotR+lyO3/+KHnt2cwfJr1DdQe7+QiAlPXXJQCYErNuZcE6ZvsaWiaJ/FARIuU3v/kZpuWY+DZhGpfY7VlEhyl9rNWwwz7tQLNCKezb4vIX8T6NUguWngmGeAuE6qL/+DX/oTpGH07LMNg2k96hkSXQwV3nO1l1yHNX2GKEEhHugCOlZZNz3hzZiSx/+YAgLsfbzjet2DPmMzcMazA+4prkAvdCUX8SyrZMfVuWcqqscCe5AkrPxhO0Fza0TWVR/Ow9ybSCxZi7L9tUcqIrYj9kVjhgGb8h4AFClYN0D4nsPhVfIuoK6OThOcZ2nZgRCdoW7dYm3wv3tYSznRdl7XHLg3Q1GCY4Kxxbr0dAMQ3fBUOzT5smZf8d03StKcWU+ntqZISdhcw3H3CDsXKpUoz560g4YAnT10HIq0DlQyXDTfbltKqA+/RSNAhdjaIQSiNQtEsOD+oMshdwP/TLO5m3/UFoopdXOMzG6dkZCTZ1G+BDqUsvEhbrag97vc2XxSGzKcu6BvhZQNvNJ3Cf8uVzMQET3s0slfsav5Plv2PortbcCOa+c+FDgUVarIW8eAhX6tuq/9Epmo1EUuH8WST1oCUi9kOaEe8xWMWb3exf+gspdIfyyPQYcd/ZhLM9XO7fdqg3yZQODDAl3Feev/r5Qg2B7089VUD+aizvWX353s2L94wxE9UTypxUGQEuOUkDdiuI7SNQ5hvYCyqT4fVvDGsNLj3JaBLpJurJ6ivmYmyHMf8cklnldCg3cFo1bV1hSafW/YCs2FT1gaf7xiREvjuDpoX3fL54ruP1XbLP+Vx1Z5aTmfVbrJuACmb+BywCNdISldfy7obJF9AtOKVqscgcDZrlrKxCrQ+YaWVrGWhtRFuOO0EDlaF//DPoTUR0OM/s39gLzZ1ZzsYq7PoBpRScJsy4T2id+Df57p9kWTmku2Zbmy6l5kDULKe2CgMFuOhHdJ6gb9YUR9781d/zX3/AvecX6R9MjqFDB0tMhfuBmBoyiM9mdiHHB30zzaiO9HuS+XRw35VD+hn0ZubdHJezMOAW3zfZe+yq4FFbiMg3MNFB3Onnd8BVtVo2HnUNv8HS+YNNaNB9Z0xPY17TVzjClloGng66+uEfjnHkb573EocTHCvWcLaUnutru6jryiak2DhYLkQ0z7YXwND9yMTz0Av4itm7f3vl8fHm/TtsDYcnasEyieV/8LSVXbdivzMJq4EUJOpwyRgarQFIGRD7fuQq2gu8+8Mf3sHcRoTUoIouoiXCz3X6YBg7LOvVV4JJ4pFKLnoNLN2FDX35X7b+gJtrCTcY03yYG5zY5RQWoYXl0vlyZmLvlZ1a4X+BjvlRqRH7ufTJIFT87gXx4SdlV0w3Bo+gknP0xiazS2Gck+pwsechdQC1ajEo6Lf8WGBuJ+sM/R0X754IU3APhNqwuVNIDUIx8L0OfBJdiJH9DCXDFBOpfjie6SyfsDtrc+DuaHUVrIeF59LanyshN1IpffL68SN+w/7aJc9zKB1hYkDHcIpOUq54ZsYy5h9ba2UMSgE5SIL1iyLuLCOxKyNjjQ9PkvzlRcBC8V+OZ/NEta7DgEO4g441U3YaeTO3jfRqaFQSkEu6yxrLNE5SteDuV8Ojm6t4PpuOLy7enJ8Hr3Po+fn5m4vL8WQaRYvXpYFmOCLrkDJYkgodyzMup7wzMcLOaXLPInMnOyM3UcntQuXvgZKhSv/fTKIlW1ti1Ef+hMtJMwt/hOzUET90tgRsgqIbUtZvgXkOoMVrpBIOspSexktNbYm3XA8/XOQvtzIwzANNCsLzI03ZoRBT5pBpLc2M2VvnU+e48ATkgy/D3JZYz6O84q3FuzKmm1p2DsgTjEtvTbtBQYsZ8cYW7PB/HRQ9nc0XflDWlrj2zFCMTktKtZ151mH+pmLnwFyYapBDVp9bA3XSZzrxAFlKK2tL3HgWlL4OexnoLFhqER3Da7N+HLF60PZe4Frrw58JqZhS+eVmZW2JW88c5en472JZ5DWZowGZfsfAVF0DlfdTmxyn9kf6CRDR+IGpLTF6dw6sTkOciwDLrEsx3bMpcFQtVN5/skn69yS6N16VrYQspZW1JeasSc397+iIuNhl7zqiiyY4X+Ews3LIzdIOdNjPYCl/Z/MaSukEWzHdsT7SdCOCF20H7VagrdsEU1pToGQ3KKc9HLFtMV9ofWYWahWltB822GpuMffTHNfeGbAIUHA57s8VuER/Fh4KSFq7NMNVtK1AgJ15ltLcIhtIwX1COqEKnNzcTim2d/SzHGzyPYfdMQObISd3hNCzzA3PtGKHKCiMdf2ulCXvkyOVBEK/0lClEd2agZ+Cm3wvYXdcoRXq7WHHMvda7w/VBtmIi0lkAy02D3mZzDyl11Yfdo6D44vLHJrA7rhGG9PzkznjhH5S9eTiYgiwJTIaVy6GFptfkB8aT1/2hilRVCxfN3CpFMFqphdoFOLamp5knL+rF04WlV8pzXq8sE+Yk8hzaLmhf8IKg4mo6YQJbvOFDVRNLYdMcbl+1Lp+Jl0mAbYG5dEFctukjP9hsR3J9cy61uNZZZJP/irwz3baQNXUugwxB7cmqLhpesYFFQiwd0wPpmeCHNXa/4mc5NqFuW74pMtXphnMNbJ6RYpVU6sg+d4b/fvoilmBAJuhlCbdyCIItgKPqOpsIDjQZAdypXT5uX5ugX9pX+JdW2DR6zkiiZhm+t9C1aN/xiTAxotrzlXydMj93XBoBcnN8u2qhd+L54JNyH60u7bAyv5dhlg2N7r3UecyCbABlczYSp4MAzvvhjuMXvyVwzXySu2YxDj+mICzf2p9F+oTOLPeq95H2IVVdcCjvpd8Pzw8bshLpnJQMNOsa9R4nPhd6C6Bfu/mAJOs2wImumJghtdWmnBDVXVI8WYjhvFBAcANOeV+RHIlyi9Xd4j1eYC70EVvvzBwCGWpnxdU7bPV65cqcGVKSIdGfV8wPg8buNqrc/5HGlhEE/KhgfJpngcYKG9n+L///gatptZA6kxsjIlxECvCHE6AzVi9PIftgqmVKjHjAcBylz2CeKQvY+FGsBMFybOFq6ltIJk6K514Iko7NQvON2h7zhhFNjnqKyEnwSTPmHqod9I+9UPGO3QBzEB8ZF2awdXUVohssk5lmC21QqZZcF6jfZQxY/4tUV+5ZKq60p4EY+ZK3YPYL6DS1dzP5nnWavqN+IeIp/9y4Jn54Y6lVRnIhifk+xyshWjN+Fj1LlBfqAVruEuwx5Z1/Vi1HfOTbu9FH4i2eIl1PGANNV5NrYXUQqkUSsyJlJvuqFIdQusAVHLeiWWu1088ONotjq3WRVk3/jOcnnZdW1fbYuWEjmnP6imSYt9NvJpaBdmXR2nGrFNHCh/8FKAKlmOlvkeYulMr2QcYO6LR5jlECXLQQPx8B/CWZ/wBOeD1LTeQ1b9HjYowFjysuBHWt3rPSn3PMDe3wk13ptROzWwxFdd/DQK85LxFzHg5BFRHXlEfigf1O9ZYaSRmpijFt6UFyGNVD2gB8l3WDZd6FCwGGaBsOV0hIlW0PA0s8KPd2C1WGiEcMCL9t5J/3sBH5vymcZTf7oUndrhItdxhaueE4b3osfJ+Rqkmrpip7zHiZi2vNLgcDgwMlVUDPZZjLKui9V/M5X7gv2ix8n5WqSZWzLyjCLFe1/Geos1+Aq7zjsUq2swlR1OBuWwHhEWHtcOP8qxcqRBuLT1RAbahn4M90/KFAb4sVtNmK5hEiIs4G1Pp+9QIusQqVBNVCLdGeIE778d0nn+xzDPveCzsJpbTDUCXVnHlLaPNLM2ZTnOOk0xqduHWTMkkb12fwS2DUjX7nccq22zlXMwlo/YRjZ0kOoTUYJdqYsdeo1kGaE7nvS2zmLRTVqbqLNPQGO+lxgIJutzTnxATpZKRuSkPwFya4YzMRYCiLPGuwiS3ENXeFKJMB/os09AYu0zWRZvDgFptcuGYMB6lL6Ds3PlhKNHYOnVoV2ECXQa1tvcougG+lWsbXyEQy+wpX/SuK0qF1bKJNQ+YYIuiijCj6uL4VhWxRCuLM9hlUCsKkG061v+nIuzAbLugXKGllDsebUpN25SYHOx5IBRzEBZoIqMIngu1toX4Otn/VUzaQlF9ngFjJTVFEK+ccZSaToL80OfpWjLxZv5z1FnIZOflAKiq2OApIky4Hg0biagF7/ffgspj4E0xCWV7wEK9ZjwaLF8Aq1AiqmJIAGPvAgJHxyiUbzmrPeps0yL+L45AfhUl8Hj3SxnyQxFTJt8NAKxGiaiKawzHMDTaCrP4nAds5U6JGjyvU3Oe9MtlgKBEVgtebxzqgskpxixl5C3ffyaU3p3ZGKGQg3L2rz7fo5CU0ufpJGRM9Xj32J/lVcp5O2aqSh7/BfkukUqp297A131w9YDJWrSZOvn8HHPIbAjtAzDstfyJdszb22Ge4fCAPB7uJEPksqF0rs9qmX4kV6Dnqa50wiEssHK5usukq2oXPDIbhMV1yNWqKXMSbUuAl1zB/b/9E8YKU6ik+NztYK+PltVSxyNF3WX37cAgyzzgQWmaLpL9J0RK7xkrdOQSVD4Ue0W0LnIxmv9+c+BnnFYXDKPHi84xMa3lVlAHBrUrnJxkREVswMVhLWtDcTlWydcfKHiHssuJTDJtOJ4Tb4hnMCqY6XzeJymeTo5kHl6xrMiep6jzEcM+myAQVj+DtckkabqI7ZCFxSBb4Eb05NuNZJwJk01xn+e5O272HiH1sqoPPx2QKnzBa0Rd5aQqwsnZmEf9KCNMeZj81KLkTHQcY9Vs+GKNcOSoupxSTPPxdkWZpXnLrDnYM/83ZcHMpv+6mKbIKCQzraI2ZivTeR8KsVHIejW28v4TaeqAioq1jjHW8Ryay5fWpZPS3osxOinsCkERB9apeh4CQ7Mv7r9l1q7a5O7QZHxw1GxCXtborn59VC6nyyuSJBR4kKWK/JM7/Fy/F75PDjpDyzE7HKIggvYMfQHItpKAQUVUhO6bYpO9Pf9sjc7Yaj+MuTAR+WpTnnzNxpXxvgiMHP1mzZP+G3LzNDIy5yJIkBJoU3zyqWLtJSiOPm9s3kngZtAVRghmZoL/RGE8SW+m8MmitfZfRiltq02Rv5h7nnnnmrH/R+1wHHW5f9R79Bjntwq+U28/R77LEAsT/v+6KXbyIwl1YWLQI15/BVbrVJJA9XUoG9mwchGb8P/FBFWuLuW0FPhKtOVEEwE3N+npE8dKJAleAjWDYxKFBqwZ8f9AhZdCEfP+5Ehq0cZDNcdLdTEdcUJ95wZRqH3NChMBFjxwUQyPMmW0CDytMhPVxfSUEQZ0RRSFutfsWNDoSbxQYSKWWHrqX/FyBPPJCgmwTOWERhcqee8Ta56n6ggrheCFChN9EtIwNu6/mEF1MT1VJ+Aw9t9sMpwaVArNA+AUEoWYB5SM0fcyblGdn6fGyi2XmoIHl3E/JdKLJUlJATTpJRd9osbAzxBXnZ+nIHuo+pImoY7a/Myu1JoMhRnluCerC9L3FIfAa323OlwqJynH+mQX47AXfFSWAMEcly06IaeUC8i1HlzGS+VnM53Vq8X0DSzZ/+xjYSpFljAnE1SNlMUYfa2XqLopQG15bDMvNIkAo30zia1MqlPoBJKMUTVSkmkII+801kx15+cotFpwuYjGAm9DmyoDS8ufMXThmoxhW9fNxwDh1Sm1geRp1fk5GRsuuFzG00vpoOfjA/NiYusKNMmcRCHmETHMRwzTlE1ZnEJ05+d5aHsFaxnPJhcCuwZvxtNo8RzW7HQaQvMf55ewKS+JLgORqpmRPgQRI39+1k2oXFuQEf1nwuT8nEYWnF9cjqfRXG18YEmFI9OfTw9nRLAy/WIuKEmZXQS8dFxkfxKJLnSX0lHYK8zQZeJnlv3z/+Y3H4c0ocJC/qje4MorFjMWnkxwOZn3RVKJx3yyXfVH/V8Jk8x9OBvnl5NoAXtU55dAfJDF/KXeFnjRBm/Gk8gsbosk3cVB0yGriDJUuy6mi7P/kpjlIp5HeyZeJIiZIY73jmm+SEDz2uLluPaPLI6TXiqt6HMddT6eJQpolclFQKpi/Y+PiZ8Jr4vz4BBFdDmZaarkLObPjK83R45ahOo7Aw==";
+var KOFI_BADGE_URI =
+  "data:image/webp;base64,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";
 var DEFAULT_SETTINGS_VALUES = {
   nodeTypeOnDoubleClick: "text",
   alignNewNodesToGrid: true,
@@ -1729,7 +2272,7 @@ var DEFAULT_SETTINGS_VALUES = {
   edgeHighlightEnabled: false,
   highlightIncomingEdges: false,
   edgeSelectionEnabled: false,
-  selectEdgeByDirection: false
+  selectEdgeByDirection: false,
 };
 var SETTINGS = {
   general: {
@@ -1739,17 +2282,18 @@ var SETTINGS = {
     children: {
       nodeTypeOnDoubleClick: {
         label: "Node type on double click",
-        description: "The type of node that will be created when double clicking on the canvas.",
+        description:
+          "The type of node that will be created when double clicking on the canvas.",
         type: "dropdown",
         options: {
-          "text": "Text",
-          "file": "File"
-        }
+          text: "Text",
+          file: "File",
+        },
       },
       alignNewNodesToGrid: {
         label: "Always align new nodes to grid",
         description: "When enabled, new nodes will be aligned to the grid.",
-        type: "boolean"
+        type: "boolean",
       },
       defaultTextNodeDimensions: {
         label: "Default text node dimensions",
@@ -1759,7 +2303,7 @@ var SETTINGS = {
           const width = Math.max(1, parseInt(value[0]) || 0);
           const height = Math.max(1, parseInt(value[1]) || 0);
           return [width, height];
-        }
+        },
       },
       defaultFileNodeDimensions: {
         label: "Default file node dimensions",
@@ -1769,26 +2313,27 @@ var SETTINGS = {
           const width = Math.max(1, parseInt(value[0]) || 0);
           const height = Math.max(1, parseInt(value[1]) || 0);
           return [width, height];
-        }
+        },
       },
       minNodeSize: {
         label: "Minimum node size",
         description: "The minimum size (either width or height) of a node.",
         type: "number",
-        parse: (value) => Math.max(1, parseInt(value) || 0)
+        parse: (value) => Math.max(1, parseInt(value) || 0),
       },
       maxNodeWidth: {
         label: "Maximum node width",
         description: "The maximum width of a node. Set to -1 for no limit.",
         type: "number",
-        parse: (value) => Math.max(-1, parseInt(value) || 0)
+        parse: (value) => Math.max(-1, parseInt(value) || 0),
       },
       disableFontSizeRelativeToZoom: {
         label: "Disable font size relative to zoom",
-        description: "When enabled, the font size of e.g. group node titles and edge labels will not increase when zooming out.",
-        type: "boolean"
-      }
-    }
+        description:
+          "When enabled, the font size of e.g. group node titles and edge labels will not increase when zooming out.",
+        type: "boolean",
+      },
+    },
   },
   commandsFeatureEnabled: {
     label: "Extended commands",
@@ -1798,57 +2343,63 @@ var SETTINGS = {
       zoomToClonedNode: {
         label: "Zoom to cloned node",
         description: "When enabled, the canvas will zoom to the cloned node.",
-        type: "boolean"
+        type: "boolean",
       },
       cloneNodeMargin: {
         label: "Clone node margin",
         description: "The margin between the cloned node and the source node.",
         type: "number",
-        parse: (value) => Math.max(0, parseInt(value) || 0)
+        parse: (value) => Math.max(0, parseInt(value) || 0),
       },
       expandNodeStepSize: {
         label: "Expand node step size",
         description: "The step size for expanding the node.",
         type: "number",
-        parse: (value) => Math.max(1, parseInt(value) || 0)
-      }
-    }
+        parse: (value) => Math.max(1, parseInt(value) || 0),
+      },
+    },
   },
   canvasMetadataCompatibilityEnabled: {
     label: "Enable .canvas metadata cache compatibility",
-    description: "Make .canvas files compatible with the backlinks and outgoing links feature and show the connections in the graph view.",
+    description:
+      "Make .canvas files compatible with the backlinks and outgoing links feature and show the connections in the graph view.",
     infoSection: "full-metadata-cache-support",
     children: {
       enableSingleNodeLinks: {
         label: "Enable support for linking to a node using a [[wikilink]]",
-        description: 'When enabled, you can link and embed a node using [[canvas-file#node-id]] (Use the "Copy wikilink to node" command to get an id).',
-        type: "boolean"
+        description:
+          'When enabled, you can link and embed a node using [[canvas-file#node-id]] (Use the "Copy wikilink to node" command to get an id).',
+        type: "boolean",
       },
       enableSingleNodePopupReferenceCopy: {
         label: "Show button to copy node [[wikilink]]",
-        description: "When enabled, the node popup will show a button to copy the [[wikilink]] of the node for easy reference in other notes.",
-        type: "boolean"
-      }
-    }
+        description:
+          "When enabled, the node popup will show a button to copy the [[wikilink]] of the node for easy reference in other notes.",
+        type: "boolean",
+      },
+    },
   },
   nativeFileSearchEnabled: {
     label: "Native-like file search",
-    description: "When enabled, the file search will be done using the native Obsidian file search.",
+    description:
+      "When enabled, the file search will be done using the native Obsidian file search.",
     infoSection: "native-like-file-search",
-    children: {}
+    children: {},
   },
   autoFileNodeEdgesFeatureEnabled: {
     label: "Auto file node edges",
-    description: "Automatically create edges between file nodes based their frontmatter links.",
+    description:
+      "Automatically create edges between file nodes based their frontmatter links.",
     infoSection: "auto-file-node-edges",
     children: {
       autoFileNodeEdgesFrontmatterKey: {
         label: "Frontmatter key name",
-        description: "The frontmatter key to fetch the outgoing edges from. (Keep the default to ensure best compatibility.)",
+        description:
+          "The frontmatter key to fetch the outgoing edges from. (Keep the default to ensure best compatibility.)",
         type: "text",
-        parse: (value) => value.trim() || "canvas-edges"
-      }
-    }
+        parse: (value) => value.trim() || "canvas-edges",
+      },
+    },
   },
   portalsFeatureEnabled: {
     label: "Portals",
@@ -1858,26 +2409,29 @@ var SETTINGS = {
       showEdgesIntoDisabledPortals: {
         label: "Show edges into disabled portals",
         description: "When enabled, edges into disabled portals will be shown.",
-        type: "boolean"
-      }
-    }
+        type: "boolean",
+      },
+    },
   },
   collapsibleGroupsFeatureEnabled: {
     label: "Collapsible groups",
-    description: "Group nodes can be collapsed and expanded to keep the canvas organized.",
+    description:
+      "Group nodes can be collapsed and expanded to keep the canvas organized.",
     infoSection: "collapsible-groups",
     children: {
       collapsedGroupPreviewOnDrag: {
         label: "Collapsed group preview on drag",
-        description: "When enabled, a group that is collapsed show its border while dragging a node.",
-        type: "boolean"
-      }
-    }
+        description:
+          "When enabled, a group that is collapsed show its border while dragging a node.",
+        type: "boolean",
+      },
+    },
   },
   combineCustomStylesInDropdown: {
     label: "Combine custom styles",
-    description: "Combine all style attributes of Advanced Canvas in a single dropdown.",
-    children: {}
+    description:
+      "Combine all style attributes of Advanced Canvas in a single dropdown.",
+    children: {},
   },
   nodeStylingFeatureEnabled: {
     label: "Node styling",
@@ -1886,20 +2440,23 @@ var SETTINGS = {
     children: {
       customNodeStyleAttributes: {
         label: "Custom node style settings",
-        description: "Add custom style settings for nodes. (Go to GitHub for more information)",
+        description:
+          "Add custom style settings for nodes. (Go to GitHub for more information)",
         type: "button",
         onClick: () => {
           const anchor = activeDocument.createElement("a");
-          anchor.href = "https://github.com/Developer-Mike/obsidian-advanced-canvas/blob/main/README.md#custom-styles";
+          anchor.href =
+            "https://github.com/Developer-Mike/obsidian-advanced-canvas/blob/main/README.md#custom-styles";
           anchor.target = "_blank";
           anchor.click();
-        }
+        },
       },
       defaultTextNodeColor: {
         label: "Default text node color",
-        description: "The default color of a text node. The default range is from 0 to 6, where 0 is no color. The range can be extended by using the Custom Colors feature of Advanced Canvas.",
+        description:
+          "The default color of a text node. The default range is from 0 to 6, where 0 is no color. The range can be extended by using the Custom Colors feature of Advanced Canvas.",
         type: "number",
-        parse: (value) => Math.max(0, parseInt(value) || 0)
+        parse: (value) => Math.max(0, parseInt(value) || 0),
       },
       defaultTextNodeStyleAttributes: {
         label: "Default text node style attributes",
@@ -1910,15 +2467,18 @@ var SETTINGS = {
             /* BUILTINS */
             ...settingsManager.nodeCssStylesManager.getStyles(),
             /* CUSTOM CSS STYLES */
-            ...settingsManager.getSetting("customNodeStyleAttributes")
+            ...settingsManager.getSetting("customNodeStyleAttributes"),
             /* LEGACY CUSTOM STYLES */
           ].filter((setting) => {
             var _a;
-            return setting.nodeTypes === void 0 || ((_a = setting.nodeTypes) == null ? void 0 : _a.includes("text"));
+            return (
+              setting.nodeTypes === void 0 ||
+              ((_a = setting.nodeTypes) == null ? void 0 : _a.includes("text"))
+            );
           });
-        }
-      }
-    }
+        },
+      },
+    },
   },
   edgesStylingFeatureEnabled: {
     label: "Edges styling",
@@ -1927,35 +2487,39 @@ var SETTINGS = {
     children: {
       customEdgeStyleAttributes: {
         label: "Custom edge style settings",
-        description: "Add custom style settings for edges. (Go to GitHub for more information)",
+        description:
+          "Add custom style settings for edges. (Go to GitHub for more information)",
         type: "button",
         onClick: () => {
           const anchor = activeDocument.createElement("a");
-          anchor.href = "https://github.com/Developer-Mike/obsidian-advanced-canvas/blob/main/README.md#custom-styles";
+          anchor.href =
+            "https://github.com/Developer-Mike/obsidian-advanced-canvas/blob/main/README.md#custom-styles";
           anchor.target = "_blank";
           anchor.click();
-        }
+        },
       },
       inheritEdgeColorFromNode: {
         label: "Inherit edge color from node",
-        description: "When creating a new edge by dragging from a node, the edge will inherit the color of the node it is dragged from.",
-        type: "boolean"
+        description:
+          "When creating a new edge by dragging from a node, the edge will inherit the color of the node it is dragged from.",
+        type: "boolean",
       },
       defaultEdgeColor: {
         label: "Default edge color",
-        description: "The default color of an edge. The default range is from 0 to 6, where 0 is no color. The range can be extended by using the Custom Colors feature of Advanced Canvas.",
+        description:
+          "The default color of an edge. The default range is from 0 to 6, where 0 is no color. The range can be extended by using the Custom Colors feature of Advanced Canvas.",
         type: "number",
-        parse: (value) => Math.max(0, parseInt(value) || 0)
+        parse: (value) => Math.max(0, parseInt(value) || 0),
       },
       defaultEdgeLineDirection: {
         label: "Default edge line direction",
         description: "The default line direction of an edge.",
         type: "dropdown",
         options: {
-          "nondirectional": "Nondirectional",
-          "unidirectional": "Unidirectional",
-          "bidirectional": "Bidirectional"
-        }
+          nondirectional: "Nondirectional",
+          unidirectional: "Unidirectional",
+          bidirectional: "Bidirectional",
+        },
       },
       defaultEdgeStyleAttributes: {
         label: "Default edge style attributes",
@@ -1966,55 +2530,60 @@ var SETTINGS = {
             /* BUILTINS */
             ...settingsManager.edgeCssStylesManager.getStyles(),
             /* CUSTOM CSS STYLES */
-            ...settingsManager.getSetting("customEdgeStyleAttributes")
+            ...settingsManager.getSetting("customEdgeStyleAttributes"),
             /* LEGACY CUSTOM STYLES */
           ];
-        }
+        },
       },
       edgeStyleUpdateWhileDragging: {
         label: "Update edge style while dragging (Can be very slow)",
-        description: "When enabled, the edge style will be updated while dragging an edge.",
-        type: "boolean"
+        description:
+          "When enabled, the edge style will be updated while dragging an edge.",
+        type: "boolean",
       },
       edgeStyleSquarePathRounded: {
         label: "Square path rounded",
         description: "When enabled, the square path's corners will be rounded.",
-        type: "boolean"
+        type: "boolean",
       },
       edgeStylePathfinderAllowDiagonal: {
         label: "A* allow diagonal",
-        description: "When enabled, the A* path style will allow diagonal paths.",
-        type: "boolean"
+        description:
+          "When enabled, the A* path style will allow diagonal paths.",
+        type: "boolean",
       },
       edgeStylePathfinderPathRounded: {
         label: "A* rounded path",
         description: "When enabled, the A* path style will be rounded.",
-        type: "boolean"
-      }
-    }
+        type: "boolean",
+      },
+    },
   },
   floatingEdgeFeatureEnabled: {
     label: "Floating edges (auto edge side)",
-    description: "Floating edges are automatically placed on the most suitable side of the node.",
+    description:
+      "Floating edges are automatically placed on the most suitable side of the node.",
     infoSection: "floating-edges-automatic-edge-side",
     children: {
       allowFloatingEdgeCreation: {
         label: "Allow floating edges creation",
-        description: "Allow floating edges creation by dragging the edge over the target node without placing it over a specific side connection point. (If disabled, floating edges can only be created and used by other Advanced Canvas features.)",
-        type: "boolean"
+        description:
+          "Allow floating edges creation by dragging the edge over the target node without placing it over a specific side connection point. (If disabled, floating edges can only be created and used by other Advanced Canvas features.)",
+        type: "boolean",
       },
       newEdgeFromSideFloating: {
         label: "New edge from side floating",
-        description: 'When enabled, the "from" side of the edge will always be floating.',
-        type: "boolean"
-      }
-    }
+        description:
+          'When enabled, the "from" side of the edge will always be floating.',
+        type: "boolean",
+      },
+    },
   },
   flipEdgeFeatureEnabled: {
     label: "Flip edges",
     description: "Flip the direction of edges using the popup menu.",
     infoSection: "flip-edge",
-    children: {}
+    children: {},
   },
   presentationFeatureEnabled: {
     label: "Presentations",
@@ -2023,8 +2592,9 @@ var SETTINGS = {
     children: {
       showSetStartNodeInPopup: {
         label: 'Show "Set Start Node" in node popup',
-        description: "If turned off, you can still set the start node using the corresponding command.",
-        type: "boolean"
+        description:
+          "If turned off, you can still set the start node using the corresponding command.",
+        type: "boolean",
       },
       defaultSlideDimensions: {
         label: "Default slide dimensions",
@@ -2034,117 +2604,134 @@ var SETTINGS = {
           const width = Math.max(1, parseInt(value[0]) || 0);
           const height = Math.max(1, parseInt(value[1]) || 0);
           return [width, height];
-        }
+        },
       },
       wrapInSlidePadding: {
         label: "Wrap in slide padding",
-        description: "The padding of the slide when wrapping the canvas in a slide.",
+        description:
+          "The padding of the slide when wrapping the canvas in a slide.",
         type: "number",
-        parse: (value) => Math.max(0, parseInt(value) || 0)
+        parse: (value) => Math.max(0, parseInt(value) || 0),
       },
       resetViewportOnPresentationEnd: {
         label: "Reset viewport on presentation end",
-        description: "When enabled, the viewport will be reset to the original position after the presentation ends.",
-        type: "boolean"
+        description:
+          "When enabled, the viewport will be reset to the original position after the presentation ends.",
+        type: "boolean",
       },
       useArrowKeysToChangeSlides: {
         label: "Use arrow keys to change slides",
-        description: "When enabled, you can use the arrow keys to change slides in presentation mode.",
-        type: "boolean"
+        description:
+          "When enabled, you can use the arrow keys to change slides in presentation mode.",
+        type: "boolean",
       },
       usePgUpPgDownKeysToChangeSlides: {
         label: "Use PgUp/PgDown keys to change slides",
-        description: "When enabled, you can use the PgUp/PgDown keys to change slides in presentation mode (Makes the presentation mode compatible with most presentation remotes).",
-        type: "boolean"
+        description:
+          "When enabled, you can use the PgUp/PgDown keys to change slides in presentation mode (Makes the presentation mode compatible with most presentation remotes).",
+        type: "boolean",
       },
       zoomToSlideWithoutPadding: {
         label: "Zoom to slide without padding",
-        description: "When enabled, the canvas will zoom to the slide without padding.",
-        type: "boolean"
+        description:
+          "When enabled, the canvas will zoom to the slide without padding.",
+        type: "boolean",
       },
       useUnclampedZoomWhilePresenting: {
         label: "Use unclamped zoom while presenting",
-        description: "When enabled, the zoom will not be clamped while presenting.",
-        type: "boolean"
+        description:
+          "When enabled, the zoom will not be clamped while presenting.",
+        type: "boolean",
       },
       fullscreenPresentationEnabled: {
         label: "Enter fullscreen while presenting",
-        description: "When enabled, presentations automatically request fullscreen. Disable to keep Obsidian windowed during presentations.",
-        type: "boolean"
+        description:
+          "When enabled, presentations automatically request fullscreen. Disable to keep Obsidian windowed during presentations.",
+        type: "boolean",
       },
       slideTransitionAnimationDuration: {
         label: "Slide transition animation duration",
-        description: "The duration of the slide transition animation in seconds. Set to 0 to disable the animation.",
+        description:
+          "The duration of the slide transition animation in seconds. Set to 0 to disable the animation.",
         type: "number",
-        parse: (value) => Math.max(0, parseFloat(value) || 0)
+        parse: (value) => Math.max(0, parseFloat(value) || 0),
       },
       slideTransitionAnimationIntensity: {
         label: "Slide transition animation intensity",
-        description: "The intensity of the slide transition animation. The higher the value, the more the canvas will zoom out before zooming in on the next slide.",
+        description:
+          "The intensity of the slide transition animation. The higher the value, the more the canvas will zoom out before zooming in on the next slide.",
         type: "number",
-        parse: (value) => Math.max(0, parseFloat(value) || 0)
-      }
-    }
+        parse: (value) => Math.max(0, parseFloat(value) || 0),
+      },
+    },
   },
   zOrderingControlFeatureEnabled: {
     label: "Z ordering controls",
-    description: "Change the persistent z-index of nodes using the context menu.",
+    description:
+      "Change the persistent z-index of nodes using the context menu.",
     children: {
       zOrderingControlShowOneLayerShiftOptions: {
         label: "Show one layer shift options",
-        description: "When enabled, you can move nodes one layer forward or backward.",
-        type: "boolean"
-      }
-    }
+        description:
+          "When enabled, you can move nodes one layer forward or backward.",
+        type: "boolean",
+      },
+    },
   },
   aspectRatioControlFeatureEnabled: {
     label: "Aspect ratio control",
     description: "Change the aspect ratio of nodes using the context menu.",
-    children: {}
+    children: {},
   },
   variableBreakpointFeatureEnabled: {
     label: "Variable breakpoint",
     description: `Change the zoom breakpoint (the zoom level at which the nodes won't render their content anymore) on a per-node basis using the ${VARIABLE_BREAKPOINT_CSS_VAR} CSS variable.`,
     infoSection: "variable-breakpoints",
-    children: {}
+    children: {},
   },
   readingModeFixEnabled: {
     label: "Alternative text rendering",
-    description: "Tries to synchronize editing and reading view rendering. Caution: Causes visual inconsistencies compared to the default Obsidian reading view.",
+    description:
+      "Tries to synchronize editing and reading view rendering. Caution: Causes visual inconsistencies compared to the default Obsidian reading view.",
     infoSection: "alternative-text-rendering",
-    children: {}
+    children: {},
   },
   autoResizeNodeFeatureEnabled: {
     label: "Auto resize node",
-    description: "Automatically resize the height of a node to fit the content.",
+    description:
+      "Automatically resize the height of a node to fit the content.",
     infoSection: "auto-node-resizing",
     children: {
       autoResizeNodeEnabledByDefault: {
         label: "Enable auto resize by default",
-        description: "When enabled, the auto resize feature will be enabled by default for all nodes.",
-        type: "boolean"
+        description:
+          "When enabled, the auto resize feature will be enabled by default for all nodes.",
+        type: "boolean",
       },
       autoResizeNodeMaxHeight: {
         label: "Max height",
-        description: "The maximum height of the node when auto resizing (-1 for unlimited).",
+        description:
+          "The maximum height of the node when auto resizing (-1 for unlimited).",
         type: "number",
         parse: (value) => {
           var _a;
           return Math.max(-1, (_a = parseInt(value)) != null ? _a : -1);
-        }
+        },
       },
       autoResizeNodeSnapToGrid: {
         label: "Snap to grid",
-        description: "When enabled, the height of the node will snap to the grid.",
-        type: "boolean"
-      }
-    }
+        description:
+          "When enabled, the height of the node will snap to the grid.",
+        type: "boolean",
+      },
+    },
   },
   canvasEncapsulationEnabled: {
     label: "Canvas encapsulation",
-    description: "Encapsulate a selection of nodes and edges into a new canvas using the context menu.",
+    description:
+      "Encapsulate a selection of nodes and edges into a new canvas using the context menu.",
     infoSection: "encapsulate-selection",
-    children: {}
+    children: {},
   },
   betterReadonlyEnabled: {
     label: "Better readonly",
@@ -2153,41 +2740,45 @@ var SETTINGS = {
     children: {
       hideBackgroundGridWhenInReadonly: {
         label: "Hide background grid when in readonly",
-        description: "When enabled, the background grid will be hidden when in readonly mode.",
-        type: "boolean"
-      }
-    }
+        description:
+          "When enabled, the background grid will be hidden when in readonly mode.",
+        type: "boolean",
+      },
+    },
   },
   edgeHighlightEnabled: {
     label: "Edge highlight",
-    description: "Highlight outgoing (and optionally incoming) edges of a selected node.",
+    description:
+      "Highlight outgoing (and optionally incoming) edges of a selected node.",
     infoSection: "edge-highlight",
     children: {
       highlightIncomingEdges: {
         label: "Highlight incoming edges",
         description: "When enabled, incoming edges will also be highlighted.",
-        type: "boolean"
-      }
-    }
+        type: "boolean",
+      },
+    },
   },
   edgeSelectionEnabled: {
     label: "Edge selection",
-    description: "Select edges connected to the selected node(s) using the popup menu.",
+    description:
+      "Select edges connected to the selected node(s) using the popup menu.",
     infoSection: "edge-selection",
     children: {
       selectEdgeByDirection: {
         label: "Select edge by direction",
-        description: "Select incoming or outgoing edges using separate popup menu items.",
-        type: "boolean"
-      }
-    }
+        description:
+          "Select incoming or outgoing edges using separate popup menu items.",
+        type: "boolean",
+      },
+    },
   },
   focusModeFeatureEnabled: {
     label: "Focus mode",
     description: "Focus on a single node and blur all other nodes.",
     infoSection: "focus-mode",
-    children: {}
-  }
+    children: {},
+  },
 };
 var SettingsManager = class {
   constructor(plugin) {
@@ -2196,7 +2787,11 @@ var SettingsManager = class {
     this.edgeCssStylesManager = GET_EDGE_CSS_STYLES_MANAGER(plugin);
   }
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS_VALUES, await this.plugin.loadData());
+    this.settings = Object.assign(
+      {},
+      DEFAULT_SETTINGS_VALUES,
+      await this.plugin.loadData(),
+    );
     this.plugin.app.workspace.trigger("advanced-canvas:settings-changed");
   }
   async saveSettings() {
@@ -2215,7 +2810,9 @@ var SettingsManager = class {
     this.plugin.addSettingTab(this.settingsTab);
   }
 };
-var AdvancedCanvasPluginSettingTab = class extends import_obsidian4.PluginSettingTab {
+var AdvancedCanvasPluginSettingTab = class
+  extends import_obsidian4.PluginSettingTab
+{
   constructor(plugin, settingsManager) {
     super(plugin.app, plugin);
     this.settingsManager = settingsManager;
@@ -2231,102 +2828,196 @@ var AdvancedCanvasPluginSettingTab = class extends import_obsidian4.PluginSettin
         heading.label,
         heading.description,
         heading.infoSection,
-        heading.disableToggle ? null : headingId
+        heading.disableToggle ? null : headingId,
       );
       const settingsHeaderChildrenContainerEl = containerEl.createDiv();
-      settingsHeaderChildrenContainerEl.classList.add("settings-header-children");
+      settingsHeaderChildrenContainerEl.classList.add(
+        "settings-header-children",
+      );
       settingsHeaderChildrenContainerEl.createSpan();
       for (const [settingId, setting] of Object.entries(heading.children)) {
         if (!(settingId in DEFAULT_SETTINGS_VALUES)) continue;
         switch (setting.type) {
           case "text":
-            this.createTextSetting(settingsHeaderChildrenContainerEl, settingId, setting);
+            this.createTextSetting(
+              settingsHeaderChildrenContainerEl,
+              settingId,
+              setting,
+            );
             break;
           case "number":
-            this.createNumberSetting(settingsHeaderChildrenContainerEl, settingId, setting);
+            this.createNumberSetting(
+              settingsHeaderChildrenContainerEl,
+              settingId,
+              setting,
+            );
             break;
           case "dimension":
-            this.createDimensionSetting(settingsHeaderChildrenContainerEl, settingId, setting);
+            this.createDimensionSetting(
+              settingsHeaderChildrenContainerEl,
+              settingId,
+              setting,
+            );
             break;
           case "boolean":
-            this.createBooleanSetting(settingsHeaderChildrenContainerEl, settingId, setting);
+            this.createBooleanSetting(
+              settingsHeaderChildrenContainerEl,
+              settingId,
+              setting,
+            );
             break;
           case "dropdown":
-            this.createDropdownSetting(settingsHeaderChildrenContainerEl, settingId, setting);
+            this.createDropdownSetting(
+              settingsHeaderChildrenContainerEl,
+              settingId,
+              setting,
+            );
             break;
           case "button":
-            this.createButtonSetting(settingsHeaderChildrenContainerEl, settingId, setting);
+            this.createButtonSetting(
+              settingsHeaderChildrenContainerEl,
+              settingId,
+              setting,
+            );
             break;
           case "styles":
-            this.createStylesSetting(settingsHeaderChildrenContainerEl, settingId, setting);
+            this.createStylesSetting(
+              settingsHeaderChildrenContainerEl,
+              settingId,
+              setting,
+            );
             break;
         }
       }
     }
   }
-  createFeatureHeading(containerEl, label, description, infoSection, settingsKey) {
-    const setting = new import_obsidian4.Setting(containerEl).setHeading().setClass("ac-settings-heading").setName(label).setDesc(description);
+  createFeatureHeading(
+    containerEl,
+    label,
+    description,
+    infoSection,
+    settingsKey,
+  ) {
+    const setting = new import_obsidian4.Setting(containerEl)
+      .setHeading()
+      .setClass("ac-settings-heading")
+      .setName(label)
+      .setDesc(description);
     if (infoSection !== void 0) {
-      setting.addExtraButton(
-        (button) => button.setTooltip("Open GitHub documentation").setIcon("info").onClick(async () => {
-          const anchor = activeDocument.createElement("a");
-          anchor.href = `${README_URL}#${infoSection}`;
-          anchor.target = "_blank";
-          anchor.click();
-        })
+      setting.addExtraButton((button) =>
+        button
+          .setTooltip("Open GitHub documentation")
+          .setIcon("info")
+          .onClick(async () => {
+            const anchor = activeDocument.createElement("a");
+            anchor.href = `${README_URL}#${infoSection}`;
+            anchor.target = "_blank";
+            anchor.click();
+          }),
       );
     }
     if (settingsKey !== null) {
-      setting.addToggle(
-        (toggle) => toggle.setTooltip("Requires a reload to take effect.").setValue(this.settingsManager.getSetting(settingsKey)).onChange(async (value) => {
-          await this.settingsManager.setSetting({ [settingsKey]: value });
-          new import_obsidian4.Notice("Reload obsidian to apply the changes.");
-        })
+      setting.addToggle((toggle) =>
+        toggle
+          .setTooltip("Requires a reload to take effect.")
+          .setValue(this.settingsManager.getSetting(settingsKey))
+          .onChange(async (value) => {
+            await this.settingsManager.setSetting({ [settingsKey]: value });
+            new import_obsidian4.Notice(
+              "Reload obsidian to apply the changes.",
+            );
+          }),
       );
     }
     return setting;
   }
   createTextSetting(containerEl, settingId, setting) {
-    new import_obsidian4.Setting(containerEl).setName(setting.label).setDesc(setting.description).addText(
-      (text) => text.setValue(this.settingsManager.getSetting(settingId)).onChange(async (value) => {
-        await this.settingsManager.setSetting({ [settingId]: setting.parse ? setting.parse(value) : value });
-      })
-    );
+    new import_obsidian4.Setting(containerEl)
+      .setName(setting.label)
+      .setDesc(setting.description)
+      .addText((text) =>
+        text
+          .setValue(this.settingsManager.getSetting(settingId))
+          .onChange(async (value) => {
+            await this.settingsManager.setSetting({
+              [settingId]: setting.parse ? setting.parse(value) : value,
+            });
+          }),
+      );
   }
   createNumberSetting(containerEl, settingId, setting) {
-    new import_obsidian4.Setting(containerEl).setName(setting.label).setDesc(setting.description).addText(
-      (text) => text.setValue(JSON.stringify(this.settingsManager.getSetting(settingId))).onChange(async (value) => {
-        await this.settingsManager.setSetting({ [settingId]: setting.parse(value) });
-      })
-    );
+    new import_obsidian4.Setting(containerEl)
+      .setName(setting.label)
+      .setDesc(setting.description)
+      .addText((text) =>
+        text
+          .setValue(JSON.stringify(this.settingsManager.getSetting(settingId)))
+          .onChange(async (value) => {
+            await this.settingsManager.setSetting({
+              [settingId]: setting.parse(value),
+            });
+          }),
+      );
   }
   createDimensionSetting(containerEl, settingId, setting) {
     let text1;
     let text2;
-    new import_obsidian4.Setting(containerEl).setName(setting.label).setDesc(setting.description).addText((text) => {
-      text1 = text.setValue(this.settingsManager.getSetting(settingId)[0].toString()).onChange(async (value) => await this.settingsManager.setSetting({ [settingId]: setting.parse([value, text2.getValue()]) }));
-    }).addText((text) => {
-      text2 = text.setValue(this.settingsManager.getSetting(settingId)[1].toString()).onChange(async (value) => await this.settingsManager.setSetting({ [settingId]: setting.parse([text1.getValue(), value]) }));
-    });
+    new import_obsidian4.Setting(containerEl)
+      .setName(setting.label)
+      .setDesc(setting.description)
+      .addText((text) => {
+        text1 = text
+          .setValue(this.settingsManager.getSetting(settingId)[0].toString())
+          .onChange(
+            async (value) =>
+              await this.settingsManager.setSetting({
+                [settingId]: setting.parse([value, text2.getValue()]),
+              }),
+          );
+      })
+      .addText((text) => {
+        text2 = text
+          .setValue(this.settingsManager.getSetting(settingId)[1].toString())
+          .onChange(
+            async (value) =>
+              await this.settingsManager.setSetting({
+                [settingId]: setting.parse([text1.getValue(), value]),
+              }),
+          );
+      });
   }
   createBooleanSetting(containerEl, settingId, setting) {
-    new import_obsidian4.Setting(containerEl).setName(setting.label).setDesc(setting.description).addToggle(
-      (toggle) => toggle.setValue(this.settingsManager.getSetting(settingId)).onChange(async (value) => {
-        await this.settingsManager.setSetting({ [settingId]: value });
-      })
-    );
+    new import_obsidian4.Setting(containerEl)
+      .setName(setting.label)
+      .setDesc(setting.description)
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.settingsManager.getSetting(settingId))
+          .onChange(async (value) => {
+            await this.settingsManager.setSetting({ [settingId]: value });
+          }),
+      );
   }
   createDropdownSetting(containerEl, settingId, setting) {
-    new import_obsidian4.Setting(containerEl).setName(setting.label).setDesc(setting.description).addDropdown(
-      (dropdown) => dropdown.addOptions(setting.options).setValue(this.settingsManager.getSetting(settingId)).onChange(async (value) => {
-        await this.settingsManager.setSetting({ [settingId]: value });
-      })
-    );
+    new import_obsidian4.Setting(containerEl)
+      .setName(setting.label)
+      .setDesc(setting.description)
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOptions(setting.options)
+          .setValue(this.settingsManager.getSetting(settingId))
+          .onChange(async (value) => {
+            await this.settingsManager.setSetting({ [settingId]: value });
+          }),
+      );
   }
   createButtonSetting(containerEl, settingId, setting) {
-    new import_obsidian4.Setting(containerEl).setName(setting.label).setDesc(setting.description).addButton(
-      (button) => button.setButtonText("Open").onClick(() => setting.onClick())
-    );
+    new import_obsidian4.Setting(containerEl)
+      .setName(setting.label)
+      .setDesc(setting.description)
+      .addButton((button) =>
+        button.setButtonText("Open").onClick(() => setting.onClick()),
+      );
   }
   createStylesSetting(containerEl, settingId, setting) {
     const nestedContainerEl = containerEl.createEl("details");
@@ -2334,19 +3025,38 @@ var AdvancedCanvasPluginSettingTab = class extends import_obsidian4.PluginSettin
     const summaryEl = nestedContainerEl.createEl("summary");
     summaryEl.textContent = setting.label;
     for (const styleAttribute of setting.getParameters(this.settingsManager)) {
-      new import_obsidian4.Setting(nestedContainerEl).setName(styleAttribute.label).addDropdown(
-        (dropdown) => {
+      new import_obsidian4.Setting(nestedContainerEl)
+        .setName(styleAttribute.label)
+        .addDropdown((dropdown) => {
           var _a;
-          return dropdown.addOptions(Object.fromEntries(styleAttribute.options.map((option) => [option.value, option.value === null ? `${option.label} (default)` : option.label]))).setValue((_a = this.settingsManager.getSetting(settingId)[styleAttribute.key]) != null ? _a : "null").onChange(async (value) => {
-            const newValue = this.settingsManager.getSetting(settingId);
-            if (value === "null") delete newValue[styleAttribute.key];
-            else newValue[styleAttribute.key] = value;
-            await this.settingsManager.setSetting({
-              [settingId]: newValue
+          return dropdown
+            .addOptions(
+              Object.fromEntries(
+                styleAttribute.options.map((option) => [
+                  option.value,
+                  option.value === null
+                    ? `${option.label} (default)`
+                    : option.label,
+                ]),
+              ),
+            )
+            .setValue(
+              (_a =
+                this.settingsManager.getSetting(settingId)[
+                  styleAttribute.key
+                ]) != null
+                ? _a
+                : "null",
+            )
+            .onChange(async (value) => {
+              const newValue = this.settingsManager.getSetting(settingId);
+              if (value === "null") delete newValue[styleAttribute.key];
+              else newValue[styleAttribute.key] = value;
+              await this.settingsManager.setSetting({
+                [settingId]: newValue,
+              });
             });
-          });
-        }
-      );
+        });
     }
   }
   createKofiBanner(containerEl) {
@@ -2369,14 +3079,18 @@ var WindowsManager = class {
   constructor(plugin) {
     this.windows = [window];
     this.plugin = plugin;
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "window-open",
-      (_win, window2) => this.windows.push(window2)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "window-close",
-      (_win, window2) => this.windows = this.windows.filter((w) => w !== window2)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("window-open", (_win, window2) =>
+        this.windows.push(window2),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "window-close",
+        (_win, window2) =>
+          (this.windows = this.windows.filter((w) => w !== window2)),
+      ),
+    );
   }
 };
 
@@ -2385,33 +3099,33 @@ var import_view = require("@codemirror/view");
 
 // node_modules/monkey-around/mjs/index.js
 function around(obj, factories) {
-  const removers = Object.keys(factories).map((key) => around1(obj, key, factories[key]));
-  return removers.length === 1 ? removers[0] : function() {
-    removers.forEach((r) => r());
-  };
+  const removers = Object.keys(factories).map((key) =>
+    around1(obj, key, factories[key]),
+  );
+  return removers.length === 1
+    ? removers[0]
+    : function () {
+        removers.forEach((r) => r());
+      };
 }
 function around1(obj, method, createWrapper) {
-  const original = obj[method], hadOwn = obj.hasOwnProperty(method);
+  const original = obj[method],
+    hadOwn = obj.hasOwnProperty(method);
   let current = createWrapper(original);
-  if (original)
-    Object.setPrototypeOf(current, original);
+  if (original) Object.setPrototypeOf(current, original);
   Object.setPrototypeOf(wrapper, current);
   obj[method] = wrapper;
   return remove;
   function wrapper(...args) {
-    if (current === original && obj[method] === wrapper)
-      remove();
+    if (current === original && obj[method] === wrapper) remove();
     return current.apply(this, args);
   }
   function remove() {
     if (obj[method] === wrapper) {
-      if (hadOwn)
-        obj[method] = original;
-      else
-        delete obj[method];
+      if (hadOwn) obj[method] = original;
+      else delete obj[method];
     }
-    if (current === original)
-      return;
+    if (current === original) return;
     current = original;
     Object.setPrototypeOf(wrapper, original || Function);
   }
@@ -2429,9 +3143,13 @@ var JSONC = {
     try {
       return JSON.parse(text);
     } catch (e) {
-      return JSON.parse(text.replace(stringOrCommentRe, "$1").replace(stringOrTrailingCommaRe, "$1"));
+      return JSON.parse(
+        text
+          .replace(stringOrCommentRe, "$1")
+          .replace(stringOrTrailingCommaRe, "$1"),
+      );
     }
-  }
+  },
 };
 var dist_default = JSONC;
 
@@ -2444,19 +3162,24 @@ var Patcher = class _Patcher {
   static async waitForMapValueLookup(map, viewType, patch) {
     return new Promise((resolve) => {
       const uninstaller = around(map, {
-        [viewType]: (next) => function(...args) {
-          const view = next.call(this, ...args);
-          patch(view);
-          const patchedView = next.call(this, ...args);
-          uninstaller();
-          resolve(patchedView);
-          return patchedView;
-        }
+        [viewType]: (next) =>
+          function (...args) {
+            const view = next.call(this, ...args);
+            patch(view);
+            const patchedView = next.call(this, ...args);
+            uninstaller();
+            resolve(patchedView);
+            return patchedView;
+          },
       });
     });
   }
   static async waitForViewRequest(plugin, viewType, patch) {
-    return this.waitForMapValueLookup(plugin.app.viewRegistry.viewByType, viewType, patch);
+    return this.waitForMapValueLookup(
+      plugin.app.viewRegistry.viewByType,
+      viewType,
+      patch,
+    );
   }
   static OverrideExisting(fn) {
     return Object.assign(fn, { __overrideExisting: true });
@@ -2485,21 +3208,31 @@ var Patcher = class _Patcher {
   }
   static async patchOnce(plugin, object, patches) {
     const uninstallers = [];
-    const value = await new Promise(
-      (resolve) => this.patch(plugin, object, patches(resolve), false, uninstallers)
+    const value = await new Promise((resolve) =>
+      this.patch(plugin, object, patches(resolve), false, uninstallers),
     );
     for (const uninstall of uninstallers) uninstall();
     return value;
   }
   static tryPatchWorkspacePrototype(plugin, getTarget, patches, uninstallers) {
     return new Promise((resolve) => {
-      const result = _Patcher.patchPrototype(plugin, getTarget(), patches, uninstallers);
+      const result = _Patcher.patchPrototype(
+        plugin,
+        getTarget(),
+        patches,
+        uninstallers,
+      );
       if (result) {
         resolve(result);
         return;
       }
       const listener = plugin.app.workspace.on("layout-change", () => {
-        const result2 = _Patcher.patchPrototype(plugin, getTarget(), patches, uninstallers);
+        const result2 = _Patcher.patchPrototype(
+          plugin,
+          getTarget(),
+          patches,
+          uninstallers,
+        );
         if (result2) {
           plugin.app.workspace.offref(listener);
           resolve(result2);
@@ -2515,19 +3248,28 @@ var CURRENT_SPEC_VERSION = "1.0-1.0";
 var _MigrationHelper = class _MigrationHelper {
   static needsMigration(canvas) {
     var _a;
-    return ((_a = canvas.metadata) == null ? void 0 : _a.version) !== CURRENT_SPEC_VERSION;
+    return (
+      ((_a = canvas.metadata) == null ? void 0 : _a.version) !==
+      CURRENT_SPEC_VERSION
+    );
   }
   static migrate(canvas) {
     var _a, _b;
-    let version = (_b = (_a = canvas.metadata) == null ? void 0 : _a.version) != null ? _b : "undefined";
+    let version =
+      (_b = (_a = canvas.metadata) == null ? void 0 : _a.version) != null
+        ? _b
+        : "undefined";
     if (version === CURRENT_SPEC_VERSION) return canvas;
     while (version !== CURRENT_SPEC_VERSION) {
       const migrationFunction = _MigrationHelper.MIGRATIONS[version];
       if (!migrationFunction) {
-        console.error(`No migration function found for version ${version}. Critical error!`);
+        console.error(
+          `No migration function found for version ${version}. Critical error!`,
+        );
         break;
       }
-      const { version: newVersion, canvas: migratedCanvas } = migrationFunction(canvas);
+      const { version: newVersion, canvas: migratedCanvas } =
+        migrationFunction(canvas);
       version = newVersion;
       canvas = migratedCanvas;
       if (!canvas.metadata) canvas.metadata = { version, frontmatter: {} };
@@ -2560,12 +3302,17 @@ _MigrationHelper.MIGRATIONS = {
       if (node.edgesToNodeFromPortal) {
         const edgesToNodeFromPortal = node.edgesToNodeFromPortal;
         for (const [portalId, edges] of Object.entries(edgesToNodeFromPortal)) {
-          if (!(portalId in globalInterdimensionalEdges)) globalInterdimensionalEdges[portalId] = [];
+          if (!(portalId in globalInterdimensionalEdges))
+            globalInterdimensionalEdges[portalId] = [];
           for (const edge of edges) {
-            if (edge.fromNode !== node.id) edge.fromNode = `${portalId}-${edge.fromNode}`;
-            if (edge.toNode !== node.id) edge.toNode = `${portalId}-${edge.toNode}`;
+            if (edge.fromNode !== node.id)
+              edge.fromNode = `${portalId}-${edge.fromNode}`;
+            if (edge.toNode !== node.id)
+              edge.toNode = `${portalId}-${edge.toNode}`;
           }
-          (_b = globalInterdimensionalEdges[portalId]) == null ? void 0 : _b.push(...edges);
+          (_b = globalInterdimensionalEdges[portalId]) == null
+            ? void 0
+            : _b.push(...edges);
         }
         delete node.edgesToNodeFromPortal;
       }
@@ -2574,418 +3321,850 @@ _MigrationHelper.MIGRATIONS = {
       if (!(node.id in globalInterdimensionalEdges)) continue;
       node.interdimensionalEdges = globalInterdimensionalEdges[node.id];
     }
-    (_d = canvas.metadata) != null ? _d : canvas.metadata = {
-      version: TARGET_SPEC_VERSION,
-      frontmatter: {},
-      startNode
-    };
+    (_d = canvas.metadata) != null
+      ? _d
+      : (canvas.metadata = {
+          version: TARGET_SPEC_VERSION,
+          frontmatter: {},
+          startNode,
+        });
     return { version: TARGET_SPEC_VERSION, canvas };
-  }
+  },
 };
 var MigrationHelper = _MigrationHelper;
 
 // src/patchers/canvas-patcher.ts
 var CanvasPatcher = class extends Patcher {
   async patch() {
-    const loadedCanvasViewLeafs = this.plugin.app.workspace.getLeavesOfType("canvas").filter((leaf) => !(0, import_obsidian5.requireApiVersion)("1.7.2") || !leaf.isDeferred);
+    const loadedCanvasViewLeafs = this.plugin.app.workspace
+      .getLeavesOfType("canvas")
+      .filter(
+        (leaf) =>
+          !(0, import_obsidian5.requireApiVersion)("1.7.2") || !leaf.isDeferred,
+      );
     if (loadedCanvasViewLeafs.length > 0) {
-      console.debug(`Patching and reloading loaded canvas views (Count: ${loadedCanvasViewLeafs.length})`);
+      console.debug(
+        `Patching and reloading loaded canvas views (Count: ${loadedCanvasViewLeafs.length})`,
+      );
       this.patchCanvas(loadedCanvasViewLeafs.first().view);
       for (const leaf of loadedCanvasViewLeafs) leaf.rebuildView();
     } else {
-      await Patcher.waitForViewRequest(this.plugin, "canvas", (view) => this.patchCanvas(view));
+      await Patcher.waitForViewRequest(this.plugin, "canvas", (view) =>
+        this.patchCanvas(view),
+      );
       console.debug(`Patched canvas view on first request`);
     }
   }
   patchCanvas(view) {
     const that = this;
     Patcher.patchPrototype(this.plugin, view, {
-      setEphemeralState: Patcher.OverrideExisting((next) => function(state) {
-        var _a, _b, _c;
-        if (state == null ? void 0 : state.subpath) {
-          const nodeId = state.subpath.replace(/^#/, "");
-          const node = this.canvas.nodes.get(nodeId);
-          if (node) {
-            this.canvas.selectOnly(node);
-            this.canvas.zoomToSelection();
-            return;
-          }
-        }
-        if (((_b = (_a = state.match) == null ? void 0 : _a.matches) == null ? void 0 : _b[0]) && !((_c = state.match) == null ? void 0 : _c.nodeId)) {
-          const match = state.match.matches[0];
-          const elementType = match[0] === 0 ? "nodes" : "edges";
-          const elementIndex = match[1];
-          const element = elementType === "nodes" ? Array.from(this.canvas.nodes.values())[elementIndex] : Array.from(this.canvas.edges.values())[elementIndex];
-          if (element) {
-            this.canvas.selectOnly(element);
-            this.canvas.zoomToSelection();
-            return;
-          }
-        }
-        return next.call(this, state);
-      }),
-      setViewData: Patcher.OverrideExisting((next) => function(json, ...args) {
-        json = json !== "" ? json : '{"nodes": [], "edges": []}';
-        try {
-          const canvasData = dist_default.parse(json);
-          if (MigrationHelper.needsMigration(canvasData)) {
-            if (this.file) that.plugin.createFileSnapshot(this.file.path, json);
-            json = JSON.stringify(MigrationHelper.migrate(canvasData));
-          }
-        } catch (e) {
-          console.error("Failed to migrate canvas data:", e);
-        }
-        let result;
-        try {
-          result = next.call(this, json, ...args);
-        } catch (e) {
-          console.error("Invalid JSON, repairing through Advanced Canvas:", e);
-          if (this.file) that.plugin.createFileSnapshot(this.file.path, json);
-          json = JSON.stringify(dist_default.parse(json), null, 2);
-          result = next.call(this, json, ...args);
-        }
-        that.plugin.app.workspace.trigger("advanced-canvas:canvas-changed", this.canvas);
-        return result;
-      }),
-      close: Patcher.OverrideExisting((next) => function(...args) {
-        that.plugin.app.workspace.trigger("advanced-canvas:canvas-view-unloaded:before", this);
-        return next.call(this, ...args);
-      })
+      setEphemeralState: Patcher.OverrideExisting(
+        (next) =>
+          function (state) {
+            var _a, _b, _c;
+            if (state == null ? void 0 : state.subpath) {
+              const nodeId = state.subpath.replace(/^#/, "");
+              const node = this.canvas.nodes.get(nodeId);
+              if (node) {
+                this.canvas.selectOnly(node);
+                this.canvas.zoomToSelection();
+                return;
+              }
+            }
+            if (
+              ((_b = (_a = state.match) == null ? void 0 : _a.matches) == null
+                ? void 0
+                : _b[0]) &&
+              !((_c = state.match) == null ? void 0 : _c.nodeId)
+            ) {
+              const match = state.match.matches[0];
+              const elementType = match[0] === 0 ? "nodes" : "edges";
+              const elementIndex = match[1];
+              const element =
+                elementType === "nodes"
+                  ? Array.from(this.canvas.nodes.values())[elementIndex]
+                  : Array.from(this.canvas.edges.values())[elementIndex];
+              if (element) {
+                this.canvas.selectOnly(element);
+                this.canvas.zoomToSelection();
+                return;
+              }
+            }
+            return next.call(this, state);
+          },
+      ),
+      setViewData: Patcher.OverrideExisting(
+        (next) =>
+          function (json, ...args) {
+            json = json !== "" ? json : '{"nodes": [], "edges": []}';
+            try {
+              const canvasData = dist_default.parse(json);
+              if (MigrationHelper.needsMigration(canvasData)) {
+                if (this.file)
+                  that.plugin.createFileSnapshot(this.file.path, json);
+                json = JSON.stringify(MigrationHelper.migrate(canvasData));
+              }
+            } catch (e) {
+              console.error("Failed to migrate canvas data:", e);
+            }
+            let result;
+            try {
+              result = next.call(this, json, ...args);
+            } catch (e) {
+              console.error(
+                "Invalid JSON, repairing through Advanced Canvas:",
+                e,
+              );
+              if (this.file)
+                that.plugin.createFileSnapshot(this.file.path, json);
+              json = JSON.stringify(dist_default.parse(json), null, 2);
+              result = next.call(this, json, ...args);
+            }
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:canvas-changed",
+              this.canvas,
+            );
+            return result;
+          },
+      ),
+      close: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:canvas-view-unloaded:before",
+              this,
+            );
+            return next.call(this, ...args);
+          },
+      ),
     });
     Patcher.patchPrototype(this.plugin, view.canvas, {
-      markViewportChanged: Patcher.OverrideExisting((next) => function(...args) {
-        that.plugin.app.workspace.trigger("advanced-canvas:viewport-changed:before", this);
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:viewport-changed:after", this);
-        return result;
-      }),
-      markMoved: Patcher.OverrideExisting((next) => function(node) {
-        const result = next.call(this, node);
-        if (!this.viewportChanged) {
-          if (node.prevX !== node.x || node.prevY !== node.y)
-            that.plugin.app.workspace.trigger("advanced-canvas:node-moved", this, node, !this.isDragging);
-          if (node.prevWidth !== node.width || node.prevHeight !== node.height)
-            that.plugin.app.workspace.trigger("advanced-canvas:node-resized", this, node);
-        }
-        node.prevX = node.x;
-        node.prevY = node.y;
-        node.prevWidth = node.width;
-        node.prevHeight = node.height;
-        return result;
-      }),
-      onDoubleClick: Patcher.OverrideExisting((next) => function(event) {
-        const preventDefault = { value: false };
-        that.plugin.app.workspace.trigger("advanced-canvas:double-click", this, event, preventDefault);
-        if (!preventDefault.value) next.call(this, event);
-      }),
-      setDragging: Patcher.OverrideExisting((next) => function(dragging) {
-        const result = next.call(this, dragging);
-        that.plugin.app.workspace.trigger("advanced-canvas:dragging-state-changed", this, dragging);
-        return result;
-      }),
+      markViewportChanged: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:viewport-changed:before",
+              this,
+            );
+            const result = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:viewport-changed:after",
+              this,
+            );
+            return result;
+          },
+      ),
+      markMoved: Patcher.OverrideExisting(
+        (next) =>
+          function (node) {
+            const result = next.call(this, node);
+            if (!this.viewportChanged) {
+              if (node.prevX !== node.x || node.prevY !== node.y)
+                that.plugin.app.workspace.trigger(
+                  "advanced-canvas:node-moved",
+                  this,
+                  node,
+                  !this.isDragging,
+                );
+              if (
+                node.prevWidth !== node.width ||
+                node.prevHeight !== node.height
+              )
+                that.plugin.app.workspace.trigger(
+                  "advanced-canvas:node-resized",
+                  this,
+                  node,
+                );
+            }
+            node.prevX = node.x;
+            node.prevY = node.y;
+            node.prevWidth = node.width;
+            node.prevHeight = node.height;
+            return result;
+          },
+      ),
+      onDoubleClick: Patcher.OverrideExisting(
+        (next) =>
+          function (event) {
+            const preventDefault = { value: false };
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:double-click",
+              this,
+              event,
+              preventDefault,
+            );
+            if (!preventDefault.value) next.call(this, event);
+          },
+      ),
+      setDragging: Patcher.OverrideExisting(
+        (next) =>
+          function (dragging) {
+            const result = next.call(this, dragging);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:dragging-state-changed",
+              this,
+              dragging,
+            );
+            return result;
+          },
+      ),
       // OBSIDIAN-FIX
-      cloneData: Patcher.OverrideExisting((next) => function(elements, shift) {
-        const result = next.call(this, elements, shift);
-        elements.nodes = elements.nodes.map((nodeData) => JSON.parse(JSON.stringify(nodeData)));
-        elements.edges = elements.edges.map((edgeData) => JSON.parse(JSON.stringify(edgeData)));
-        return result;
-      }),
-      getContainingNodes: Patcher.OverrideExisting((next) => function(bbox) {
-        const result = next.call(this, bbox);
-        that.plugin.app.workspace.trigger("advanced-canvas:containing-nodes-requested", this, bbox, result);
-        return result;
-      }),
-      updateSelection: Patcher.OverrideExisting((next) => function(update) {
-        const oldSelection = new Set(this.selection);
-        const result = next.call(this, update);
-        that.plugin.app.workspace.trigger("advanced-canvas:selection-changed", this, oldSelection, (update2) => next.call(this, update2));
-        return result;
-      }),
-      createTextNode: Patcher.OverrideExisting((next) => function(...args) {
-        const node = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-created", this, node);
-        return node;
-      }),
-      createFileNode: Patcher.OverrideExisting((next) => function(...args) {
-        const node = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-created", this, node);
-        return node;
-      }),
-      createFileNodes: Patcher.OverrideExisting((next) => function(...args) {
-        const nodes = next.call(this, ...args);
-        nodes.forEach((node) => that.plugin.app.workspace.trigger("advanced-canvas:node-created", this, node));
-        return nodes;
-      }),
-      createGroupNode: Patcher.OverrideExisting((next) => function(...args) {
-        const node = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-created", this, node);
-        return node;
-      }),
-      createLinkNode: Patcher.OverrideExisting((next) => function(...args) {
-        const node = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-created", this, node);
-        return node;
-      }),
-      addNode: Patcher.OverrideExisting((next) => function(node) {
-        that.patchNode(node);
-        return next.call(this, node);
-      }),
-      addEdge: Patcher.OverrideExisting((next) => function(edge) {
-        that.patchEdge(edge);
-        if (!this.viewportChanged) that.plugin.app.workspace.trigger("advanced-canvas:edge-created", this, edge);
-        return next.call(this, edge);
-      }),
-      removeNode: Patcher.OverrideExisting((next) => function(node) {
-        const result = next.call(this, node);
-        if (!this.isClearing) that.plugin.app.workspace.trigger("advanced-canvas:node-removed", this, node);
-        return result;
-      }),
-      removeEdge: Patcher.OverrideExisting((next) => function(edge) {
-        const result = next.call(this, edge);
-        if (!this.isClearing) that.plugin.app.workspace.trigger("advanced-canvas:edge-removed", this, edge);
-        return result;
-      }),
-      handleCopy: Patcher.OverrideExisting((next) => function(...args) {
-        this.isCopying = true;
-        const result = next.call(this, ...args);
-        this.isCopying = false;
-        return result;
-      }),
-      handlePaste: Patcher.OverrideExisting((next) => function(...args) {
-        this.isPasting = true;
-        const result = next.call(this, ...args);
-        this.isPasting = false;
-        return result;
-      }),
-      getSelectionData: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        if (this.isCopying) that.plugin.app.workspace.trigger("advanced-canvas:copy", this, result);
-        return result;
-      }),
-      zoomToBbox: Patcher.OverrideExisting((next) => function(bbox) {
-        that.plugin.app.workspace.trigger("advanced-canvas:zoom-to-bbox:before", this, bbox);
-        const result = next.call(this, bbox);
-        that.plugin.app.workspace.trigger("advanced-canvas:zoom-to-bbox:after", this, bbox);
-        return result;
-      }),
+      cloneData: Patcher.OverrideExisting(
+        (next) =>
+          function (elements, shift) {
+            const result = next.call(this, elements, shift);
+            elements.nodes = elements.nodes.map((nodeData) =>
+              JSON.parse(JSON.stringify(nodeData)),
+            );
+            elements.edges = elements.edges.map((edgeData) =>
+              JSON.parse(JSON.stringify(edgeData)),
+            );
+            return result;
+          },
+      ),
+      getContainingNodes: Patcher.OverrideExisting(
+        (next) =>
+          function (bbox) {
+            const result = next.call(this, bbox);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:containing-nodes-requested",
+              this,
+              bbox,
+              result,
+            );
+            return result;
+          },
+      ),
+      updateSelection: Patcher.OverrideExisting(
+        (next) =>
+          function (update) {
+            const oldSelection = new Set(this.selection);
+            const result = next.call(this, update);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:selection-changed",
+              this,
+              oldSelection,
+              (update2) => next.call(this, update2),
+            );
+            return result;
+          },
+      ),
+      createTextNode: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const node = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:node-created",
+              this,
+              node,
+            );
+            return node;
+          },
+      ),
+      createFileNode: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const node = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:node-created",
+              this,
+              node,
+            );
+            return node;
+          },
+      ),
+      createFileNodes: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const nodes = next.call(this, ...args);
+            nodes.forEach((node) =>
+              that.plugin.app.workspace.trigger(
+                "advanced-canvas:node-created",
+                this,
+                node,
+              ),
+            );
+            return nodes;
+          },
+      ),
+      createGroupNode: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const node = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:node-created",
+              this,
+              node,
+            );
+            return node;
+          },
+      ),
+      createLinkNode: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const node = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:node-created",
+              this,
+              node,
+            );
+            return node;
+          },
+      ),
+      addNode: Patcher.OverrideExisting(
+        (next) =>
+          function (node) {
+            that.patchNode(node);
+            return next.call(this, node);
+          },
+      ),
+      addEdge: Patcher.OverrideExisting(
+        (next) =>
+          function (edge) {
+            that.patchEdge(edge);
+            if (!this.viewportChanged)
+              that.plugin.app.workspace.trigger(
+                "advanced-canvas:edge-created",
+                this,
+                edge,
+              );
+            return next.call(this, edge);
+          },
+      ),
+      removeNode: Patcher.OverrideExisting(
+        (next) =>
+          function (node) {
+            const result = next.call(this, node);
+            if (!this.isClearing)
+              that.plugin.app.workspace.trigger(
+                "advanced-canvas:node-removed",
+                this,
+                node,
+              );
+            return result;
+          },
+      ),
+      removeEdge: Patcher.OverrideExisting(
+        (next) =>
+          function (edge) {
+            const result = next.call(this, edge);
+            if (!this.isClearing)
+              that.plugin.app.workspace.trigger(
+                "advanced-canvas:edge-removed",
+                this,
+                edge,
+              );
+            return result;
+          },
+      ),
+      handleCopy: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            this.isCopying = true;
+            const result = next.call(this, ...args);
+            this.isCopying = false;
+            return result;
+          },
+      ),
+      handlePaste: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            this.isPasting = true;
+            const result = next.call(this, ...args);
+            this.isPasting = false;
+            return result;
+          },
+      ),
+      getSelectionData: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            if (this.isCopying)
+              that.plugin.app.workspace.trigger(
+                "advanced-canvas:copy",
+                this,
+                result,
+              );
+            return result;
+          },
+      ),
+      zoomToBbox: Patcher.OverrideExisting(
+        (next) =>
+          function (bbox) {
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:zoom-to-bbox:before",
+              this,
+              bbox,
+            );
+            const result = next.call(this, bbox);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:zoom-to-bbox:after",
+              this,
+              bbox,
+            );
+            return result;
+          },
+      ),
       // Custom
-      zoomToRealBbox: (_next) => function(bbox) {
-        if (this.canvasRect.width === 0 || this.canvasRect.height === 0) return;
-        that.plugin.app.workspace.trigger("advanced-canvas:zoom-to-bbox:before", this, bbox);
-        const widthZoom = this.canvasRect.width / (bbox.maxX - bbox.minX);
-        const heightZoom = this.canvasRect.height / (bbox.maxY - bbox.minY);
-        const zoom = this.screenshotting ? Math.min(widthZoom, heightZoom) : Math.clamp(Math.min(widthZoom, heightZoom), -4, 1);
-        this.tZoom = Math.log2(zoom);
-        this.zoomCenter = null;
-        this.tx = (bbox.minX + bbox.maxX) / 2;
-        this.ty = (bbox.minY + bbox.maxY) / 2;
-        this.markViewportChanged();
-        that.plugin.app.workspace.trigger("advanced-canvas:zoom-to-bbox:after", this, bbox);
-      },
-      setReadonly: Patcher.OverrideExisting((next) => function(readonly) {
-        const result = next.call(this, readonly);
-        that.plugin.app.workspace.trigger("advanced-canvas:readonly-changed", this, readonly);
-        return result;
-      }),
-      undo: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        this.importData(this.getData(), true);
-        that.plugin.app.workspace.trigger("advanced-canvas:undo", this);
-        return result;
-      }),
-      redo: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        this.importData(this.getData(), true);
-        that.plugin.app.workspace.trigger("advanced-canvas:redo", this);
-        return result;
-      }),
-      clear: Patcher.OverrideExisting((next) => function(...args) {
-        this.isClearing = true;
-        const result = next.call(this, ...args);
-        this.isClearing = false;
-        return result;
-      }),
+      zoomToRealBbox: (_next) =>
+        function (bbox) {
+          if (this.canvasRect.width === 0 || this.canvasRect.height === 0)
+            return;
+          that.plugin.app.workspace.trigger(
+            "advanced-canvas:zoom-to-bbox:before",
+            this,
+            bbox,
+          );
+          const widthZoom = this.canvasRect.width / (bbox.maxX - bbox.minX);
+          const heightZoom = this.canvasRect.height / (bbox.maxY - bbox.minY);
+          const zoom = this.screenshotting
+            ? Math.min(widthZoom, heightZoom)
+            : Math.clamp(Math.min(widthZoom, heightZoom), -4, 1);
+          this.tZoom = Math.log2(zoom);
+          this.zoomCenter = null;
+          this.tx = (bbox.minX + bbox.maxX) / 2;
+          this.ty = (bbox.minY + bbox.maxY) / 2;
+          this.markViewportChanged();
+          that.plugin.app.workspace.trigger(
+            "advanced-canvas:zoom-to-bbox:after",
+            this,
+            bbox,
+          );
+        },
+      setReadonly: Patcher.OverrideExisting(
+        (next) =>
+          function (readonly) {
+            const result = next.call(this, readonly);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:readonly-changed",
+              this,
+              readonly,
+            );
+            return result;
+          },
+      ),
+      undo: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            this.importData(this.getData(), true);
+            that.plugin.app.workspace.trigger("advanced-canvas:undo", this);
+            return result;
+          },
+      ),
+      redo: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            this.importData(this.getData(), true);
+            that.plugin.app.workspace.trigger("advanced-canvas:redo", this);
+            return result;
+          },
+      ),
+      clear: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            this.isClearing = true;
+            const result = next.call(this, ...args);
+            this.isClearing = false;
+            return result;
+          },
+      ),
       /*setData: Patcher.OverrideExisting(next => function (...args: any): void {
         //
         const result = next.call(this, ...args)
         //
         return result
       }),*/
-      getData: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:data-requested", this, result);
-        return result;
-      }),
-      importData: Patcher.OverrideExisting((next) => function(data, clearCanvas, silent) {
-        var _a;
-        const targetFilePath = (_a = this.view.file) == null ? void 0 : _a.path;
-        const setData = (data2) => {
-          if (!this.view.file || this.view.file.path !== targetFilePath) return;
-          this.importData(data2, true, true);
-        };
-        if (!silent) that.plugin.app.workspace.trigger("advanced-canvas:data-loaded:before", this, data, setData);
-        const result = next.call(this, data, clearCanvas);
-        if (!silent) that.plugin.app.workspace.trigger("advanced-canvas:data-loaded:after", this, data, setData);
-        return result;
-      }),
-      requestSave: Patcher.OverrideExisting((next) => function(...args) {
-        that.plugin.app.workspace.trigger("advanced-canvas:canvas-saved:before", this);
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:canvas-saved:after", this);
-        return result;
-      })
+      getData: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:data-requested",
+              this,
+              result,
+            );
+            return result;
+          },
+      ),
+      importData: Patcher.OverrideExisting(
+        (next) =>
+          function (data, clearCanvas, silent) {
+            var _a;
+            const targetFilePath =
+              (_a = this.view.file) == null ? void 0 : _a.path;
+            const setData = (data2) => {
+              if (!this.view.file || this.view.file.path !== targetFilePath)
+                return;
+              this.importData(data2, true, true);
+            };
+            if (!silent)
+              that.plugin.app.workspace.trigger(
+                "advanced-canvas:data-loaded:before",
+                this,
+                data,
+                setData,
+              );
+            const result = next.call(this, data, clearCanvas);
+            if (!silent)
+              that.plugin.app.workspace.trigger(
+                "advanced-canvas:data-loaded:after",
+                this,
+                data,
+                setData,
+              );
+            return result;
+          },
+      ),
+      requestSave: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:canvas-saved:before",
+              this,
+            );
+            const result = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:canvas-saved:after",
+              this,
+            );
+            return result;
+          },
+      ),
     });
     Patcher.patchPrototype(this.plugin, view.canvas.menu, {
-      render: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:popup-menu-created", this.canvas);
-        next.call(this);
-        return result;
-      })
+      render: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:popup-menu-created",
+              this.canvas,
+            );
+            next.call(this);
+            return result;
+          },
+      ),
     });
     Patcher.patchPrototype(this.plugin, view.canvas.nodeInteractionLayer, {
-      setTarget: Patcher.OverrideExisting((next) => function(node) {
-        const result = next.call(this, node);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-interaction", this.canvas, node);
-        return result;
-      })
+      setTarget: Patcher.OverrideExisting(
+        (next) =>
+          function (node) {
+            const result = next.call(this, node);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:node-interaction",
+              this.canvas,
+              node,
+            );
+            return result;
+          },
+      ),
     });
-    this.plugin.registerEditorExtension([import_view.EditorView.updateListener.of((update) => {
-      if (!update.docChanged) return;
-      const editor = update.state.field(import_obsidian5.editorInfoField);
-      const node = editor.node;
-      if (!node) return;
-      that.plugin.app.workspace.trigger("advanced-canvas:node-text-content-changed", node.canvas, node, update);
-    })]);
+    this.plugin.registerEditorExtension([
+      import_view.EditorView.updateListener.of((update) => {
+        if (!update.docChanged) return;
+        const editor = update.state.field(import_obsidian5.editorInfoField);
+        const node = editor.node;
+        if (!node) return;
+        that.plugin.app.workspace.trigger(
+          "advanced-canvas:node-text-content-changed",
+          node.canvas,
+          node,
+          update,
+        );
+      }),
+    ]);
   }
   patchNode(node) {
     const that = this;
     Patcher.patch(this.plugin, node, {
-      render: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-rendered", this.canvas, node);
-        return result;
-      }),
-      setData: Patcher.OverrideExisting((next) => function(data, addHistory) {
-        const result = next.call(this, data);
-        if (node.initialized && !node.isDirty) {
-          node.isDirty = true;
-          that.plugin.app.workspace.trigger("advanced-canvas:node-changed", this.canvas, node);
-          delete node.isDirty;
-        }
-        this.canvas.data = this.canvas.getData();
-        if (this.initialized) this.canvas.view.requestSave();
-        if (addHistory) this.canvas.pushHistory(this.canvas.data);
-        return result;
-      }),
-      setZIndex: (_next) => function(value) {
-        this.setData({
-          ...this.getData(),
-          zIndex: value
-        }, true);
-        this.updateZIndex();
-      },
-      updateZIndex: Patcher.OverrideExisting((next) => function() {
-        const persistentZIndex = this.getData().zIndex;
-        if (persistentZIndex === void 0) return next.call(this);
-        this.canvas.zIndexCounter = Math.max(this.canvas.zIndexCounter, persistentZIndex);
-        this.renderZIndex();
-      }),
-      renderZIndex: Patcher.OverrideExisting((next) => function() {
-        const persistentZIndex = this.getData().zIndex;
-        if (persistentZIndex === void 0) return next.call(this);
-        this.zIndex = persistentZIndex;
-        if (this.canvas.selection.size === 1 && this.canvas.selection.has(this))
-          this.zIndex = this.canvas.zIndexCounter + 1;
-        this.nodeEl.style.zIndex = this.zIndex.toString();
-      }),
-      setIsEditing: Patcher.OverrideExisting((next) => function(editing, ...args) {
-        const result = next.call(this, editing, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-editing-state-changed", this.canvas, node, editing);
-        return result;
-      }),
-      updateBreakpoint: Patcher.OverrideExisting((next) => function(breakpoint) {
-        const breakpointRef = { value: breakpoint };
-        that.plugin.app.workspace.trigger("advanced-canvas:node-breakpoint-changed", this.canvas, node, breakpointRef);
-        return next.call(this, breakpointRef.value);
-      }),
-      getBBox: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-bbox-requested", this.canvas, node, result);
-        return result;
-      }),
-      onConnectionPointerdown: Patcher.OverrideExisting((next) => function(e, side) {
-        const addEdgeEventRef = that.plugin.app.workspace.on("advanced-canvas:edge-added", (_canvas, edge) => {
-          that.plugin.app.workspace.trigger("advanced-canvas:edge-connection-dragging:before", this.canvas, edge, e, true, "to");
-          that.plugin.app.workspace.offref(addEdgeEventRef);
-          activeDocument.addEventListener("pointerup", (e2) => {
-            that.plugin.app.workspace.trigger("advanced-canvas:edge-connection-dragging:after", this.canvas, edge, e2, true, "to");
-          }, { once: true });
-        });
-        const result = next.call(this, e, side);
-        return result;
-      }),
+      render: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:node-rendered",
+              this.canvas,
+              node,
+            );
+            return result;
+          },
+      ),
+      setData: Patcher.OverrideExisting(
+        (next) =>
+          function (data, addHistory) {
+            const result = next.call(this, data);
+            if (node.initialized && !node.isDirty) {
+              node.isDirty = true;
+              that.plugin.app.workspace.trigger(
+                "advanced-canvas:node-changed",
+                this.canvas,
+                node,
+              );
+              delete node.isDirty;
+            }
+            this.canvas.data = this.canvas.getData();
+            if (this.initialized) this.canvas.view.requestSave();
+            if (addHistory) this.canvas.pushHistory(this.canvas.data);
+            return result;
+          },
+      ),
+      setZIndex: (_next) =>
+        function (value) {
+          this.setData(
+            {
+              ...this.getData(),
+              zIndex: value,
+            },
+            true,
+          );
+          this.updateZIndex();
+        },
+      updateZIndex: Patcher.OverrideExisting(
+        (next) =>
+          function () {
+            const persistentZIndex = this.getData().zIndex;
+            if (persistentZIndex === void 0) return next.call(this);
+            this.canvas.zIndexCounter = Math.max(
+              this.canvas.zIndexCounter,
+              persistentZIndex,
+            );
+            this.renderZIndex();
+          },
+      ),
+      renderZIndex: Patcher.OverrideExisting(
+        (next) =>
+          function () {
+            const persistentZIndex = this.getData().zIndex;
+            if (persistentZIndex === void 0) return next.call(this);
+            this.zIndex = persistentZIndex;
+            if (
+              this.canvas.selection.size === 1 &&
+              this.canvas.selection.has(this)
+            )
+              this.zIndex = this.canvas.zIndexCounter + 1;
+            this.nodeEl.style.zIndex = this.zIndex.toString();
+          },
+      ),
+      setIsEditing: Patcher.OverrideExisting(
+        (next) =>
+          function (editing, ...args) {
+            const result = next.call(this, editing, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:node-editing-state-changed",
+              this.canvas,
+              node,
+              editing,
+            );
+            return result;
+          },
+      ),
+      updateBreakpoint: Patcher.OverrideExisting(
+        (next) =>
+          function (breakpoint) {
+            const breakpointRef = { value: breakpoint };
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:node-breakpoint-changed",
+              this.canvas,
+              node,
+              breakpointRef,
+            );
+            return next.call(this, breakpointRef.value);
+          },
+      ),
+      getBBox: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:node-bbox-requested",
+              this.canvas,
+              node,
+              result,
+            );
+            return result;
+          },
+      ),
+      onConnectionPointerdown: Patcher.OverrideExisting(
+        (next) =>
+          function (e, side) {
+            const addEdgeEventRef = that.plugin.app.workspace.on(
+              "advanced-canvas:edge-added",
+              (_canvas, edge) => {
+                that.plugin.app.workspace.trigger(
+                  "advanced-canvas:edge-connection-dragging:before",
+                  this.canvas,
+                  edge,
+                  e,
+                  true,
+                  "to",
+                );
+                that.plugin.app.workspace.offref(addEdgeEventRef);
+                activeDocument.addEventListener(
+                  "pointerup",
+                  (e2) => {
+                    that.plugin.app.workspace.trigger(
+                      "advanced-canvas:edge-connection-dragging:after",
+                      this.canvas,
+                      edge,
+                      e2,
+                      true,
+                      "to",
+                    );
+                  },
+                  { once: true },
+                );
+              },
+            );
+            const result = next.call(this, e, side);
+            return result;
+          },
+      ),
       // File nodes
-      setFile: (next) => function(...args) {
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-changed", this.canvas, this);
-        return result;
-      },
-      setFilePath: (next) => function(...args) {
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:node-changed", this.canvas, this);
-        return result;
-      }
+      setFile: (next) =>
+        function (...args) {
+          const result = next.call(this, ...args);
+          that.plugin.app.workspace.trigger(
+            "advanced-canvas:node-changed",
+            this.canvas,
+            this,
+          );
+          return result;
+        },
+      setFilePath: (next) =>
+        function (...args) {
+          const result = next.call(this, ...args);
+          that.plugin.app.workspace.trigger(
+            "advanced-canvas:node-changed",
+            this.canvas,
+            this,
+          );
+          return result;
+        },
     });
     this.runAfterInitialized(node, () => {
-      this.plugin.app.workspace.trigger("advanced-canvas:node-added", node.canvas, node);
-      this.plugin.app.workspace.trigger("advanced-canvas:node-changed", node.canvas, node);
+      this.plugin.app.workspace.trigger(
+        "advanced-canvas:node-added",
+        node.canvas,
+        node,
+      );
+      this.plugin.app.workspace.trigger(
+        "advanced-canvas:node-changed",
+        node.canvas,
+        node,
+      );
     });
   }
   patchEdge(edge) {
     const that = this;
     Patcher.patch(this.plugin, edge, {
-      setData: Patcher.OverrideExisting((next) => function(data, addHistory) {
-        const result = next.call(this, data);
-        if (this.initialized && !this.isDirty) {
-          this.isDirty = true;
-          that.plugin.app.workspace.trigger("advanced-canvas:edge-changed", this.canvas, this);
-          delete this.isDirty;
-        }
-        this.canvas.data = this.canvas.getData();
-        if (this.initialized) this.canvas.view.requestSave();
-        if (addHistory) this.canvas.pushHistory(this.canvas.getData());
-        return result;
-      }),
-      render: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:edge-changed", this.canvas, this);
-        return result;
-      }),
-      getCenter: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        that.plugin.app.workspace.trigger("advanced-canvas:edge-center-requested", this.canvas, this, result);
-        return result;
-      }),
-      onConnectionPointerdown: Patcher.OverrideExisting((next) => function(e) {
-        const cancelRef = { value: false };
-        that.plugin.app.workspace.trigger("advanced-canvas:edge-connection-try-dragging:before", this.canvas, this, e, cancelRef);
-        if (cancelRef.value) return;
-        const previousEnds = { from: this.from, to: this.to };
-        const result = next.call(this, e);
-        const eventPos = this.canvas.posFromEvt(e);
-        const fromPos = BBoxHelper.getCenterOfBBoxSide(this.from.node.getBBox(), this.from.side);
-        const toPos = BBoxHelper.getCenterOfBBoxSide(this.to.node.getBBox(), this.to.side);
-        const draggingSide = Math.hypot(eventPos.x - fromPos.x, eventPos.y - fromPos.y) > Math.hypot(eventPos.x - toPos.x, eventPos.y - toPos.y) ? "to" : "from";
-        that.plugin.app.workspace.trigger("advanced-canvas:edge-connection-dragging:before", this.canvas, this, e, false, draggingSide, previousEnds);
-        activeDocument.addEventListener("pointerup", (e2) => {
-          that.plugin.app.workspace.trigger("advanced-canvas:edge-connection-dragging:after", this.canvas, this, e2, false, draggingSide, previousEnds);
-        }, { once: true });
-        return result;
-      })
+      setData: Patcher.OverrideExisting(
+        (next) =>
+          function (data, addHistory) {
+            const result = next.call(this, data);
+            if (this.initialized && !this.isDirty) {
+              this.isDirty = true;
+              that.plugin.app.workspace.trigger(
+                "advanced-canvas:edge-changed",
+                this.canvas,
+                this,
+              );
+              delete this.isDirty;
+            }
+            this.canvas.data = this.canvas.getData();
+            if (this.initialized) this.canvas.view.requestSave();
+            if (addHistory) this.canvas.pushHistory(this.canvas.getData());
+            return result;
+          },
+      ),
+      render: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:edge-changed",
+              this.canvas,
+              this,
+            );
+            return result;
+          },
+      ),
+      getCenter: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:edge-center-requested",
+              this.canvas,
+              this,
+              result,
+            );
+            return result;
+          },
+      ),
+      onConnectionPointerdown: Patcher.OverrideExisting(
+        (next) =>
+          function (e) {
+            const cancelRef = { value: false };
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:edge-connection-try-dragging:before",
+              this.canvas,
+              this,
+              e,
+              cancelRef,
+            );
+            if (cancelRef.value) return;
+            const previousEnds = { from: this.from, to: this.to };
+            const result = next.call(this, e);
+            const eventPos = this.canvas.posFromEvt(e);
+            const fromPos = BBoxHelper.getCenterOfBBoxSide(
+              this.from.node.getBBox(),
+              this.from.side,
+            );
+            const toPos = BBoxHelper.getCenterOfBBoxSide(
+              this.to.node.getBBox(),
+              this.to.side,
+            );
+            const draggingSide =
+              Math.hypot(eventPos.x - fromPos.x, eventPos.y - fromPos.y) >
+              Math.hypot(eventPos.x - toPos.x, eventPos.y - toPos.y)
+                ? "to"
+                : "from";
+            that.plugin.app.workspace.trigger(
+              "advanced-canvas:edge-connection-dragging:before",
+              this.canvas,
+              this,
+              e,
+              false,
+              draggingSide,
+              previousEnds,
+            );
+            activeDocument.addEventListener(
+              "pointerup",
+              (e2) => {
+                that.plugin.app.workspace.trigger(
+                  "advanced-canvas:edge-connection-dragging:after",
+                  this.canvas,
+                  this,
+                  e2,
+                  false,
+                  draggingSide,
+                  previousEnds,
+                );
+              },
+              { once: true },
+            );
+            return result;
+          },
+      ),
     });
     this.runAfterInitialized(edge, () => {
-      this.plugin.app.workspace.trigger("advanced-canvas:edge-added", edge.canvas, edge);
+      this.plugin.app.workspace.trigger(
+        "advanced-canvas:edge-added",
+        edge.canvas,
+        edge,
+      );
     });
   }
   runAfterInitialized(canvasElement, onReady) {
@@ -2995,12 +4174,13 @@ var CanvasPatcher = class extends Patcher {
     }
     const that = this;
     const uninstall = around(canvasElement, {
-      initialize: (next) => function(...args) {
-        const result = next.call(this, ...args);
-        onReady();
-        uninstall();
-        return result;
-      }
+      initialize: (next) =>
+        function (...args) {
+          const result = next.call(this, ...args);
+          onReady();
+          uninstall();
+          return result;
+        },
     });
     that.plugin.register(uninstall);
   }
@@ -3012,37 +4192,52 @@ var LinkSuggestionsPatcher = class extends Patcher {
   async patch() {
     var _a;
     if (!this.plugin.settings.getSetting("enableSingleNodeLinks")) return;
-    const suggestManager = (_a = this.plugin.app.workspace.editorSuggest.suggests.find((s) => s.suggestManager)) == null ? void 0 : _a.suggestManager;
-    if (!suggestManager) return console.warn("LinkSuggestionsPatcher: No suggest manager found.");
+    const suggestManager =
+      (_a = this.plugin.app.workspace.editorSuggest.suggests.find(
+        (s) => s.suggestManager,
+      )) == null
+        ? void 0
+        : _a.suggestManager;
+    if (!suggestManager)
+      return console.warn("LinkSuggestionsPatcher: No suggest manager found.");
     Patcher.patchThisAndPrototype(this.plugin, suggestManager, {
-      getHeadingSuggestions: Patcher.OverrideExisting((next) => async function(context, path, subpath) {
-        const result = await next.call(this, context, path, subpath);
-        if (!path.endsWith(".canvas")) return result;
-        const currentFilePath = this.getSourcePath();
-        const targetFile = this.app.metadataCache.getFirstLinkpathDest(path, currentFilePath);
-        if (!targetFile) return result;
-        if (!(targetFile instanceof import_obsidian6.TFile) || targetFile.extension !== "canvas")
-          return result;
-        const fileCache = this.app.metadataCache.getFileCache(targetFile);
-        if (!fileCache) return result;
-        const canvasNodeCaches = fileCache.nodes;
-        if (!canvasNodeCaches) return result;
-        for (const nodeId of Object.keys(canvasNodeCaches)) {
-          if (nodeId === subpath) continue;
-          const suggestion = {
-            file: targetFile,
-            heading: nodeId,
-            level: 1,
-            matches: [],
-            path,
-            subpath: `#${nodeId}`,
-            score: 0,
-            type: "heading"
-          };
-          result.push(suggestion);
-        }
-        return result;
-      })
+      getHeadingSuggestions: Patcher.OverrideExisting(
+        (next) =>
+          async function (context, path, subpath) {
+            const result = await next.call(this, context, path, subpath);
+            if (!path.endsWith(".canvas")) return result;
+            const currentFilePath = this.getSourcePath();
+            const targetFile = this.app.metadataCache.getFirstLinkpathDest(
+              path,
+              currentFilePath,
+            );
+            if (!targetFile) return result;
+            if (
+              !(targetFile instanceof import_obsidian6.TFile) ||
+              targetFile.extension !== "canvas"
+            )
+              return result;
+            const fileCache = this.app.metadataCache.getFileCache(targetFile);
+            if (!fileCache) return result;
+            const canvasNodeCaches = fileCache.nodes;
+            if (!canvasNodeCaches) return result;
+            for (const nodeId of Object.keys(canvasNodeCaches)) {
+              if (nodeId === subpath) continue;
+              const suggestion = {
+                file: targetFile,
+                heading: nodeId,
+                level: 1,
+                matches: [],
+                path,
+                subpath: `#${nodeId}`,
+                score: 0,
+                type: "heading",
+              };
+              result.push(suggestion);
+            }
+            return result;
+          },
+      ),
     });
   }
 };
@@ -3059,7 +4254,10 @@ var AdvancedCanvasEmbed = class extends import_obsidian7.Component {
     this.context = context;
     this.file = file;
     this.subpath = subpath;
-    if (!subpath) console.warn("AdvancedCanvasEmbed: No subpath provided. This embed will not work as expected.");
+    if (!subpath)
+      console.warn(
+        "AdvancedCanvasEmbed: No subpath provided. This embed will not work as expected.",
+      );
   }
   onload() {
     this.context.app.vault.on("modify", this.onModifyCallback);
@@ -3071,7 +4269,8 @@ var AdvancedCanvasEmbed = class extends import_obsidian7.Component {
     if (!this.subpath) return;
     const nodeId = this.subpath.replace(/^#/, "");
     const canvasContent = await this.context.app.vault.cachedRead(this.file);
-    if (!canvasContent) return console.warn("AdvancedCanvasEmbed: No canvas content found.");
+    if (!canvasContent)
+      return console.warn("AdvancedCanvasEmbed: No canvas content found.");
     const canvasJson = JSON.parse(canvasContent);
     const canvasNode = canvasJson.nodes.find((node) => node.id === nodeId);
     if (!canvasNode) {
@@ -3081,17 +4280,27 @@ var AdvancedCanvasEmbed = class extends import_obsidian7.Component {
     }
     let nodeContent = "";
     if (canvasNode.type === "text") nodeContent = canvasNode.text;
-    else if (canvasNode.type === "group") nodeContent = `**Group Node:** ${canvasNode.label}`;
-    else if (canvasNode.type === "file") nodeContent = `**File Node:** ${canvasNode.file}`;
+    else if (canvasNode.type === "group")
+      nodeContent = `**Group Node:** ${canvasNode.label}`;
+    else if (canvasNode.type === "file")
+      nodeContent = `**File Node:** ${canvasNode.file}`;
     this.context.containerEl.empty();
     this.context.containerEl.classList.add("ac-card-embed");
     if (canvasNode.color !== void 0) {
       this.context.containerEl.classList.add("is-themed");
-      this.context.containerEl.classList.add(`mod-canvas-color-${canvasNode.color}`);
+      this.context.containerEl.classList.add(
+        `mod-canvas-color-${canvasNode.color}`,
+      );
     }
     const markdownContainer = this.context.containerEl.createSpan();
     markdownContainer.classList.add("markdown-content");
-    await import_obsidian7.MarkdownRenderer.render(this.context.app, nodeContent, markdownContainer, this.file.path, this);
+    await import_obsidian7.MarkdownRenderer.render(
+      this.context.app,
+      nodeContent,
+      markdownContainer,
+      this.file.path,
+      this,
+    );
   }
 };
 
@@ -3100,10 +4309,11 @@ var EmbedPatcher = class extends Patcher {
   async patch() {
     if (!this.plugin.settings.getSetting("enableSingleNodeLinks")) return;
     Patcher.patch(this.plugin, this.plugin.app.embedRegistry.embedByExtension, {
-      canvas: (next) => function(context, file, subpath) {
-        if (subpath) return new AdvancedCanvasEmbed(context, file, subpath);
-        return next.call(this, context, file, subpath);
-      }
+      canvas: (next) =>
+        function (context, file, subpath) {
+          if (subpath) return new AdvancedCanvasEmbed(context, file, subpath);
+          return next.call(this, context, file, subpath);
+        },
     });
   }
 };
@@ -3115,14 +4325,21 @@ var import_obsidian8 = require("obsidian");
 var FilepathHelper = class {
   static extension(path) {
     var _a;
-    return (path == null ? void 0 : path.includes(".")) ? (_a = path == null ? void 0 : path.split(".")) == null ? void 0 : _a.pop() : void 0;
+    return (path == null ? void 0 : path.includes("."))
+      ? (_a = path == null ? void 0 : path.split(".")) == null
+        ? void 0
+        : _a.pop()
+      : void 0;
   }
 };
 
 // src/utils/hash-helper.ts
 var HashHelper = class _HashHelper {
   static async getBytesHash(bytes) {
-    const cryptoBytes = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
+    const cryptoBytes = await crypto.subtle.digest(
+      "SHA-256",
+      new Uint8Array(bytes),
+    );
     return _HashHelper.arrayBufferToHexString(cryptoBytes);
   }
   static arrayBufferToHexString(buffer) {
@@ -3141,8 +4358,7 @@ var TaskQueue = class {
   constructor() {
     this.running = false;
     this.queue = [];
-    this.onFinished = () => {
-    };
+    this.onFinished = () => {};
   }
   async add(task) {
     return new Promise((resolve) => {
@@ -3157,7 +4373,8 @@ var TaskQueue = class {
     var _a;
     this.running = true;
     while (this.queue.length > 0) {
-      const [resolver, task] = (_a = this.queue.shift()) != null ? _a : [void 0, void 0];
+      const [resolver, task] =
+        (_a = this.queue.shift()) != null ? _a : [void 0, void 0];
       await (task == null ? void 0 : task());
       resolver == null ? void 0 : resolver();
     }
@@ -3169,29 +4386,51 @@ var TaskQueue = class {
 // src/patchers/metadata-cache-patcher.ts
 var MetadataCachePatcher = class extends Patcher {
   async patch() {
-    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled")) return;
+    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled"))
+      return;
     Patcher.patchPrototype(this.plugin, this.plugin.app.metadataCache, {
-      getCache: Patcher.OverrideExisting((next) => function(filepath, ...args) {
-        var _a;
-        if (FilepathHelper.extension(filepath) === "canvas") {
-          if (!Object.prototype.hasOwnProperty.call(this.fileCache, filepath))
-            return null;
-          const hash = (_a = this.fileCache[filepath]) == null ? void 0 : _a.hash;
-          return hash && this.metadataCache[hash] || null;
-        }
-        return next.call(this, filepath, ...args);
-      }),
-      computeFileMetadataAsync: Patcher.OverrideExisting((next) => async function(file, ...args) {
-        if (file instanceof import_obsidian8.TFile && (file == null ? void 0 : file.extension) === "canvas")
-          return CanvasMetadataHandler.computeCanvasFileMetadataAsync.call(this, file);
-        return next.call(this, file, ...args);
-      }),
-      resolveLinks: Patcher.OverrideExisting((next) => async function(filepath) {
-        const result = next.call(this, filepath);
-        if (FilepathHelper.extension(filepath) === "canvas")
-          await CanvasMetadataHandler.resolveCanvasLinks.call(this, filepath);
-        return result;
-      })
+      getCache: Patcher.OverrideExisting(
+        (next) =>
+          function (filepath, ...args) {
+            var _a;
+            if (FilepathHelper.extension(filepath) === "canvas") {
+              if (
+                !Object.prototype.hasOwnProperty.call(this.fileCache, filepath)
+              )
+                return null;
+              const hash =
+                (_a = this.fileCache[filepath]) == null ? void 0 : _a.hash;
+              return (hash && this.metadataCache[hash]) || null;
+            }
+            return next.call(this, filepath, ...args);
+          },
+      ),
+      computeFileMetadataAsync: Patcher.OverrideExisting(
+        (next) =>
+          async function (file, ...args) {
+            if (
+              file instanceof import_obsidian8.TFile &&
+              (file == null ? void 0 : file.extension) === "canvas"
+            )
+              return CanvasMetadataHandler.computeCanvasFileMetadataAsync.call(
+                this,
+                file,
+              );
+            return next.call(this, file, ...args);
+          },
+      ),
+      resolveLinks: Patcher.OverrideExisting(
+        (next) =>
+          async function (filepath) {
+            const result = next.call(this, filepath);
+            if (FilepathHelper.extension(filepath) === "canvas")
+              await CanvasMetadataHandler.resolveCanvasLinks.call(
+                this,
+                filepath,
+              );
+            return result;
+          },
+      ),
     });
   }
 };
@@ -3202,20 +4441,26 @@ var _CanvasMetadataHandler = class _CanvasMetadataHandler {
     const cache2 = this.fileCache[file.path];
     if (!cache2) this.saveFileCache(file.path, { mtime: 0, size: 0, hash: "" });
     else {
-      const unchanged = cache2.mtime === file.stat.mtime && cache2.size === file.stat.size;
-      const hasMetadataCache = cache2.hash && Object.prototype.hasOwnProperty.call(this.metadataCache, cache2.hash);
-      if (unchanged && hasMetadataCache)
-        isStale = false;
+      const unchanged =
+        cache2.mtime === file.stat.mtime && cache2.size === file.stat.size;
+      const hasMetadataCache =
+        cache2.hash &&
+        Object.prototype.hasOwnProperty.call(this.metadataCache, cache2.hash);
+      if (unchanged && hasMetadataCache) isStale = false;
     }
     if (isStale) {
-      _CanvasMetadataHandler.linkResolveQueue.setOnFinished(() => this.trigger("finished"));
-      await _CanvasMetadataHandler.metadataQueue.add(
-        () => _CanvasMetadataHandler.updateMetadataCache.call(this, file)
+      _CanvasMetadataHandler.linkResolveQueue.setOnFinished(() =>
+        this.trigger("finished"),
+      );
+      await _CanvasMetadataHandler.metadataQueue.add(() =>
+        _CanvasMetadataHandler.updateMetadataCache.call(this, file),
       );
     }
-    _CanvasMetadataHandler.linkResolveQueue.setOnFinished(() => this.trigger("resolved"));
-    await _CanvasMetadataHandler.linkResolveQueue.add(
-      () => _CanvasMetadataHandler.resolveCanvasLinks.call(this, file.path)
+    _CanvasMetadataHandler.linkResolveQueue.setOnFinished(() =>
+      this.trigger("resolved"),
+    );
+    await _CanvasMetadataHandler.linkResolveQueue.add(() =>
+      _CanvasMetadataHandler.resolveCanvasLinks.call(this, file.path),
     );
   }
   static async updateMetadataCache(file) {
@@ -3225,21 +4470,21 @@ var _CanvasMetadataHandler = class _CanvasMetadataHandler {
     const cache2 = {
       mtime: file.stat.mtime,
       size: file.stat.size,
-      hash
+      hash,
     };
     this.saveFileCache(file.path, cache2);
     let metadata = this.metadataCache[cache2.hash];
-    if (metadata) return this.trigger(
-      "changed",
-      file,
-      data,
-      metadata
-    );
+    if (metadata) return this.trigger("changed", file, data, metadata);
     const slowIndexingTimeout = window.setTimeout(() => {
-      new import_obsidian8.Notice(`Canvas indexing taking a long time for file ${file.path}`);
+      new import_obsidian8.Notice(
+        `Canvas indexing taking a long time for file ${file.path}`,
+      );
     }, 1e4);
     try {
-      metadata = await _CanvasMetadataHandler.computeCanvasMetadataAsync.call(this, data);
+      metadata = await _CanvasMetadataHandler.computeCanvasMetadataAsync.call(
+        this,
+        data,
+      );
     } finally {
       window.clearTimeout(slowIndexingTimeout);
     }
@@ -3254,62 +4499,83 @@ var _CanvasMetadataHandler = class _CanvasMetadataHandler {
     var _a, _b, _c, _d, _e;
     const content = JSON.parse(data || "{}");
     const metadata = {
-      v: 1
+      v: 1,
     };
-    const frontmatter = (_a = content.metadata) == null ? void 0 : _a.frontmatter;
+    const frontmatter =
+      (_a = content.metadata) == null ? void 0 : _a.frontmatter;
     metadata.frontmatterPosition = {
       start: { line: 0, col: 0, offset: 0 },
-      end: { line: 0, col: 0, offset: 0 }
+      end: { line: 0, col: 0, offset: 0 },
     };
     metadata.frontmatter = frontmatter;
     metadata.frontmatterLinks = [];
-    for (const [key, value] of Object.entries(frontmatter != null ? frontmatter : {})) {
-      const getLinks = (value2) => value2.map((v) => {
-        if (!v.startsWith("[[") || !v.endsWith("]]")) return null;
-        const [link, ...aliases] = v.slice(2, -2).split("|");
-        return {
-          key,
-          displayText: aliases.length > 0 ? aliases.join("|") : link,
-          link: link != null ? link : v,
-          original: v
-        };
-      }).filter((v) => v !== null);
-      if (typeof value === "string") (_b = metadata.frontmatterLinks) == null ? void 0 : _b.push(...getLinks([value]));
-      else if (Array.isArray(value)) (_c = metadata.frontmatterLinks) == null ? void 0 : _c.push(...getLinks(value));
+    for (const [key, value] of Object.entries(
+      frontmatter != null ? frontmatter : {},
+    )) {
+      const getLinks = (value2) =>
+        value2
+          .map((v) => {
+            if (!v.startsWith("[[") || !v.endsWith("]]")) return null;
+            const [link, ...aliases] = v.slice(2, -2).split("|");
+            return {
+              key,
+              displayText: aliases.length > 0 ? aliases.join("|") : link,
+              link: link != null ? link : v,
+              original: v,
+            };
+          })
+          .filter((v) => v !== null);
+      if (typeof value === "string")
+        (_b = metadata.frontmatterLinks) == null
+          ? void 0
+          : _b.push(...getLinks([value]));
+      else if (Array.isArray(value))
+        (_c = metadata.frontmatterLinks) == null
+          ? void 0
+          : _c.push(...getLinks(value));
     }
     metadata.nodes = {};
     metadata.links = [];
     metadata.embeds = [];
-    await Promise.all(((_d = content.nodes) != null ? _d : []).map(async (node, index) => {
-      var _a2, _b2;
-      if (node.type !== "text") return;
-      const text = node.text;
-      const buffer = new TextEncoder().encode(text).buffer;
-      const nodeMetadata = await this.computeMetadataAsync(buffer);
-      if (!nodeMetadata) return;
-      metadata.nodes[node.id] = nodeMetadata;
-      metadata.links.push(...((_a2 = nodeMetadata.links) != null ? _a2 : []).map((link) => ({
-        ...link,
-        position: {
-          nodeId: node.id,
-          start: { line: 0, col: 1, offset: 0 },
-          // 0 for node
-          end: { line: 0, col: 1, offset: index }
-          // index of node
-        }
-      })));
-      metadata.embeds.push(...((_b2 = nodeMetadata.embeds) != null ? _b2 : []).map((embed2) => ({
-        ...embed2,
-        position: {
-          nodeId: node.id,
-          start: { line: 0, col: 1, offset: 0 },
-          // 0 for node
-          end: { line: 0, col: 1, offset: index }
-          // index of node
-        }
-      })));
-    }));
-    for (const [index, node] of ((_e = content.nodes) != null ? _e : []).entries()) {
+    await Promise.all(
+      ((_d = content.nodes) != null ? _d : []).map(async (node, index) => {
+        var _a2, _b2;
+        if (node.type !== "text") return;
+        const text = node.text;
+        const buffer = new TextEncoder().encode(text).buffer;
+        const nodeMetadata = await this.computeMetadataAsync(buffer);
+        if (!nodeMetadata) return;
+        metadata.nodes[node.id] = nodeMetadata;
+        metadata.links.push(
+          ...((_a2 = nodeMetadata.links) != null ? _a2 : []).map((link) => ({
+            ...link,
+            position: {
+              nodeId: node.id,
+              start: { line: 0, col: 1, offset: 0 },
+              // 0 for node
+              end: { line: 0, col: 1, offset: index },
+              // index of node
+            },
+          })),
+        );
+        metadata.embeds.push(
+          ...((_b2 = nodeMetadata.embeds) != null ? _b2 : []).map((embed2) => ({
+            ...embed2,
+            position: {
+              nodeId: node.id,
+              start: { line: 0, col: 1, offset: 0 },
+              // 0 for node
+              end: { line: 0, col: 1, offset: index },
+              // index of node
+            },
+          })),
+        );
+      }),
+    );
+    for (const [index, node] of ((_e = content.nodes) != null
+      ? _e
+      : []
+    ).entries()) {
       if (node.type !== "file") continue;
       const file = node.file;
       if (!file) continue;
@@ -3320,9 +4586,9 @@ var _CanvasMetadataHandler = class _CanvasMetadataHandler {
         position: {
           start: { line: 0, col: 1, offset: 0 },
           // 0 for nodes
-          end: { line: 0, col: 1, offset: index }
+          end: { line: 0, col: 1, offset: index },
           // index of node
-        }
+        },
       });
     }
     return metadata;
@@ -3332,18 +4598,25 @@ var _CanvasMetadataHandler = class _CanvasMetadataHandler {
     const file = this.vault.getAbstractFileByPath(filepath);
     if (!(file instanceof import_obsidian8.TFile)) return;
     const metadata = this.getFileCache(file);
-    const references = [...(_a = metadata == null ? void 0 : metadata.links) != null ? _a : [], ...(_b = metadata == null ? void 0 : metadata.embeds) != null ? _b : []];
+    const references = [
+      ...((_a = metadata == null ? void 0 : metadata.links) != null ? _a : []),
+      ...((_b = metadata == null ? void 0 : metadata.embeds) != null ? _b : []),
+    ];
     const referenceLinks = references.map((ref) => ref.link).sort();
     const resolvedLinks = {};
     const unresolvedLinks = {};
     for (const link of referenceLinks) {
       const resolved = this.getFirstLinkpathDest(link, filepath);
       if (resolved) {
-        (_d = resolvedLinks[_c = resolved.path]) != null ? _d : resolvedLinks[_c] = 0;
+        (_d = resolvedLinks[(_c = resolved.path)]) != null
+          ? _d
+          : (resolvedLinks[_c] = 0);
         resolvedLinks[resolved.path]++;
       } else {
         const strippedLink = link.endsWith(".md") ? link.slice(0, -3) : link;
-        (_e = unresolvedLinks[strippedLink]) != null ? _e : unresolvedLinks[strippedLink] = 0;
+        (_e = unresolvedLinks[strippedLink]) != null
+          ? _e
+          : (unresolvedLinks[strippedLink] = 0);
         unresolvedLinks[strippedLink]++;
       }
     }
@@ -3365,39 +4638,51 @@ var BacklinksPatcher = class extends Patcher {
     this.isRecomputingBacklinks = false;
   }
   async patch() {
-    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled")) return;
+    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled"))
+      return;
     const that = this;
     await Patcher.waitForViewRequest(this.plugin, "backlink", (view) => {
       Patcher.patchPrototype(this.plugin, view.backlink, {
-        recomputeBacklink: Patcher.OverrideExisting((next) => function(file) {
-          that.isRecomputingBacklinks = true;
-          const result = next.call(this, file);
-          that.isRecomputingBacklinks = false;
-          return result;
-        })
+        recomputeBacklink: Patcher.OverrideExisting(
+          (next) =>
+            function (file) {
+              that.isRecomputingBacklinks = true;
+              const result = next.call(this, file);
+              that.isRecomputingBacklinks = false;
+              return result;
+            },
+        ),
       });
     });
     Patcher.patchPrototype(this.plugin, this.plugin.app.vault, {
-      recurseChildrenAC: (_next) => function(origin, traverse) {
-        for (let stack = [origin]; stack.length > 0; ) {
-          const current = stack.pop();
-          if (current) {
-            traverse(current);
-            if (current instanceof import_obsidian9.TFolder) stack = stack.concat(current.children);
+      recurseChildrenAC: (_next) =>
+        function (origin, traverse) {
+          for (let stack = [origin]; stack.length > 0;) {
+            const current = stack.pop();
+            if (current) {
+              traverse(current);
+              if (current instanceof import_obsidian9.TFolder)
+                stack = stack.concat(current.children);
+            }
           }
-        }
-      },
-      getMarkdownFiles: Patcher.OverrideExisting((next) => function() {
-        if (!that.isRecomputingBacklinks) return next.call(this);
-        const files = [];
-        const root = this.getRoot();
-        this.recurseChildrenAC(root, (child) => {
-          if (child instanceof import_obsidian9.TFile && (child.extension === "md" || child.extension === "canvas")) {
-            files.push(child);
-          }
-        });
-        return files;
-      })
+        },
+      getMarkdownFiles: Patcher.OverrideExisting(
+        (next) =>
+          function () {
+            if (!that.isRecomputingBacklinks) return next.call(this);
+            const files = [];
+            const root = this.getRoot();
+            this.recurseChildrenAC(root, (child) => {
+              if (
+                child instanceof import_obsidian9.TFile &&
+                (child.extension === "md" || child.extension === "canvas")
+              ) {
+                files.push(child);
+              }
+            });
+            return files;
+          },
+      ),
     });
   }
 };
@@ -3405,25 +4690,34 @@ var BacklinksPatcher = class extends Patcher {
 // src/patchers/outgoing-links-patcher.ts
 var OutgoingLinksPatcher = class extends Patcher {
   async patch() {
-    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled")) return;
+    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled"))
+      return;
     await Patcher.waitForViewRequest(this.plugin, "outgoing-link", (view) => {
       Patcher.patchPrototype(this.plugin, view.outgoingLink, {
-        recomputeLinks: Patcher.OverrideExisting((next) => function(...args) {
-          var _a;
-          const isCanvas = ((_a = this.file) == null ? void 0 : _a.extension) === "canvas";
-          if (isCanvas) this.file.extension = "md";
-          const result = next.call(this, ...args);
-          if (isCanvas) this.file.extension = "canvas";
-          return result;
-        }),
-        recomputeUnlinked: Patcher.OverrideExisting((next) => function(...args) {
-          var _a;
-          const isCanvas = ((_a = this.file) == null ? void 0 : _a.extension) === "canvas";
-          if (isCanvas) this.file.extension = "md";
-          const result = next.call(this, ...args);
-          if (isCanvas) this.file.extension = "canvas";
-          return result;
-        })
+        recomputeLinks: Patcher.OverrideExisting(
+          (next) =>
+            function (...args) {
+              var _a;
+              const isCanvas =
+                ((_a = this.file) == null ? void 0 : _a.extension) === "canvas";
+              if (isCanvas) this.file.extension = "md";
+              const result = next.call(this, ...args);
+              if (isCanvas) this.file.extension = "canvas";
+              return result;
+            },
+        ),
+        recomputeUnlinked: Patcher.OverrideExisting(
+          (next) =>
+            function (...args) {
+              var _a;
+              const isCanvas =
+                ((_a = this.file) == null ? void 0 : _a.extension) === "canvas";
+              if (isCanvas) this.file.extension = "md";
+              const result = next.call(this, ...args);
+              if (isCanvas) this.file.extension = "canvas";
+              return result;
+            },
+        ),
       });
     });
   }
@@ -3432,20 +4726,30 @@ var OutgoingLinksPatcher = class extends Patcher {
 // src/patchers/file-manager-patcher.ts
 var FileManagerPatcher = class extends Patcher {
   async patch() {
-    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled")) return;
+    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled"))
+      return;
     const that = this;
     Patcher.patch(this.plugin, this.plugin.app.fileManager, {
-      processFrontMatter: Patcher.OverrideExisting((next) => async function(file, fn, options) {
-        if ((file == null ? void 0 : file.extension) === "canvas") {
-          that.plugin.app.vault.process(file, (data) => {
-            const content = JSON.parse(data);
-            fn(content.metadata.frontmatter);
-            return JSON.stringify(content, null, 2);
-          }).catch(() => console.error("Failed to update metadata object in canvas file."));
-          return;
-        }
-        return next.call(this, file, fn, options);
-      })
+      processFrontMatter: Patcher.OverrideExisting(
+        (next) =>
+          async function (file, fn, options) {
+            if ((file == null ? void 0 : file.extension) === "canvas") {
+              that.plugin.app.vault
+                .process(file, (data) => {
+                  const content = JSON.parse(data);
+                  fn(content.metadata.frontmatter);
+                  return JSON.stringify(content, null, 2);
+                })
+                .catch(() =>
+                  console.error(
+                    "Failed to update metadata object in canvas file.",
+                  ),
+                );
+              return;
+            }
+            return next.call(this, file, fn, options);
+          },
+      ),
     });
   }
 };
@@ -3453,42 +4757,71 @@ var FileManagerPatcher = class extends Patcher {
 // src/patchers/properties-patcher.ts
 var PropertiesPatcher = class extends Patcher {
   async patch() {
-    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled")) return;
+    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled"))
+      return;
     if (!this.plugin.app.viewRegistry.viewByType["file-properties"]) return;
     await Patcher.waitForViewRequest(this.plugin, "file-properties", (view) => {
       Patcher.patchPrototype(this.plugin, view, {
-        isSupportedFile: Patcher.OverrideExisting((next) => function(file) {
-          if ((file == null ? void 0 : file.extension) === "canvas") return true;
-          return next.call(this, file);
-        }),
-        updateFrontmatter: Patcher.OverrideExisting((next) => function(file, content) {
-          var _a, _b, _c;
-          if ((file == null ? void 0 : file.extension) === "canvas") {
-            let frontmatter;
-            try {
-              frontmatter = (_c = (_b = (_a = JSON.parse(content)) == null ? void 0 : _a.metadata) == null ? void 0 : _b.frontmatter) != null ? _c : {};
-            } catch (e) {
-              frontmatter = {};
-            }
-            this.rawFrontmatter = JSON.stringify(frontmatter, null, 2);
-            this.frontmatter = frontmatter;
-            return frontmatter;
-          }
-          return next.call(this, file, content);
-        }),
-        saveFrontmatter: Patcher.OverrideExisting((next) => function(frontmatter) {
-          var _a;
-          if (((_a = this.file) == null ? void 0 : _a.extension) === "canvas") {
-            if (this.file !== this.modifyingFile) return;
-            this.app.vault.process(this.file, (data) => {
-              const content = JSON.parse(data);
-              if (content == null ? void 0 : content.metadata) content.metadata.frontmatter = frontmatter;
-              return JSON.stringify(content, null, 2);
-            }).catch(() => console.error("Failed to update metadata object in canvas file."));
-            return;
-          }
-          return next.call(this, frontmatter);
-        })
+        isSupportedFile: Patcher.OverrideExisting(
+          (next) =>
+            function (file) {
+              if ((file == null ? void 0 : file.extension) === "canvas")
+                return true;
+              return next.call(this, file);
+            },
+        ),
+        updateFrontmatter: Patcher.OverrideExisting(
+          (next) =>
+            function (file, content) {
+              var _a, _b, _c;
+              if ((file == null ? void 0 : file.extension) === "canvas") {
+                let frontmatter;
+                try {
+                  frontmatter =
+                    (_c =
+                      (_b =
+                        (_a = JSON.parse(content)) == null
+                          ? void 0
+                          : _a.metadata) == null
+                        ? void 0
+                        : _b.frontmatter) != null
+                      ? _c
+                      : {};
+                } catch (e) {
+                  frontmatter = {};
+                }
+                this.rawFrontmatter = JSON.stringify(frontmatter, null, 2);
+                this.frontmatter = frontmatter;
+                return frontmatter;
+              }
+              return next.call(this, file, content);
+            },
+        ),
+        saveFrontmatter: Patcher.OverrideExisting(
+          (next) =>
+            function (frontmatter) {
+              var _a;
+              if (
+                ((_a = this.file) == null ? void 0 : _a.extension) === "canvas"
+              ) {
+                if (this.file !== this.modifyingFile) return;
+                this.app.vault
+                  .process(this.file, (data) => {
+                    const content = JSON.parse(data);
+                    if (content == null ? void 0 : content.metadata)
+                      content.metadata.frontmatter = frontmatter;
+                    return JSON.stringify(content, null, 2);
+                  })
+                  .catch(() =>
+                    console.error(
+                      "Failed to update metadata object in canvas file.",
+                    ),
+                  );
+                return;
+              }
+              return next.call(this, frontmatter);
+            },
+        ),
       });
     });
   }
@@ -3497,31 +4830,49 @@ var PropertiesPatcher = class extends Patcher {
 // src/patchers/search-patcher.ts
 var SearchPatcher = class extends Patcher {
   async patch() {
-    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled")) return;
+    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled"))
+      return;
     const that = this;
     await Patcher.waitForViewRequest(this.plugin, "search", (view) => {
       const uninstallers = [];
-      Patcher.patchThisAndPrototype(this.plugin, view, {
-        startSearch: (next) => function(...args) {
-          const result = next.call(this, ...args);
-          if (this.searchQuery) {
-            that.patchSearchQuery(this.searchQuery);
-            uninstallers.forEach((uninstall) => uninstall());
-          }
-          return result;
-        }
-      }, uninstallers);
+      Patcher.patchThisAndPrototype(
+        this.plugin,
+        view,
+        {
+          startSearch: (next) =>
+            function (...args) {
+              const result = next.call(this, ...args);
+              if (this.searchQuery) {
+                that.patchSearchQuery(this.searchQuery);
+                uninstallers.forEach((uninstall) => uninstall());
+              }
+              return result;
+            },
+        },
+        uninstallers,
+      );
     });
   }
   patchSearchQuery(searchQuery) {
     Patcher.patchThisAndPrototype(this.plugin, searchQuery, {
-      _match: Patcher.OverrideExisting((next) => function(data) {
-        var _a, _b;
-        const isCanvas = (_b = (_a = data.strings.filepath) == null ? void 0 : _a.endsWith(".canvas")) != null ? _b : false;
-        if (isCanvas && !data.cache)
-          data.cache = this.app.metadataCache.getCache(data.strings.filepath);
-        return next.call(this, data);
-      })
+      _match: Patcher.OverrideExisting(
+        (next) =>
+          function (data) {
+            var _a, _b;
+            const isCanvas =
+              (_b =
+                (_a = data.strings.filepath) == null
+                  ? void 0
+                  : _a.endsWith(".canvas")) != null
+                ? _b
+                : false;
+            if (isCanvas && !data.cache)
+              data.cache = this.app.metadataCache.getCache(
+                data.strings.filepath,
+              );
+            return next.call(this, data);
+          },
+      ),
     });
   }
 };
@@ -3532,16 +4883,25 @@ var SearchCommandPatcher = class extends Patcher {
   async patch() {
     if (!this.plugin.settings.getSetting("nativeFileSearchEnabled")) return;
     const that = this;
-    Patcher.patch(this.plugin, this.plugin.app.commands.commands["editor:open-search"], {
-      checkCallback: Patcher.OverrideExisting((next) => function(checking) {
-        if (that.plugin.app.workspace.activeEditor) return next.call(this, checking);
-        const activeCanvasView = that.plugin.getCurrentCanvasView();
-        if (!activeCanvasView) return next.call(this, checking);
-        if (checking) return true;
-        if (!activeCanvasView.canvas.searchEl) new CanvasSearchView(activeCanvasView);
-        return true;
-      })
-    });
+    Patcher.patch(
+      this.plugin,
+      this.plugin.app.commands.commands["editor:open-search"],
+      {
+        checkCallback: Patcher.OverrideExisting(
+          (next) =>
+            function (checking) {
+              if (that.plugin.app.workspace.activeEditor)
+                return next.call(this, checking);
+              const activeCanvasView = that.plugin.getCurrentCanvasView();
+              if (!activeCanvasView) return next.call(this, checking);
+              if (checking) return true;
+              if (!activeCanvasView.canvas.searchEl)
+                new CanvasSearchView(activeCanvasView);
+              return true;
+            },
+        ),
+      },
+    );
   }
 };
 var CanvasSearchView = class {
@@ -3557,7 +4917,8 @@ var CanvasSearchView = class {
     const documentSearch = this.containerEl.createDiv();
     documentSearch.className = "document-search";
     const searchInputContainer = documentSearch.createDiv();
-    searchInputContainer.className = "search-input-container document-search-input";
+    searchInputContainer.className =
+      "search-input-container document-search-input";
     this.searchInput = searchInputContainer.createEl("input");
     this.searchInput.type = "text";
     this.searchInput.placeholder = "Find...";
@@ -3574,13 +4935,17 @@ var CanvasSearchView = class {
     previousButton.setAttribute("aria-label", "Previous\nShift + F3");
     previousButton.setAttribute("data-tooltip-position", "top");
     (0, import_obsidian10.setIcon)(previousButton, "arrow-up");
-    previousButton.addEventListener("click", () => this.changeMatch(this.matchIndex - 1));
+    previousButton.addEventListener("click", () =>
+      this.changeMatch(this.matchIndex - 1),
+    );
     const nextButton = documentSearchButtons.createEl("button");
     nextButton.className = "clickable-icon document-search-button";
     nextButton.setAttribute("aria-label", "Next\nF3");
     nextButton.setAttribute("data-tooltip-position", "top");
     (0, import_obsidian10.setIcon)(nextButton, "arrow-down");
-    nextButton.addEventListener("click", () => this.changeMatch(this.matchIndex + 1));
+    nextButton.addEventListener("click", () =>
+      this.changeMatch(this.matchIndex + 1),
+    );
     const closeButton = documentSearch.createEl("button");
     closeButton.className = "clickable-icon document-search-close-button";
     closeButton.setAttribute("aria-label", "Exit search");
@@ -3593,29 +4958,30 @@ var CanvasSearchView = class {
   onKeyDown(e) {
     if (e.key === "Enter" || e.key === "F3")
       this.changeMatch(this.matchIndex + (e.shiftKey ? -1 : 1));
-    else if (e.key === "Escape")
-      this.close();
+    else if (e.key === "Escape") this.close();
   }
   onInput() {
     const hasQuery = this.searchInput.value.length > 0;
     this.searchCount.style.display = hasQuery ? "block" : "none";
     if (!hasQuery) this.searchMatches = [];
     else {
-      this.searchMatches = Array.from(this.view.canvas.nodes.values()).map((node) => {
-        const nodeData = node.getData();
-        let content = void 0;
-        if (nodeData.type === "text") content = nodeData.text;
-        else if (nodeData.type === "group") content = nodeData.label;
-        else if (nodeData.type === "file") content = node.child.data;
-        if (!content) return null;
-        const matches = [];
-        const regex = new RegExp(this.searchInput.value, "gi");
-        let match;
-        while ((match = regex.exec(content)) !== null) {
-          matches.push([match.index, match.index + match[0].length]);
-        }
-        return { nodeId: node.id, content, matches };
-      }).filter((match) => match && match.matches.length > 0);
+      this.searchMatches = Array.from(this.view.canvas.nodes.values())
+        .map((node) => {
+          const nodeData = node.getData();
+          let content = void 0;
+          if (nodeData.type === "text") content = nodeData.text;
+          else if (nodeData.type === "group") content = nodeData.label;
+          else if (nodeData.type === "file") content = node.child.data;
+          if (!content) return null;
+          const matches = [];
+          const regex = new RegExp(this.searchInput.value, "gi");
+          let match;
+          while ((match = regex.exec(content)) !== null) {
+            matches.push([match.index, match.index + match[0].length]);
+          }
+          return { nodeId: node.id, content, matches };
+        })
+        .filter((match) => match && match.matches.length > 0);
     }
     this.changeMatch(0);
   }
@@ -3649,24 +5015,31 @@ var MetadataCanvasExtension = class extends CanvasExtension {
     return true;
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => this.onCanvasChanged(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-metadata-changed",
-      (canvas) => this.onMetadataChanged(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-view-unloaded:before",
-      (view) => this.onCanvasViewUnloaded(view)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:canvas-changed", (canvas) =>
+        this.onCanvasChanged(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:canvas-metadata-changed",
+        (canvas) => this.onMetadataChanged(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:canvas-view-unloaded:before",
+        (view) => this.onCanvasViewUnloaded(view),
+      ),
+    );
   }
   onCanvasChanged(canvas) {
     var _a;
     const metadata = (_a = canvas.data) == null ? void 0 : _a.metadata;
     if (!metadata || metadata.version !== CURRENT_SPEC_VERSION)
-      return void new import_obsidian11.Notice("Metadata node not found or version mismatch. Should have been migrated (but wasn't).");
+      return void new import_obsidian11.Notice(
+        "Metadata node not found or version mismatch. Should have been migrated (but wasn't).",
+      );
     const that = this;
     const validator = {
       get(target, key) {
@@ -3676,21 +5049,34 @@ var MetadataCanvasExtension = class extends CanvasExtension {
       },
       set(target, key, value) {
         target[key] = value;
-        that.plugin.app.workspace.trigger("advanced-canvas:canvas-metadata-changed", canvas);
+        that.plugin.app.workspace.trigger(
+          "advanced-canvas:canvas-metadata-changed",
+          canvas,
+        );
         canvas.requestSave();
         return true;
-      }
+      },
     };
     canvas.metadata = new Proxy(metadata, validator);
-    this.plugin.app.workspace.trigger("advanced-canvas:canvas-metadata-changed", canvas);
+    this.plugin.app.workspace.trigger(
+      "advanced-canvas:canvas-metadata-changed",
+      canvas,
+    );
   }
   onMetadataChanged(canvas) {
     var _a, _b, _c;
     const oldCssClasses = this.canvasCssclassesCache.get(canvas.view);
     if (oldCssClasses) canvas.wrapperEl.classList.remove(...oldCssClasses);
-    const currentClasses = (_c = (_b = (_a = canvas.metadata) == null ? void 0 : _a.frontmatter) == null ? void 0 : _b.cssclasses) != null ? _c : [];
+    const currentClasses =
+      (_c =
+        (_b = (_a = canvas.metadata) == null ? void 0 : _a.frontmatter) == null
+          ? void 0
+          : _b.cssclasses) != null
+        ? _c
+        : [];
     this.canvasCssclassesCache.set(canvas.view, currentClasses);
-    if (currentClasses.length > 0) canvas.wrapperEl.classList.add(...currentClasses);
+    if (currentClasses.length > 0)
+      canvas.wrapperEl.classList.add(...currentClasses);
   }
   onCanvasViewUnloaded(view) {
     this.canvasCssclassesCache.delete(view);
@@ -3705,13 +5091,16 @@ var AbstractSelectionModal = class extends import_obsidian12.FuzzySuggestModal {
     this.suggestions = suggestions;
     this.arbitrary = arbitrary;
     this.setPlaceholder(placeholder);
-    this.setInstructions([{
-      command: "\u2191\u2193",
-      purpose: "to navigate"
-    }, {
-      command: "esc",
-      purpose: "to dismiss"
-    }]);
+    this.setInstructions([
+      {
+        command: "\u2191\u2193",
+        purpose: "to navigate",
+      },
+      {
+        command: "esc",
+        purpose: "to dismiss",
+      },
+    ]);
   }
   getItems() {
     return this.suggestions;
@@ -3721,12 +5110,18 @@ var AbstractSelectionModal = class extends import_obsidian12.FuzzySuggestModal {
   }
   getSuggestions(query) {
     const suggestions = super.getSuggestions(query);
-    if (this.arbitrary && query.length > 0 && !suggestions.some((s) => s.item === query))
-      suggestions.splice(0, 0, { item: query, match: { score: 1, matches: [[0, query.length]] } });
+    if (
+      this.arbitrary &&
+      query.length > 0 &&
+      !suggestions.some((s) => s.item === query)
+    )
+      suggestions.splice(0, 0, {
+        item: query,
+        match: { score: 1, matches: [[0, query.length]] },
+      });
     return suggestions;
   }
-  onChooseItem(_item, _evt) {
-  }
+  onChooseItem(_item, _evt) {}
   awaitInput() {
     return new Promise((resolve, _reject) => {
       this.onChooseItem = (item) => resolve(item);
@@ -3741,18 +5136,23 @@ var FileNameModal = class extends import_obsidian12.SuggestModal {
     this.fileExtension = fileExtension;
   }
   getSuggestions(query) {
-    const queryWithoutExtension = query.replace(new RegExp(`\\.${this.fileExtension}$`), "");
+    const queryWithoutExtension = query.replace(
+      new RegExp(`\\.${this.fileExtension}$`),
+      "",
+    );
     if (queryWithoutExtension === "") return [];
     const queryWithExtension = queryWithoutExtension + "." + this.fileExtension;
     const suggestions = [queryWithExtension];
-    if (this.parentPath.length > 0) suggestions.splice(0, 0, `${this.parentPath}/${queryWithExtension}`);
-    return suggestions.filter((s) => this.app.vault.getAbstractFileByPath(s) === null);
+    if (this.parentPath.length > 0)
+      suggestions.splice(0, 0, `${this.parentPath}/${queryWithExtension}`);
+    return suggestions.filter(
+      (s) => this.app.vault.getAbstractFileByPath(s) === null,
+    );
   }
   renderSuggestion(text, el) {
     el.setText(text);
   }
-  onChooseSuggestion(_text, _evt) {
-  }
+  onChooseSuggestion(_text, _evt) {}
   awaitInput() {
     return new Promise((resolve, _reject) => {
       this.onChooseSuggestion = (text) => {
@@ -3765,47 +5165,58 @@ var FileNameModal = class extends import_obsidian12.SuggestModal {
 var FileSelectModal = class extends import_obsidian12.SuggestModal {
   constructor(app, extensionsRegex, suggestNewFile = false) {
     super(app);
-    this.files = this.app.vault.getFiles().map((file) => file.path).filter((path) => {
-      var _a;
-      return (_a = FilepathHelper.extension(path)) == null ? void 0 : _a.match(extensionsRegex != null ? extensionsRegex : /.*/);
-    });
+    this.files = this.app.vault
+      .getFiles()
+      .map((file) => file.path)
+      .filter((path) => {
+        var _a;
+        return (_a = FilepathHelper.extension(path)) == null
+          ? void 0
+          : _a.match(extensionsRegex != null ? extensionsRegex : /.*/);
+      });
     this.suggestNewFile = suggestNewFile;
     this.setPlaceholder("Type to search...");
-    this.setInstructions([{
-      command: "\u2191\u2193",
-      purpose: "to navigate"
-    }, {
-      command: "\u21B5",
-      purpose: "to open"
-    }, {
-      command: "shift \u21B5",
-      purpose: "to create"
-    }, {
-      command: "esc",
-      purpose: "to dismiss"
-    }]);
+    this.setInstructions([
+      {
+        command: "\u2191\u2193",
+        purpose: "to navigate",
+      },
+      {
+        command: "\u21B5",
+        purpose: "to open",
+      },
+      {
+        command: "shift \u21B5",
+        purpose: "to create",
+      },
+      {
+        command: "esc",
+        purpose: "to dismiss",
+      },
+    ]);
     this.scope.register(["Shift"], "Enter", (e) => {
       this.onChooseSuggestion(this.inputEl.value, e);
       this.close();
     });
   }
   getSuggestions(query) {
-    const suggestions = this.files.filter((path) => path.toLowerCase().includes(query.toLowerCase()));
-    if (suggestions.length === 0 && this.suggestNewFile) suggestions.push(query);
+    const suggestions = this.files.filter((path) =>
+      path.toLowerCase().includes(query.toLowerCase()),
+    );
+    if (suggestions.length === 0 && this.suggestNewFile)
+      suggestions.push(query);
     return suggestions;
   }
   renderSuggestion(path, el) {
     const simplifiedPath = path.replace(/\.md$/, "");
     el.setText(simplifiedPath);
   }
-  onChooseSuggestion(_path, _evt) {
-  }
+  onChooseSuggestion(_path, _evt) {}
   awaitInput() {
     return new Promise((resolve, _reject) => {
       this.onChooseSuggestion = (path, _evt) => {
         const file = this.app.vault.getAbstractFileByPath(path);
-        if (file instanceof import_obsidian12.TFile)
-          return resolve(file);
+        if (file instanceof import_obsidian12.TFile) return resolve(file);
         if (!this.suggestNewFile) return;
         if (FilepathHelper.extension(path) === void 0) path += ".md";
         const newFile = this.app.vault.create(path, "");
@@ -3822,41 +5233,52 @@ var NodeRatioCanvasExtension = class extends CanvasExtension {
     return true;
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "canvas:node-menu",
-      (menu, node) => this.onNodeMenu(menu, node)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-resized",
-      (canvas, node) => this.onNodeResized(canvas, node)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("canvas:node-menu", (menu, node) =>
+        this.onNodeMenu(menu, node),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-resized",
+        (canvas, node) => this.onNodeResized(canvas, node),
+      ),
+    );
   }
   onNodeMenu(menu, node) {
-    if (!this.plugin.settings.getSetting("aspectRatioControlFeatureEnabled")) return;
+    if (!this.plugin.settings.getSetting("aspectRatioControlFeatureEnabled"))
+      return;
     menu.addItem((item) => {
-      item.setTitle("Set Aspect Ratio").setIcon("aspect-ratio").onClick(async () => {
-        const NO_RATIO = "No ratio enforcement";
-        const newRatioString = await new AbstractSelectionModal(this.plugin.app, "Enter aspect ratio (width:height)", ["16:9", "4:3", "3:2", "1:1", NO_RATIO]).awaitInput();
-        const nodeData = node.getData();
-        if (newRatioString === NO_RATIO) {
-          node.setData({
-            ...nodeData,
-            ratio: void 0
-          });
-          return;
-        }
-        const [width, height] = newRatioString.split(":").map(Number);
-        if (width && height) {
-          node.setData({
-            ...nodeData,
-            ratio: width / height
-          });
-          node.setData({
-            ...node.getData(),
-            width: nodeData.height * (width / height)
-          });
-        }
-      });
+      item
+        .setTitle("Set Aspect Ratio")
+        .setIcon("aspect-ratio")
+        .onClick(async () => {
+          const NO_RATIO = "No ratio enforcement";
+          const newRatioString = await new AbstractSelectionModal(
+            this.plugin.app,
+            "Enter aspect ratio (width:height)",
+            ["16:9", "4:3", "3:2", "1:1", NO_RATIO],
+          ).awaitInput();
+          const nodeData = node.getData();
+          if (newRatioString === NO_RATIO) {
+            node.setData({
+              ...nodeData,
+              ratio: void 0,
+            });
+            return;
+          }
+          const [width, height] = newRatioString.split(":").map(Number);
+          if (width && height) {
+            node.setData({
+              ...nodeData,
+              ratio: width / height,
+            });
+            node.setData({
+              ...node.getData(),
+              width: nodeData.height * (width / height),
+            });
+          }
+        });
     });
   }
   onNodeResized(_canvas, node) {
@@ -3865,7 +5287,7 @@ var NodeRatioCanvasExtension = class extends CanvasExtension {
     const nodeBBox = node.getBBox();
     const nodeSize = {
       width: nodeBBox.maxX - nodeBBox.minX,
-      height: nodeBBox.maxY - nodeBBox.minY
+      height: nodeBBox.maxY - nodeBBox.minY,
     };
     const nodeAspectRatio = nodeSize.width / nodeSize.height;
     if (nodeAspectRatio < nodeData.ratio)
@@ -3874,7 +5296,7 @@ var NodeRatioCanvasExtension = class extends CanvasExtension {
     node.setData({
       ...nodeData,
       width: nodeSize.width,
-      height: nodeSize.height
+      height: nodeSize.height,
     });
   }
 };
@@ -3893,44 +5315,46 @@ var GroupCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => canvas.selection.size > 0,
-        (canvas) => this.createGroupAroundSelection(canvas)
-      )
+        (canvas) => this.createGroupAroundSelection(canvas),
+      ),
     });
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => {
-        CanvasHelper.addCardMenuOption(
-          canvas,
-          CanvasHelper.createCardMenuOption(
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:canvas-changed",
+        (canvas) => {
+          CanvasHelper.addCardMenuOption(
             canvas,
-            {
-              id: "create-group",
-              label: "Drag to add group",
-              icon: "group"
-            },
-            () => GROUP_NODE_SIZE,
-            (canvas2, pos) => {
-              canvas2.createGroupNode({
-                pos,
-                size: GROUP_NODE_SIZE
-              });
-            }
-          )
-        );
-      }
-    ));
+            CanvasHelper.createCardMenuOption(
+              canvas,
+              {
+                id: "create-group",
+                label: "Drag to add group",
+                icon: "group",
+              },
+              () => GROUP_NODE_SIZE,
+              (canvas2, pos) => {
+                canvas2.createGroupNode({
+                  pos,
+                  size: GROUP_NODE_SIZE,
+                });
+              },
+            ),
+          );
+        },
+      ),
+    );
   }
   createGroupAroundSelection(canvas) {
     const bbox = BBoxHelper.combineBBoxes(
-      Array.from(canvas.selection.values()).map((e) => e.getBBox())
+      Array.from(canvas.selection.values()).map((e) => e.getBBox()),
     );
     const paddedBBox = BBoxHelper.enlargeBBox(bbox, GROUP_NODE_PADDING);
     canvas.createGroupNode({
       pos: { x: paddedBBox.minX, y: paddedBBox.minY },
       size: {
         width: paddedBBox.maxX - paddedBBox.minX,
-        height: paddedBBox.maxY - paddedBBox.minY
-      }
+        height: paddedBBox.maxY - paddedBBox.minY,
+      },
     });
   }
 };
@@ -3949,15 +5373,16 @@ var NodeTemplatesCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => canvas.getSelectionData().nodes.length === 1,
-        (canvas) => void this.saveNodeAsTemplate(canvas)
-      )
+        (canvas) => void this.saveNodeAsTemplate(canvas),
+      ),
     });
     this.registeredNodeTemplateCommandIds = [];
     this.registerNodeTemplateCommands();
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => this.onCardMenuCreated(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:canvas-changed", (canvas) =>
+        this.onCardMenuCreated(canvas),
+      ),
+    );
   }
   registerNodeTemplateCommands() {
     for (const commandId of this.registeredNodeTemplateCommandIds)
@@ -3969,29 +5394,29 @@ var NodeTemplatesCanvasExtension = class extends CanvasExtension {
       const commandId = `create-template-node-${i}`;
       this.plugin.addCommand({
         id: commandId,
-        name: "Create template node " + (template.label ? `"${template.label}"` : i + 1),
+        name:
+          "Create template node " +
+          (template.label ? `"${template.label}"` : i + 1),
         checkCallback: CanvasHelper.canvasCommand(
           this.plugin,
           (_) => true,
           (canvas) => {
             const center = canvas.posCenter();
-            void this.createNodeFromTemplate(
-              canvas,
-              template,
-              {
-                x: center.x - template.width / 2,
-                y: center.y - template.height / 2
-              }
-            );
-          }
-        )
+            void this.createNodeFromTemplate(canvas, template, {
+              x: center.x - template.width / 2,
+              y: center.y - template.height / 2,
+            });
+          },
+        ),
       });
       this.registeredNodeTemplateCommandIds.push(commandId);
     }
   }
   onCardMenuCreated(canvas) {
     var _a;
-    const existingButtons = canvas.cardMenuEl.querySelectorAll(`[id^="${TEMPLATE_NODE_BUTTON_ID_PREFIX}"]`);
+    const existingButtons = canvas.cardMenuEl.querySelectorAll(
+      `[id^="${TEMPLATE_NODE_BUTTON_ID_PREFIX}"]`,
+    );
     existingButtons.forEach((button) => button.remove());
     const templates = this.plugin.settings.getSetting("nodeTemplates");
     for (let i = 0; i < templates.length; i++) {
@@ -4002,13 +5427,16 @@ var NodeTemplatesCanvasExtension = class extends CanvasExtension {
           canvas,
           {
             id: `${TEMPLATE_NODE_BUTTON_ID_PREFIX}${i}`,
-            label: "Drag to add template node " + (template.label ? `"${template.label}"` : i + 1),
-            icon: (_a = template.icon) != null ? _a : "book-dashed"
+            label:
+              "Drag to add template node " +
+              (template.label ? `"${template.label}"` : i + 1),
+            icon: (_a = template.icon) != null ? _a : "book-dashed",
           },
           () => ({ width: template.width, height: template.height }),
-          (canvas2, pos) => void this.createNodeFromTemplate(canvas2, template, pos),
-          (e) => this.createTemplateContextMenu(e)
-        )
+          (canvas2, pos) =>
+            void this.createNodeFromTemplate(canvas2, template, pos),
+          (e) => this.createTemplateContextMenu(e),
+        ),
       );
     }
   }
@@ -4018,21 +5446,32 @@ var NodeTemplatesCanvasExtension = class extends CanvasExtension {
       pos,
       size: {
         width: template.width,
-        height: template.height
-      }
+        height: template.height,
+      },
     };
     let node;
     if (template.type === "text") node = canvas.createTextNode(creationOptions);
     else if (template.type === "file") {
       let tfile;
       if (template.path) {
-        const abstractFile = this.plugin.app.vault.getAbstractFileByPath(template.path);
-        if (abstractFile instanceof import_obsidian13.TFile) tfile = abstractFile;
+        const abstractFile = this.plugin.app.vault.getAbstractFileByPath(
+          template.path,
+        );
+        if (abstractFile instanceof import_obsidian13.TFile)
+          tfile = abstractFile;
       }
-      tfile != null ? tfile : tfile = await new FileSelectModal(this.plugin.app, void 0, true).awaitInput();
+      tfile != null
+        ? tfile
+        : (tfile = await new FileSelectModal(
+            this.plugin.app,
+            void 0,
+            true,
+          ).awaitInput());
       node = canvas.createFileNode({ ...creationOptions, file: tfile });
-    } else if (template.type === "group") node = canvas.createGroupNode(creationOptions);
-    else if (template.type === "link") node = canvas.createLinkNode({ ...creationOptions, url: template.url });
+    } else if (template.type === "group")
+      node = canvas.createGroupNode(creationOptions);
+    else if (template.type === "link")
+      node = canvas.createLinkNode({ ...creationOptions, url: template.url });
     else throw new Error(`Unknown template type: ${template.type}`);
     const data = node.getData();
     node.setData(
@@ -4041,25 +5480,30 @@ var NodeTemplatesCanvasExtension = class extends CanvasExtension {
         color: (_a = template.color) != null ? _a : data.color,
         styleAttributes: {
           ...data.styleAttributes,
-          ...template.styleAttributes
-        }
+          ...template.styleAttributes,
+        },
       },
-      false
+      false,
       /* addHistory */
     );
   }
   createTemplateContextMenu(e) {
     const menu = new import_obsidian13.Menu();
-    menu.addItem(
-      (item) => item.setTitle("Remove").setIcon("trash").onClick(async () => {
-        const buttonEl = e.target;
-        const index = parseInt(buttonEl.id.replace(TEMPLATE_NODE_BUTTON_ID_PREFIX, ""));
-        const templates = this.plugin.settings.getSetting("nodeTemplates");
-        templates.splice(index, 1);
-        await this.plugin.settings.setSetting({ nodeTemplates: templates });
-        const canvas = this.plugin.getCurrentCanvas();
-        if (canvas) this.onCardMenuCreated(canvas);
-      })
+    menu.addItem((item) =>
+      item
+        .setTitle("Remove")
+        .setIcon("trash")
+        .onClick(async () => {
+          const buttonEl = e.target;
+          const index = parseInt(
+            buttonEl.id.replace(TEMPLATE_NODE_BUTTON_ID_PREFIX, ""),
+          );
+          const templates = this.plugin.settings.getSetting("nodeTemplates");
+          templates.splice(index, 1);
+          await this.plugin.settings.setSetting({ nodeTemplates: templates });
+          const canvas = this.plugin.getCurrentCanvas();
+          if (canvas) this.onCardMenuCreated(canvas);
+        }),
     );
     menu.showAtMouseEvent(e);
   }
@@ -4067,10 +5511,17 @@ var NodeTemplatesCanvasExtension = class extends CanvasExtension {
     const selectedNodeData = canvas.getSelectionData().nodes[0];
     const icon = await new IconModal(this.plugin.app).promise;
     if (!icon) {
-      new import_obsidian13.Notice("No icon selected, template creation cancelled.");
+      new import_obsidian13.Notice(
+        "No icon selected, template creation cancelled.",
+      );
       return;
     }
-    const label = await new AbstractSelectionModal(this.plugin.app, "Set template label (optional)", [], true).awaitInput();
+    const label = await new AbstractSelectionModal(
+      this.plugin.app,
+      "Set template label (optional)",
+      [],
+      true,
+    ).awaitInput();
     await this.plugin.settings.setSetting({
       nodeTemplates: [
         ...this.plugin.settings.getSetting("nodeTemplates"),
@@ -4082,10 +5533,11 @@ var NodeTemplatesCanvasExtension = class extends CanvasExtension {
           height: selectedNodeData.height,
           color: selectedNodeData.color,
           styleAttributes: selectedNodeData.styleAttributes,
-          path: selectedNodeData.type === "file" ? selectedNodeData.file : void 0,
-          url: selectedNodeData.type === "link" ? selectedNodeData.url : void 0
-        }
-      ]
+          path:
+            selectedNodeData.type === "file" ? selectedNodeData.file : void 0,
+          url: selectedNodeData.type === "link" ? selectedNodeData.url : void 0,
+        },
+      ],
     });
     this.registerNodeTemplateCommands();
     this.onCardMenuCreated(canvas);
@@ -4109,19 +5561,19 @@ var IconModal = class extends import_obsidian13.FuzzySuggestModal {
     });
     el.createEl("span", {
       text: item.item.replace("lucide-", ""),
-      cls: "icon-modal-suggestion-id"
+      cls: "icon-modal-suggestion-id",
     });
   }
-  onChooseItem(_item, _evt) {
-  }
+  onChooseItem(_item, _evt) {}
   get promise() {
     return new Promise((resolve, _reject) => {
       this.onChooseItem = (item, _evt) => {
         resolve(item);
       };
-      this.onClose = () => window.setTimeout(() => {
-        resolve(null);
-      }, 10);
+      this.onClose = () =>
+        window.setTimeout(() => {
+          resolve(null);
+        }, 10);
       this.open();
     });
   }
@@ -4144,37 +5596,53 @@ var PresentationCanvasExtension = class extends CanvasExtension {
     return "presentationFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "canvas:selection-menu",
-      (menu, canvas) => {
-        menu.addItem(
-          (item) => item.setTitle("Wrap in slide").setIcon("gallery-vertical").onClick(() => this.addSlide(
-            canvas,
-            void 0,
-            BBoxHelper.enlargeBBox(BBoxHelper.combineBBoxes(
-              [...canvas.selection.values()].map((element) => element.getBBox())
-            ), this.plugin.settings.getSetting("wrapInSlidePadding"))
-          ))
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("canvas:selection-menu", (menu, canvas) => {
+        menu.addItem((item) =>
+          item
+            .setTitle("Wrap in slide")
+            .setIcon("gallery-vertical")
+            .onClick(() =>
+              this.addSlide(
+                canvas,
+                void 0,
+                BBoxHelper.enlargeBBox(
+                  BBoxHelper.combineBBoxes(
+                    [...canvas.selection.values()].map((element) =>
+                      element.getBBox(),
+                    ),
+                  ),
+                  this.plugin.settings.getSetting("wrapInSlidePadding"),
+                ),
+              ),
+            ),
         );
-      }
-    ));
+      }),
+    );
     this.plugin.addCommand({
       id: "create-new-slide",
       name: "Create new slide",
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => !canvas.readonly && !this.isPresentationMode,
-        (canvas) => this.addSlide(canvas)
-      )
+        (canvas) => this.addSlide(canvas),
+      ),
     });
     this.plugin.addCommand({
       id: "set-start-node",
       name: "Set start node",
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
-        (canvas) => !canvas.readonly && !this.isPresentationMode && canvas.getSelectionData().nodes.length === 1,
-        (canvas) => this.setStartNode(canvas, canvas.nodes.get(canvas.getSelectionData().nodes[0].id))
-      )
+        (canvas) =>
+          !canvas.readonly &&
+          !this.isPresentationMode &&
+          canvas.getSelectionData().nodes.length === 1,
+        (canvas) =>
+          this.setStartNode(
+            canvas,
+            canvas.nodes.get(canvas.getSelectionData().nodes[0].id),
+          ),
+      ),
     });
     this.plugin.addCommand({
       id: "start-presentation",
@@ -4182,8 +5650,8 @@ var PresentationCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (_canvas) => !this.isPresentationMode,
-        (canvas) => void this.startPresentation(canvas)
-      )
+        (canvas) => void this.startPresentation(canvas),
+      ),
     });
     this.plugin.addCommand({
       id: "continue-presentation",
@@ -4191,8 +5659,8 @@ var PresentationCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (_canvas) => !this.isPresentationMode,
-        (canvas) => void this.startPresentation(canvas, true)
-      )
+        (canvas) => void this.startPresentation(canvas, true),
+      ),
     });
     this.plugin.addCommand({
       id: "end-presentation",
@@ -4200,8 +5668,8 @@ var PresentationCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (_canvas) => this.isPresentationMode,
-        (canvas) => this.endPresentation(canvas)
-      )
+        (canvas) => this.endPresentation(canvas),
+      ),
     });
     this.plugin.addCommand({
       id: "previous-node",
@@ -4209,8 +5677,8 @@ var PresentationCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (_canvas) => this.isPresentationMode,
-        (canvas) => this.previousNode(canvas)
-      )
+        (canvas) => this.previousNode(canvas),
+      ),
     });
     this.plugin.addCommand({
       id: "next-node",
@@ -4218,17 +5686,20 @@ var PresentationCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (_canvas) => this.isPresentationMode,
-        (canvas) => this.nextNode(canvas)
-      )
+        (canvas) => this.nextNode(canvas),
+      ),
     });
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => this.onCanvasChanged(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.onPopupMenuCreated(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:canvas-changed", (canvas) =>
+        this.onCanvasChanged(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.onPopupMenuCreated(canvas),
+      ),
+    );
   }
   onCanvasChanged(canvas) {
     CanvasHelper.addCardMenuOption(
@@ -4238,17 +5709,22 @@ var PresentationCanvasExtension = class extends CanvasExtension {
         {
           id: "new-slide",
           label: "Drag to add slide",
-          icon: "gallery-vertical"
+          icon: "gallery-vertical",
         },
         () => this.getDefaultSlideSize(),
-        (canvas2, pos) => this.addSlide(canvas2, pos)
-      )
+        (canvas2, pos) => this.addSlide(canvas2, pos),
+      ),
     );
   }
   onPopupMenuCreated(canvas) {
     if (!this.plugin.settings.getSetting("showSetStartNodeInPopup")) return;
     const selectedNodesData = canvas.getSelectionData().nodes;
-    if (canvas.readonly || selectedNodesData.length !== 1 || canvas.selection.size > 1) return;
+    if (
+      canvas.readonly ||
+      selectedNodesData.length !== 1 ||
+      canvas.selection.size > 1
+    )
+      return;
     const selectedNode = canvas.nodes.get(selectedNodesData[0].id);
     if (!selectedNode) return;
     CanvasHelper.addPopupMenuOption(
@@ -4257,8 +5733,8 @@ var PresentationCanvasExtension = class extends CanvasExtension {
         id: "start-node",
         label: "Set as start slide",
         icon: "play",
-        callback: () => this.setStartNode(canvas, selectedNode)
-      })
+        callback: () => this.setStartNode(canvas, selectedNode),
+      }),
     );
   }
   setStartNode(canvas, node) {
@@ -4289,36 +5765,61 @@ var PresentationCanvasExtension = class extends CanvasExtension {
       }
       pos = {
         x: bbox.minX,
-        y: bbox.minY
+        y: bbox.minY,
       };
     }
-    if (!pos) pos = CanvasHelper.getCenterCoordinates(canvas, this.getDefaultSlideSize());
+    if (!pos)
+      pos = CanvasHelper.getCenterCoordinates(
+        canvas,
+        this.getDefaultSlideSize(),
+      );
     const groupNode = canvas.createGroupNode({
       pos,
       size: slideSize,
       label: isStartNode ? START_SLIDE_NAME : DEFAULT_SLIDE_NAME,
-      focus: false
+      focus: false,
     });
     groupNode.setData({
       ...groupNode.getData(),
-      ratio: slideAspectRatio
+      ratio: slideAspectRatio,
     });
     if (isStartNode) canvas.metadata["startNode"] = groupNode.getData().id;
   }
   async animateNodeTransition(canvas, fromNode, toNode) {
-    const removePadding = this.plugin.settings.getSetting("zoomToSlideWithoutPadding");
-    const animationDurationMs = this.plugin.settings.getSetting("slideTransitionAnimationDuration") * 1e3;
-    const toNodeBBox = CanvasHelper.getSmallestAllowedZoomBBox(canvas, toNode.getBBox());
-    const toNodeBBoxPadded = removePadding ? toNodeBBox : BBoxHelper.enlargeBBox(toNodeBBox, 50);
+    const removePadding = this.plugin.settings.getSetting(
+      "zoomToSlideWithoutPadding",
+    );
+    const animationDurationMs =
+      this.plugin.settings.getSetting("slideTransitionAnimationDuration") * 1e3;
+    const toNodeBBox = CanvasHelper.getSmallestAllowedZoomBBox(
+      canvas,
+      toNode.getBBox(),
+    );
+    const toNodeBBoxPadded = removePadding
+      ? toNodeBBox
+      : BBoxHelper.enlargeBBox(toNodeBBox, 50);
     if (animationDurationMs > 0 && fromNode) {
-      const animationIntensity = this.plugin.settings.getSetting("slideTransitionAnimationIntensity");
-      const fromNodeBBox = CanvasHelper.getSmallestAllowedZoomBBox(canvas, fromNode.getBBox());
-      const fromNodeBBoxPadded = removePadding ? fromNodeBBox : BBoxHelper.enlargeBBox(fromNodeBBox, 50);
-      const currentNodeBBoxEnlarged = BBoxHelper.scaleBBox(fromNodeBBoxPadded, animationIntensity);
+      const animationIntensity = this.plugin.settings.getSetting(
+        "slideTransitionAnimationIntensity",
+      );
+      const fromNodeBBox = CanvasHelper.getSmallestAllowedZoomBBox(
+        canvas,
+        fromNode.getBBox(),
+      );
+      const fromNodeBBoxPadded = removePadding
+        ? fromNodeBBox
+        : BBoxHelper.enlargeBBox(fromNodeBBox, 50);
+      const currentNodeBBoxEnlarged = BBoxHelper.scaleBBox(
+        fromNodeBBoxPadded,
+        animationIntensity,
+      );
       canvas.zoomToRealBbox(currentNodeBBoxEnlarged);
       await sleep(animationDurationMs / 2);
       if (fromNode.getData().id !== toNode.getData().id) {
-        const nextNodeBBoxEnlarged = BBoxHelper.scaleBBox(toNodeBBoxPadded, animationIntensity);
+        const nextNodeBBoxEnlarged = BBoxHelper.scaleBBox(
+          toNodeBBoxPadded,
+          animationIntensity,
+        );
         canvas.zoomToRealBbox(nextNodeBBoxEnlarged);
         await sleep(animationDurationMs / 2);
       }
@@ -4327,9 +5828,13 @@ var PresentationCanvasExtension = class extends CanvasExtension {
   }
   async startPresentation(canvas, tryContinue = false) {
     if (!tryContinue || this.visitedNodeIds.length === 0) {
-      const startNode2 = canvas.metadata["startNode"] && canvas.nodes.get(canvas.metadata["startNode"]);
+      const startNode2 =
+        canvas.metadata["startNode"] &&
+        canvas.nodes.get(canvas.metadata["startNode"]);
       if (!startNode2) {
-        new import_obsidian14.Notice("No start node found. Please mark a node as a start node through the popup menu.");
+        new import_obsidian14.Notice(
+          "No start node found. Please mark a node as a start node through the popup menu.",
+        );
         return;
       }
       this.visitedNodeIds = [startNode2.getData().id];
@@ -4337,9 +5842,11 @@ var PresentationCanvasExtension = class extends CanvasExtension {
     this.savedViewport = {
       x: canvas.tx,
       y: canvas.ty,
-      zoom: canvas.tZoom
+      zoom: canvas.tZoom,
     };
-    const shouldEnterFullscreen = this.plugin.settings.getSetting("fullscreenPresentationEnabled");
+    const shouldEnterFullscreen = this.plugin.settings.getSetting(
+      "fullscreenPresentationEnabled",
+    );
     this.presentationUsesFullscreen = shouldEnterFullscreen;
     canvas.wrapperEl.focus();
     canvas.wrapperEl.classList.add("presentation-mode");
@@ -4375,21 +5882,24 @@ var PresentationCanvasExtension = class extends CanvasExtension {
           mutationRecord.addedNodes.forEach((node) => {
             var _a;
             activeDocument.body.removeChild(node);
-            (_a = activeDocument.fullscreenElement) == null ? void 0 : _a.appendChild(node);
+            (_a = activeDocument.fullscreenElement) == null
+              ? void 0
+              : _a.appendChild(node);
           });
         });
         const inputField = activeDocument.querySelector(".prompt-input");
         if (inputField) inputField.focus();
       });
-      this.fullscreenModalObserver.observe(activeDocument.body, { childList: true });
+      this.fullscreenModalObserver.observe(activeDocument.body, {
+        childList: true,
+      });
       canvas.wrapperEl.onfullscreenchange = (_e) => {
         if (activeDocument.fullscreenElement) return;
         this.endPresentation(canvas);
       };
     }
     this.isPresentationMode = true;
-    if (this.presentationUsesFullscreen)
-      await sleep(500);
+    if (this.presentationUsesFullscreen) await sleep(500);
     const startNodeId = this.visitedNodeIds.first();
     if (!startNodeId) return;
     const startNode = canvas.nodes.get(startNodeId);
@@ -4403,7 +5913,8 @@ var PresentationCanvasExtension = class extends CanvasExtension {
       (_a = this.fullscreenModalObserver) == null ? void 0 : _a.disconnect();
       this.fullscreenModalObserver = null;
       canvas.wrapperEl.onfullscreenchange = null;
-      if (activeDocument.fullscreenElement) void activeDocument.exitFullscreen();
+      if (activeDocument.fullscreenElement)
+        void activeDocument.exitFullscreen();
     }
     canvas.wrapperEl.onkeydown = null;
     canvas.setReadonly(false);
@@ -4411,7 +5922,11 @@ var PresentationCanvasExtension = class extends CanvasExtension {
       canvas.screenshotting = false;
     canvas.wrapperEl.classList.remove("presentation-mode");
     if (this.plugin.settings.getSetting("resetViewportOnPresentationEnd"))
-      canvas.setViewport(this.savedViewport.x, this.savedViewport.y, this.savedViewport.zoom);
+      canvas.setViewport(
+        this.savedViewport.x,
+        this.savedViewport.y,
+        this.savedViewport.zoom,
+      );
     this.isPresentationMode = false;
     this.presentationUsesFullscreen = false;
   }
@@ -4421,7 +5936,9 @@ var PresentationCanvasExtension = class extends CanvasExtension {
     if (!fromNodeId) return;
     const fromNode = canvas.nodes.get(fromNodeId);
     if (!fromNode) return;
-    const outgoingEdges = canvas.getEdgesForNode(fromNode).filter((edge) => edge.from.node.getData().id === fromNodeId);
+    const outgoingEdges = canvas
+      .getEdgesForNode(fromNode)
+      .filter((edge) => edge.from.node.getData().id === fromNodeId);
     let toNode = (_a = outgoingEdges.first()) == null ? void 0 : _a.to.node;
     if (outgoingEdges.length > 1) {
       const sortedEdges = outgoingEdges.sort((a, b) => {
@@ -4429,9 +5946,15 @@ var PresentationCanvasExtension = class extends CanvasExtension {
         if (!b.label) return -1;
         return a.label.localeCompare(b.label);
       });
-      const traversedEdgesCount = this.visitedNodeIds.filter((visitedNodeId) => visitedNodeId === fromNodeId).length - 1;
+      const traversedEdgesCount =
+        this.visitedNodeIds.filter(
+          (visitedNodeId) => visitedNodeId === fromNodeId,
+        ).length - 1;
       const nextEdge = sortedEdges[traversedEdgesCount];
-      toNode = (_b = nextEdge == null ? void 0 : nextEdge.to) == null ? void 0 : _b.node;
+      toNode =
+        (_b = nextEdge == null ? void 0 : nextEdge.to) == null
+          ? void 0
+          : _b.node;
     }
     if (toNode) {
       this.visitedNodeIds.push(toNode.getData().id);
@@ -4461,25 +5984,35 @@ var ZOrderingCanvasExtension = class extends CanvasExtension {
     return "zOrderingControlFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "canvas:node-menu",
-      (menu, node) => this.nodeContextMenu(node, menu)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "canvas:selection-menu",
-      (menu, canvas) => this.selectionContextMenu(canvas, menu)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("canvas:node-menu", (menu, node) =>
+        this.nodeContextMenu(node, menu),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("canvas:selection-menu", (menu, canvas) =>
+        this.selectionContextMenu(canvas, menu),
+      ),
+    );
   }
   nodeContextMenu(node, menu) {
     this.addZOrderingContextMenuItems(node.canvas, [node], menu);
   }
   selectionContextMenu(canvas, menu) {
-    const selectedNodes = canvas.getSelectionData().nodes.map((nodeData) => canvas.nodes.get(nodeData.id)).filter((node) => node !== void 0);
+    const selectedNodes = canvas
+      .getSelectionData()
+      .nodes.map((nodeData) => canvas.nodes.get(nodeData.id))
+      .filter((node) => node !== void 0);
     this.addZOrderingContextMenuItems(canvas, selectedNodes, menu);
   }
   addZOrderingContextMenuItems(canvas, nodes, menu) {
     menu.addSeparator();
-    if (this.plugin.settings.getSetting("zOrderingControlShowOneLayerShiftOptions") && nodes.length === 1) {
+    if (
+      this.plugin.settings.getSetting(
+        "zOrderingControlShowOneLayerShiftOptions",
+      ) &&
+      nodes.length === 1
+    ) {
       menu.addItem((item) => {
         item.setTitle("Move one layer forward");
         item.setIcon("arrow-up");
@@ -4512,15 +6045,28 @@ var ZOrderingCanvasExtension = class extends CanvasExtension {
   }
   moveOneLayer(canvas, selectedNode, forward) {
     const selectedNodeBBox = selectedNode.getBBox();
-    const collidingNodes = [...canvas.nodes.values()].filter((node) => BBoxHelper.isColliding(selectedNodeBBox, node.getBBox())).filter((node) => node !== selectedNode);
-    const nearestZIndexNode = collidingNodes.sort((a, b) => forward ? a.zIndex - b.zIndex : b.zIndex - a.zIndex).filter((node) => forward ? node.zIndex > selectedNode.zIndex : node.zIndex < selectedNode.zIndex).first();
+    const collidingNodes = [...canvas.nodes.values()]
+      .filter((node) =>
+        BBoxHelper.isColliding(selectedNodeBBox, node.getBBox()),
+      )
+      .filter((node) => node !== selectedNode);
+    const nearestZIndexNode = collidingNodes
+      .sort((a, b) => (forward ? a.zIndex - b.zIndex : b.zIndex - a.zIndex))
+      .filter((node) =>
+        forward
+          ? node.zIndex > selectedNode.zIndex
+          : node.zIndex < selectedNode.zIndex,
+      )
+      .first();
     if (nearestZIndexNode === void 0) return;
     const targetZIndex = nearestZIndexNode.zIndex;
     this.setNodesZIndex([nearestZIndexNode], selectedNode.zIndex);
     this.setNodesZIndex([selectedNode], targetZIndex);
   }
   moveMaxLayers(canvas, selectedNodes, forward) {
-    const targetZIndex = forward ? Math.max(...this.getAllZIndexes(canvas)) + 1 : Math.min(...this.getAllZIndexes(canvas)) - selectedNodes.length;
+    const targetZIndex = forward
+      ? Math.max(...this.getAllZIndexes(canvas)) + 1
+      : Math.min(...this.getAllZIndexes(canvas)) - selectedNodes.length;
     this.setNodesZIndex(selectedNodes, targetZIndex);
   }
   removePersistentZIndexes(_canvas, nodes) {
@@ -4549,30 +6095,39 @@ var BetterReadonlyCanvasExtension = class extends CanvasExtension {
     return "betterReadonlyEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.updatePopupMenu(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:viewport-changed:before",
-      (canvas) => this.onBeforeViewPortChanged(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:zoom-to-bbox:before",
-      () => this.isMovingToBBox = true
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:readonly-changed",
-      (canvas, _readonly) => {
-        this.updatePopupMenu(canvas);
-        this.updateLockedZoom(canvas);
-        this.updateLockedPan(canvas);
-      }
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => this.addQuickSettings(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.updatePopupMenu(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:viewport-changed:before",
+        (canvas) => this.onBeforeViewPortChanged(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:zoom-to-bbox:before",
+        () => (this.isMovingToBBox = true),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:readonly-changed",
+        (canvas, _readonly) => {
+          this.updatePopupMenu(canvas);
+          this.updateLockedZoom(canvas);
+          this.updateLockedPan(canvas);
+        },
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:canvas-changed", (canvas) =>
+        this.addQuickSettings(canvas),
+      ),
+    );
   }
   onBeforeViewPortChanged(canvas) {
     var _a, _b, _c, _d, _e, _f;
@@ -4596,53 +6151,69 @@ var BetterReadonlyCanvasExtension = class extends CanvasExtension {
   }
   addQuickSettings(canvas) {
     var _a;
-    const settingsContainer = (_a = canvas.quickSettingsButton) == null ? void 0 : _a.parentElement;
+    const settingsContainer =
+      (_a = canvas.quickSettingsButton) == null ? void 0 : _a.parentElement;
     if (!settingsContainer) return;
     CanvasHelper.addControlMenuButton(
       settingsContainer,
-      this.createToggle({
-        id: "disable-node-popup",
-        label: "Disable node popup",
-        icon: "arrow-up-right-from-circle",
-        callback: () => this.updatePopupMenu(canvas)
-      }, "disableNodePopup")
+      this.createToggle(
+        {
+          id: "disable-node-popup",
+          label: "Disable node popup",
+          icon: "arrow-up-right-from-circle",
+          callback: () => this.updatePopupMenu(canvas),
+        },
+        "disableNodePopup",
+      ),
     );
     CanvasHelper.addControlMenuButton(
       settingsContainer,
-      this.createToggle({
-        id: "disable-zoom",
-        label: "Disable zoom",
-        icon: "zoom-in",
-        callback: () => this.updateLockedZoom(canvas)
-      }, "disableZoom")
+      this.createToggle(
+        {
+          id: "disable-zoom",
+          label: "Disable zoom",
+          icon: "zoom-in",
+          callback: () => this.updateLockedZoom(canvas),
+        },
+        "disableZoom",
+      ),
     );
     CanvasHelper.addControlMenuButton(
       settingsContainer,
-      this.createToggle({
-        id: "disable-pan",
-        label: "Disable pan",
-        icon: "move",
-        callback: () => this.updateLockedPan(canvas)
-      }, "disablePan")
+      this.createToggle(
+        {
+          id: "disable-pan",
+          label: "Disable pan",
+          icon: "move",
+          callback: () => this.updateLockedPan(canvas),
+        },
+        "disablePan",
+      ),
     );
   }
   createToggle(menuOption, settingKey) {
     const toggle = CanvasHelper.createControlMenuButton({
       ...menuOption,
-      callback: () => void (async () => {
-        var _a;
-        const newValue = !this.plugin.settings.getSetting(settingKey);
-        await this.plugin.settings.setSetting({ [settingKey]: newValue });
-        toggle.dataset.toggled = JSON.stringify(this.plugin.settings.getSetting(settingKey));
-        (_a = menuOption.callback) == null ? void 0 : _a.call(this);
-      })()
+      callback: () =>
+        void (async () => {
+          var _a;
+          const newValue = !this.plugin.settings.getSetting(settingKey);
+          await this.plugin.settings.setSetting({ [settingKey]: newValue });
+          toggle.dataset.toggled = JSON.stringify(
+            this.plugin.settings.getSetting(settingKey),
+          );
+          (_a = menuOption.callback) == null ? void 0 : _a.call(this);
+        })(),
     });
     toggle.classList.add("show-while-readonly");
-    toggle.dataset.toggled = JSON.stringify(this.plugin.settings.getSetting(settingKey));
+    toggle.dataset.toggled = JSON.stringify(
+      this.plugin.settings.getSetting(settingKey),
+    );
     return toggle;
   }
   updatePopupMenu(canvas) {
-    const hidden = canvas.readonly && this.plugin.settings.getSetting("disableNodePopup");
+    const hidden =
+      canvas.readonly && this.plugin.settings.getSetting("disableNodePopup");
     canvas.menu.menuEl.style.visibility = hidden ? "hidden" : "visible";
   }
   updateLockedZoom(canvas) {
@@ -4667,33 +6238,48 @@ var EncapsulateCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => !canvas.readonly && canvas.selection.size > 0,
-        (canvas) => void this.encapsulateSelection(canvas)
-      )
+        (canvas) => void this.encapsulateSelection(canvas),
+      ),
     });
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "canvas:selection-menu",
-      (menu, canvas) => {
-        menu.addItem(
-          (item) => item.setTitle("Encapsulate").setIcon("file-plus").onClick(() => this.encapsulateSelection(canvas))
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("canvas:selection-menu", (menu, canvas) => {
+        menu.addItem((item) =>
+          item
+            .setTitle("Encapsulate")
+            .setIcon("file-plus")
+            .onClick(() => this.encapsulateSelection(canvas)),
         );
-      }
-    ));
+      }),
+    );
   }
   async encapsulateSelection(canvas) {
     var _a, _b, _c, _d;
     const selection = canvas.getSelectionData();
-    const canvasSettings = this.plugin.app.internalPlugins.plugins.canvas.instance.options;
+    const canvasSettings =
+      this.plugin.app.internalPlugins.plugins.canvas.instance.options;
     const defaultNewCanvasLocation = canvasSettings.newFileLocation;
     let targetFolderPath = this.plugin.app.vault.getRoot().path;
-    if (defaultNewCanvasLocation === "current") targetFolderPath = (_c = (_b = (_a = canvas.view.file) == null ? void 0 : _a.parent) == null ? void 0 : _b.path) != null ? _c : targetFolderPath;
-    else if (defaultNewCanvasLocation === "folder") targetFolderPath = (_d = canvasSettings.newFileFolderPath) != null ? _d : targetFolderPath;
+    if (defaultNewCanvasLocation === "current")
+      targetFolderPath =
+        (_c =
+          (_b = (_a = canvas.view.file) == null ? void 0 : _a.parent) == null
+            ? void 0
+            : _b.path) != null
+          ? _c
+          : targetFolderPath;
+    else if (defaultNewCanvasLocation === "folder")
+      targetFolderPath =
+        (_d = canvasSettings.newFileFolderPath) != null ? _d : targetFolderPath;
     const targetFilePath = await new FileNameModal(
       this.plugin.app,
       targetFolderPath,
-      "canvas"
+      "canvas",
     ).awaitInput();
     const newFileData = { nodes: selection.nodes, edges: selection.edges };
-    const file = await this.plugin.app.vault.create(targetFilePath, JSON.stringify(newFileData, null, 2));
+    const file = await this.plugin.app.vault.create(
+      targetFilePath,
+      JSON.stringify(newFileData, null, 2),
+    );
     for (const nodeData of selection.nodes) {
       const node = canvas.nodes.get(nodeData.id);
       if (node) canvas.removeNode(node);
@@ -4701,10 +6287,10 @@ var EncapsulateCanvasExtension = class extends CanvasExtension {
     canvas.createFileNode({
       pos: {
         x: selection.center.x - ENCAPSULATED_FILE_NODE_SIZE.width / 2,
-        y: selection.center.y - ENCAPSULATED_FILE_NODE_SIZE.height / 2
+        y: selection.center.y - ENCAPSULATED_FILE_NODE_SIZE.height / 2,
       },
       size: ENCAPSULATED_FILE_NODE_SIZE,
-      file
+      file,
     });
   }
 };
@@ -4719,22 +6305,30 @@ var CopyNodeReferenceCanvasExtension = class _CopyNodeReferenceCanvasExtension e
     return "enableSingleNodePopupReferenceCopy";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.onPopupMenuCreated(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.onPopupMenuCreated(canvas),
+      ),
+    );
   }
   onPopupMenuCreated(canvas) {
     var _a;
-    const popupMenuEl = (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
+    const popupMenuEl =
+      (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
     if (!popupMenuEl) return;
     const selectionData = canvas.getSelectionData();
-    if (selectionData.nodes.length !== 1 && selectionData.edges.length === 0) return;
+    if (selectionData.nodes.length !== 1 && selectionData.edges.length === 0)
+      return;
     const menuOption = {
       id: "node-popup-menu-option-copy-reference",
       label: "Copy wikilink to node",
       icon: "link",
-      callback: () => _CopyNodeReferenceCanvasExtension.copyWikilinkToNode(canvas.view.file, selectionData.nodes[0])
+      callback: () =>
+        _CopyNodeReferenceCanvasExtension.copyWikilinkToNode(
+          canvas.view.file,
+          selectionData.nodes[0],
+        ),
     };
     const popupMenuOption = CanvasHelper.createPopupMenuOption(menuOption);
     CanvasHelper.addPopupMenuOption(canvas, popupMenuOption);
@@ -4742,9 +6336,22 @@ var CopyNodeReferenceCanvasExtension = class _CopyNodeReferenceCanvasExtension e
   static copyWikilinkToNode(file, nodeData) {
     const nodeTypeString = TextHelper.toTitleCase(nodeData.type);
     const wikilink = `[[${file.path}#${nodeData.id}|${file.name} (${nodeTypeString} node)]]`;
-    navigator.clipboard.writeText(wikilink).then(
-      () => new import_obsidian15.Notice("Copied wikilink to node to clipboard.", 2e3)
-    ).catch(() => new import_obsidian15.Notice("Failed to copy wikilink to node to clipboard.", 2e3));
+    navigator.clipboard
+      .writeText(wikilink)
+      .then(
+        () =>
+          new import_obsidian15.Notice(
+            "Copied wikilink to node to clipboard.",
+            2e3,
+          ),
+      )
+      .catch(
+        () =>
+          new import_obsidian15.Notice(
+            "Failed to copy wikilink to node to clipboard.",
+            2e3,
+          ),
+      );
   }
 };
 
@@ -4761,8 +6368,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (_canvas) => true,
-        (canvas) => canvas.setReadonly(!canvas.readonly)
-      )
+        (canvas) => canvas.setReadonly(!canvas.readonly),
+      ),
     });
     this.plugin.addCommand({
       id: "create-text-node",
@@ -4770,8 +6377,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => !canvas.readonly,
-        (canvas) => this.createTextNode(canvas)
-      )
+        (canvas) => this.createTextNode(canvas),
+      ),
     });
     this.plugin.addCommand({
       id: "create-file-node",
@@ -4779,8 +6386,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => !canvas.readonly,
-        (canvas) => void this.createFileNode(canvas)
-      )
+        (canvas) => void this.createFileNode(canvas),
+      ),
     });
     this.plugin.addCommand({
       id: "select-all-edges",
@@ -4788,10 +6395,11 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (_canvas) => true,
-        (canvas) => canvas.updateSelection(
-          () => canvas.selection = new Set(canvas.edges.values())
-        )
-      )
+        (canvas) =>
+          canvas.updateSelection(
+            () => (canvas.selection = new Set(canvas.edges.values())),
+          ),
+      ),
     });
     this.plugin.addCommand({
       id: "zoom-to-selection",
@@ -4799,8 +6407,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => canvas.selection.size > 0,
-        (canvas) => canvas.zoomToSelection()
-      )
+        (canvas) => canvas.zoomToSelection(),
+      ),
     });
     this.plugin.addCommand({
       id: "zoom-to-fit",
@@ -4808,8 +6416,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (_canvas) => true,
-        (canvas) => canvas.zoomToFit()
-      )
+        (canvas) => canvas.zoomToFit(),
+      ),
     });
     for (const direction of DIRECTIONS) {
       this.plugin.addCommand({
@@ -4819,10 +6427,16 @@ var CommandsCanvasExtension = class extends CanvasExtension {
           this.plugin,
           (canvas) => {
             var _a;
-            return !canvas.readonly && canvas.selection.size === 1 && ((_a = canvas.selection.values().next().value) == null ? void 0 : _a.getData().type) === "text";
+            return (
+              !canvas.readonly &&
+              canvas.selection.size === 1 &&
+              ((_a = canvas.selection.values().next().value) == null
+                ? void 0
+                : _a.getData().type) === "text"
+            );
           },
-          (canvas) => this.cloneNode(canvas, direction)
-        )
+          (canvas) => this.cloneNode(canvas, direction),
+        ),
       });
       this.plugin.addCommand({
         id: `expand-node-${direction}`,
@@ -4830,8 +6444,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
         checkCallback: CanvasHelper.canvasCommand(
           this.plugin,
           (canvas) => !canvas.readonly && canvas.selection.size === 1,
-          (canvas) => this.expandNode(canvas, direction)
-        )
+          (canvas) => this.expandNode(canvas, direction),
+        ),
       });
       this.plugin.addCommand({
         id: `navigate-${direction}`,
@@ -4839,8 +6453,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
         checkCallback: CanvasHelper.canvasCommand(
           this.plugin,
           (canvas) => canvas.getSelectionData().nodes.length === 1,
-          (canvas) => this.navigate(canvas, direction)
-        )
+          (canvas) => this.navigate(canvas, direction),
+        ),
       });
     }
     this.plugin.addCommand({
@@ -4849,11 +6463,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => !canvas.readonly && canvas.selection.size > 0,
-        (canvas) => this.flipSelection(
-          canvas,
-          true
-        )
-      )
+        (canvas) => this.flipSelection(canvas, true),
+      ),
     });
     this.plugin.addCommand({
       id: "flip-selection-vertically",
@@ -4861,8 +6472,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => !canvas.readonly && canvas.selection.size > 0,
-        (canvas) => this.flipSelection(canvas, false)
-      )
+        (canvas) => this.flipSelection(canvas, false),
+      ),
     });
     this.plugin.addCommand({
       id: "select-connected-edges",
@@ -4870,8 +6481,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => canvas.selection.size > 0,
-        (canvas) => CanvasHelper.selectEdgesForNodes(canvas, "connected")
-      )
+        (canvas) => CanvasHelper.selectEdgesForNodes(canvas, "connected"),
+      ),
     });
     this.plugin.addCommand({
       id: "select-incoming-edges",
@@ -4879,8 +6490,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => canvas.selection.size > 0,
-        (canvas) => CanvasHelper.selectEdgesForNodes(canvas, "incoming")
-      )
+        (canvas) => CanvasHelper.selectEdgesForNodes(canvas, "incoming"),
+      ),
     });
     this.plugin.addCommand({
       id: "select-outgoing-edges",
@@ -4888,26 +6499,42 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => canvas.selection.size > 0,
-        (canvas) => CanvasHelper.selectEdgesForNodes(canvas, "outgoing")
-      )
+        (canvas) => CanvasHelper.selectEdgesForNodes(canvas, "outgoing"),
+      ),
     });
     this.plugin.addCommand({
       id: "swap-nodes",
       name: "Swap nodes",
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
-        (canvas) => !canvas.readonly && canvas.getSelectionData().nodes.length === 2,
+        (canvas) =>
+          !canvas.readonly && canvas.getSelectionData().nodes.length === 2,
         (canvas) => {
-          const selectedNodes = canvas.getSelectionData().nodes.map((nodeData) => canvas.nodes.get(nodeData.id)).filter((node) => node !== void 0);
+          const selectedNodes = canvas
+            .getSelectionData()
+            .nodes.map((nodeData) => canvas.nodes.get(nodeData.id))
+            .filter((node) => node !== void 0);
           if (selectedNodes.length !== 2) return;
           const [nodeA, nodeB] = selectedNodes;
           const nodeAData = nodeA.getData();
           const nodeBData = nodeB.getData();
-          nodeA.setData({ ...nodeAData, x: nodeBData.x, y: nodeBData.y, width: nodeBData.width, height: nodeBData.height });
-          nodeB.setData({ ...nodeBData, x: nodeAData.x, y: nodeAData.y, width: nodeAData.width, height: nodeAData.height });
+          nodeA.setData({
+            ...nodeAData,
+            x: nodeBData.x,
+            y: nodeBData.y,
+            width: nodeBData.width,
+            height: nodeBData.height,
+          });
+          nodeB.setData({
+            ...nodeBData,
+            x: nodeAData.x,
+            y: nodeAData.y,
+            width: nodeAData.width,
+            height: nodeAData.height,
+          });
           canvas.pushHistory(canvas.getData());
-        }
-      )
+        },
+      ),
     });
     this.plugin.addCommand({
       id: "copy-wikilink-to-node",
@@ -4921,8 +6548,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
           const nodeData = canvas.getSelectionData().nodes[0];
           if (!nodeData) return;
           CopyNodeReferenceCanvasExtension.copyWikilinkToNode(file, nodeData);
-        }
-      )
+        },
+      ),
     });
     this.plugin.addCommand({
       id: "pull-outgoing-links-to-canvas",
@@ -4934,24 +6561,38 @@ var CommandsCanvasExtension = class extends CanvasExtension {
           var _a, _b, _c;
           const canvasFile = canvas.view.file;
           if (!canvasFile) return;
-          let selectedNodeIds = canvas.getSelectionData().nodes.map((node) => node.id);
-          if (selectedNodeIds.length === 0) selectedNodeIds = [...canvas.nodes.keys()];
-          const metadata = this.plugin.app.metadataCache.getFileCache(canvasFile);
+          let selectedNodeIds = canvas
+            .getSelectionData()
+            .nodes.map((node) => node.id);
+          if (selectedNodeIds.length === 0)
+            selectedNodeIds = [...canvas.nodes.keys()];
+          const metadata =
+            this.plugin.app.metadataCache.getFileCache(canvasFile);
           if (!metadata) return;
           const outgoingLinks = /* @__PURE__ */ new Set();
           for (const nodeId of selectedNodeIds) {
             let relativeFile = canvasFile;
-            let nodeOutgoingLinks = (_b = (_a = metadata.nodes) == null ? void 0 : _a[nodeId]) == null ? void 0 : _b.links;
+            let nodeOutgoingLinks =
+              (_b = (_a = metadata.nodes) == null ? void 0 : _a[nodeId]) == null
+                ? void 0
+                : _b.links;
             if (!nodeOutgoingLinks) {
-              const file = (_c = canvas.nodes.get(nodeId)) == null ? void 0 : _c.file;
+              const file =
+                (_c = canvas.nodes.get(nodeId)) == null ? void 0 : _c.file;
               if (!file) continue;
-              const fileMetadata = this.plugin.app.metadataCache.getFileCache(file);
-              nodeOutgoingLinks = fileMetadata == null ? void 0 : fileMetadata.links;
+              const fileMetadata =
+                this.plugin.app.metadataCache.getFileCache(file);
+              nodeOutgoingLinks =
+                fileMetadata == null ? void 0 : fileMetadata.links;
               relativeFile = file;
             }
             if (!nodeOutgoingLinks) continue;
             for (const nodeOutgoingLink of nodeOutgoingLinks) {
-              const resolvedLink = this.plugin.app.metadataCache.getFirstLinkpathDest(nodeOutgoingLink.link, relativeFile.path);
+              const resolvedLink =
+                this.plugin.app.metadataCache.getFirstLinkpathDest(
+                  nodeOutgoingLink.link,
+                  relativeFile.path,
+                );
               if (!(resolvedLink instanceof import_obsidian16.TFile)) continue;
               outgoingLinks.add(resolvedLink);
             }
@@ -4965,8 +6606,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
             if (existingFileNodes.has(outgoingLink)) continue;
             void this.createFileNode(canvas, outgoingLink);
           }
-        }
-      )
+        },
+      ),
     });
     this.plugin.addCommand({
       id: "pull-backlinks-to-canvas",
@@ -4977,26 +6618,39 @@ var CommandsCanvasExtension = class extends CanvasExtension {
         (canvas) => {
           const canvasFile = canvas.view.file;
           if (!canvasFile) return;
-          const selectedNodesData = canvas.getSelectionData().nodes.map((node) => node);
+          const selectedNodesData = canvas
+            .getSelectionData()
+            .nodes.map((node) => node);
           const backlinks = /* @__PURE__ */ new Set();
           if (selectedNodesData.length > 0) {
             for (const nodeData of selectedNodesData) {
               if (nodeData.type !== "file" || !nodeData.file) continue;
               const file = this.plugin.app.vault.getFileByPath(nodeData.file);
               if (!file) continue;
-              const nodeBacklinks = this.plugin.app.metadataCache.getBacklinksForFile(file);
+              const nodeBacklinks =
+                this.plugin.app.metadataCache.getBacklinksForFile(file);
               if (!nodeBacklinks) continue;
               for (const nodeBacklink of nodeBacklinks.data.keys()) {
-                const resolvedLink = this.plugin.app.metadataCache.getFirstLinkpathDest(nodeBacklink, file.path);
-                if (!(resolvedLink instanceof import_obsidian16.TFile)) continue;
+                const resolvedLink =
+                  this.plugin.app.metadataCache.getFirstLinkpathDest(
+                    nodeBacklink,
+                    file.path,
+                  );
+                if (!(resolvedLink instanceof import_obsidian16.TFile))
+                  continue;
                 backlinks.add(resolvedLink);
               }
             }
           } else {
-            const canvasBacklinks = this.plugin.app.metadataCache.getBacklinksForFile(canvasFile);
+            const canvasBacklinks =
+              this.plugin.app.metadataCache.getBacklinksForFile(canvasFile);
             if (!canvasBacklinks) return;
             for (const canvasBacklink of canvasBacklinks.data.keys()) {
-              const resolvedLink = this.plugin.app.metadataCache.getFirstLinkpathDest(canvasBacklink, canvasFile.path);
+              const resolvedLink =
+                this.plugin.app.metadataCache.getFirstLinkpathDest(
+                  canvasBacklink,
+                  canvasFile.path,
+                );
               if (!(resolvedLink instanceof import_obsidian16.TFile)) continue;
               backlinks.add(resolvedLink);
             }
@@ -5010,8 +6664,8 @@ var CommandsCanvasExtension = class extends CanvasExtension {
             if (existingFileNodes.has(backlink)) continue;
             void this.createFileNode(canvas, backlink);
           }
-        }
-      )
+        },
+      ),
     });
   }
   createTextNode(canvas) {
@@ -5022,7 +6676,13 @@ var CommandsCanvasExtension = class extends CanvasExtension {
   async createFileNode(canvas, file) {
     const size = canvas.config.defaultFileNodeDimensions;
     const pos = CanvasHelper.getCenterCoordinates(canvas, size);
-    file != null ? file : file = await new FileSelectModal(this.plugin.app, void 0, true).awaitInput();
+    file != null
+      ? file
+      : (file = await new FileSelectModal(
+          this.plugin.app,
+          void 0,
+          true,
+        ).awaitInput());
     canvas.createFileNode({ pos, size, file });
   }
   cloneNode(canvas, cloneDirection) {
@@ -5031,23 +6691,27 @@ var CommandsCanvasExtension = class extends CanvasExtension {
     const sourceNodeData = sourceNode.getData();
     const nodeMargin = this.plugin.settings.getSetting("cloneNodeMargin");
     const offset = {
-      x: (sourceNode.width + nodeMargin) * (cloneDirection === "left" ? -1 : cloneDirection === "right" ? 1 : 0),
-      y: (sourceNode.height + nodeMargin) * (cloneDirection === "up" ? -1 : cloneDirection === "down" ? 1 : 0)
+      x:
+        (sourceNode.width + nodeMargin) *
+        (cloneDirection === "left" ? -1 : cloneDirection === "right" ? 1 : 0),
+      y:
+        (sourceNode.height + nodeMargin) *
+        (cloneDirection === "up" ? -1 : cloneDirection === "down" ? 1 : 0),
     };
     const clonedNode = canvas.createTextNode({
       pos: {
         x: sourceNode.x + offset.x,
-        y: sourceNode.y + offset.y
+        y: sourceNode.y + offset.y,
       },
       size: {
         width: sourceNode.width,
-        height: sourceNode.height
-      }
+        height: sourceNode.height,
+      },
     });
     clonedNode.setData({
       ...clonedNode.getData(),
       color: sourceNodeData.color,
-      styleAttributes: sourceNodeData.styleAttributes
+      styleAttributes: sourceNodeData.styleAttributes,
     });
     if (this.plugin.settings.getSetting("zoomToClonedNode"))
       canvas.zoomToBbox(clonedNode.getBBox());
@@ -5055,15 +6719,16 @@ var CommandsCanvasExtension = class extends CanvasExtension {
   expandNode(canvas, expandDirection) {
     const node = canvas.selection.values().next().value;
     if (!node) return;
-    const expandNodeStepSize = this.plugin.settings.getSetting("expandNodeStepSize");
+    const expandNodeStepSize =
+      this.plugin.settings.getSetting("expandNodeStepSize");
     const expand = {
       x: expandDirection === "left" ? -1 : expandDirection === "right" ? 1 : 0,
-      y: expandDirection === "up" ? -1 : expandDirection === "down" ? 1 : 0
+      y: expandDirection === "up" ? -1 : expandDirection === "down" ? 1 : 0,
     };
     node.setData({
       ...node.getData(),
       width: node.width + expand.x * expandNodeStepSize,
-      height: node.height + expand.y * expandNodeStepSize
+      height: node.height + expand.y * expandNodeStepSize,
     });
   }
   flipSelection(canvas, horizontally) {
@@ -5074,26 +6739,36 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       nodeIds.add(nodeData.id);
       const node = canvas.nodes.get(nodeData.id);
       if (!node) continue;
-      const newX = horizontally ? 2 * selectionData.center.x - nodeData.x - nodeData.width : nodeData.x;
-      const newY = horizontally ? nodeData.y : 2 * selectionData.center.y - nodeData.y - nodeData.height;
+      const newX = horizontally
+        ? 2 * selectionData.center.x - nodeData.x - nodeData.width
+        : nodeData.x;
+      const newY = horizontally
+        ? nodeData.y
+        : 2 * selectionData.center.y - nodeData.y - nodeData.height;
       node.setData({
         ...nodeData,
         x: newX,
-        y: newY
+        y: newY,
       });
     }
     for (const edge of canvas.edges.values()) {
       const edgeData = edge.getData();
       let newFromSide = edgeData.fromSide;
-      if (nodeIds.has(edgeData.fromNode) && BBoxHelper.isHorizontal(edgeData.fromSide) === horizontally)
+      if (
+        nodeIds.has(edgeData.fromNode) &&
+        BBoxHelper.isHorizontal(edgeData.fromSide) === horizontally
+      )
         newFromSide = BBoxHelper.getOppositeSide(edgeData.fromSide);
       let newToSide = edgeData.toSide;
-      if (nodeIds.has(edgeData.toNode) && BBoxHelper.isHorizontal(edgeData.toSide) === horizontally)
+      if (
+        nodeIds.has(edgeData.toNode) &&
+        BBoxHelper.isHorizontal(edgeData.toSide) === horizontally
+      )
         newToSide = BBoxHelper.getOppositeSide(edgeData.toSide);
       edge.setData({
         ...edgeData,
         fromSide: newFromSide,
-        toSide: newToSide
+        toSide: newToSide,
       });
     }
     canvas.pushHistory(canvas.getData());
@@ -5107,24 +6782,36 @@ var CommandsCanvasExtension = class extends CanvasExtension {
   }
   getNextNode(canvas, direction) {
     var _a;
-    const selectedNodeData = (_a = canvas.getSelectionData().nodes) == null ? void 0 : _a.first();
+    const selectedNodeData =
+      (_a = canvas.getSelectionData().nodes) == null ? void 0 : _a.first();
     if (!selectedNodeData) return;
     const selectedNodeBBox = {
       minX: selectedNodeData.x,
       minY: selectedNodeData.y,
       maxX: selectedNodeData.x + selectedNodeData.width,
-      maxY: selectedNodeData.y + selectedNodeData.height
+      maxY: selectedNodeData.y + selectedNodeData.height,
     };
-    const possibleTargetNodes = Array.from(canvas.nodes.values()).filter((node) => {
-      const nodeData = node.getData();
-      return nodeData.id !== selectedNodeData.id && (nodeData.type === "text" || nodeData.type === "file");
-    });
+    const possibleTargetNodes = Array.from(canvas.nodes.values()).filter(
+      (node) => {
+        const nodeData = node.getData();
+        return (
+          nodeData.id !== selectedNodeData.id &&
+          (nodeData.type === "text" || nodeData.type === "file")
+        );
+      },
+    );
     const closestNode = possibleTargetNodes.reduce((closestNode2, node) => {
       const nodeBBox = node.getBBox();
-      const isInVerticalRange = selectedNodeBBox.minY <= nodeBBox.maxY && selectedNodeBBox.maxY >= nodeBBox.minY;
-      const isInHorizontalRange = selectedNodeBBox.minX <= nodeBBox.maxX && selectedNodeBBox.maxX >= nodeBBox.minX;
-      if (["up", "down"].includes(direction) && !isInHorizontalRange) return closestNode2;
-      if (["left", "right"].includes(direction) && !isInVerticalRange) return closestNode2;
+      const isInVerticalRange =
+        selectedNodeBBox.minY <= nodeBBox.maxY &&
+        selectedNodeBBox.maxY >= nodeBBox.minY;
+      const isInHorizontalRange =
+        selectedNodeBBox.minX <= nodeBBox.maxX &&
+        selectedNodeBBox.maxX >= nodeBBox.minX;
+      if (["up", "down"].includes(direction) && !isInHorizontalRange)
+        return closestNode2;
+      if (["left", "right"].includes(direction) && !isInVerticalRange)
+        return closestNode2;
       let distance = -1;
       switch (direction) {
         case "up":
@@ -5146,21 +6833,23 @@ var CommandsCanvasExtension = class extends CanvasExtension {
       if (distance === closestNode2.distance) {
         const selectedNodeCenter = {
           x: selectedNodeData.x + selectedNodeData.width / 2,
-          y: selectedNodeData.y + selectedNodeData.height / 2
+          y: selectedNodeData.y + selectedNodeData.height / 2,
         };
         const closestNodeCenter = {
           x: closestNode2.node.x + closestNode2.node.width / 2,
-          y: closestNode2.node.y + closestNode2.node.height / 2
+          y: closestNode2.node.y + closestNode2.node.height / 2,
         };
         const nodeCenter = {
           x: node.x + node.width / 2,
-          y: node.y + node.height / 2
+          y: node.y + node.height / 2,
         };
         const closestNodeDistance = Math.sqrt(
-          Math.pow(selectedNodeCenter.x - closestNodeCenter.x, 2) + Math.pow(selectedNodeCenter.y - closestNodeCenter.y, 2)
+          Math.pow(selectedNodeCenter.x - closestNodeCenter.x, 2) +
+            Math.pow(selectedNodeCenter.y - closestNodeCenter.y, 2),
         );
         const nodeDistance = Math.sqrt(
-          Math.pow(selectedNodeCenter.x - nodeCenter.x, 2) + Math.pow(selectedNodeCenter.y - nodeCenter.y, 2)
+          Math.pow(selectedNodeCenter.x - nodeCenter.x, 2) +
+            Math.pow(selectedNodeCenter.y - nodeCenter.y, 2),
         );
         if (nodeDistance < closestNodeDistance) return { node, distance };
       }
@@ -5176,56 +6865,86 @@ var AutoResizeNodeCanvasExtension = class extends CanvasExtension {
     return "autoResizeNodeFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-created",
-      (canvas, node) => this.onNodeCreated(canvas, node)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.onPopupMenuCreated(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-editing-state-changed",
-      (canvas, node, editing) => void this.onNodeEditingStateChanged(canvas, node, editing)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-text-content-changed",
-      (canvas, node, viewUpdate) => void this.onNodeTextContentChanged(canvas, node, viewUpdate.view.dom)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-created",
+        (canvas, node) => this.onNodeCreated(canvas, node),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.onPopupMenuCreated(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-editing-state-changed",
+        (canvas, node, editing) =>
+          void this.onNodeEditingStateChanged(canvas, node, editing),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-text-content-changed",
+        (canvas, node, viewUpdate) =>
+          void this.onNodeTextContentChanged(canvas, node, viewUpdate.view.dom),
+      ),
+    );
   }
   isValidNodeType(nodeData) {
-    return nodeData.type === "text" || nodeData.type === "file" && nodeData.file.endsWith(".md");
+    return (
+      nodeData.type === "text" ||
+      (nodeData.type === "file" && nodeData.file.endsWith(".md"))
+    );
   }
   onNodeCreated(_canvas, node) {
-    const autoResizeNodeEnabledByDefault = this.plugin.settings.getSetting("autoResizeNodeEnabledByDefault");
+    const autoResizeNodeEnabledByDefault = this.plugin.settings.getSetting(
+      "autoResizeNodeEnabledByDefault",
+    );
     if (!autoResizeNodeEnabledByDefault) return;
     const nodeData = node.getData();
     if (nodeData.type !== "text" && nodeData.type !== "file") return;
     node.setData({
       ...node.getData(),
-      dynamicHeight: true
+      dynamicHeight: true,
     });
   }
   onPopupMenuCreated(canvas) {
     if (canvas.readonly) return;
-    const selectedNodes = canvas.getSelectionData().nodes.filter((nodeData) => this.isValidNodeType(nodeData)).map((nodeData) => canvas.nodes.get(nodeData.id)).filter((node) => node !== void 0);
+    const selectedNodes = canvas
+      .getSelectionData()
+      .nodes.filter((nodeData) => this.isValidNodeType(nodeData))
+      .map((nodeData) => canvas.nodes.get(nodeData.id))
+      .filter((node) => node !== void 0);
     if (selectedNodes.length === 0) return;
-    const autoResizeHeightEnabled = selectedNodes.some((node) => node.getData().dynamicHeight);
+    const autoResizeHeightEnabled = selectedNodes.some(
+      (node) => node.getData().dynamicHeight,
+    );
     CanvasHelper.addPopupMenuOption(
       canvas,
       CanvasHelper.createPopupMenuOption({
         id: "auto-resize-height",
-        label: autoResizeHeightEnabled ? "Disable auto-resize" : "Enable auto-resize",
+        label: autoResizeHeightEnabled
+          ? "Disable auto-resize"
+          : "Enable auto-resize",
         icon: autoResizeHeightEnabled ? "scan-text" : "lock",
-        callback: () => this.toggleAutoResizeHeightEnabled(canvas, selectedNodes, autoResizeHeightEnabled)
-      })
+        callback: () =>
+          this.toggleAutoResizeHeightEnabled(
+            canvas,
+            selectedNodes,
+            autoResizeHeightEnabled,
+          ),
+      }),
     );
   }
   toggleAutoResizeHeightEnabled(canvas, nodes, autoResizeHeight) {
-    nodes.forEach((node) => node.setData({
-      ...node.getData(),
-      dynamicHeight: !autoResizeHeight
-    }));
+    nodes.forEach((node) =>
+      node.setData({
+        ...node.getData(),
+        dynamicHeight: !autoResizeHeight,
+      }),
+    );
     this.onPopupMenuCreated(canvas);
   }
   canBeResized(node) {
@@ -5237,10 +6956,16 @@ var AutoResizeNodeCanvasExtension = class extends CanvasExtension {
     if (!this.canBeResized(node)) return;
     await sleep(10);
     if (editing) {
-      void this.onNodeTextContentChanged(_canvas, node, node.child.editMode.cm.dom);
+      void this.onNodeTextContentChanged(
+        _canvas,
+        node,
+        node.child.editMode.cm.dom,
+      );
       return;
     }
-    const renderedMarkdownContainer = node.nodeEl.querySelector(".markdown-preview-view.markdown-rendered");
+    const renderedMarkdownContainer = node.nodeEl.querySelector(
+      ".markdown-preview-view.markdown-rendered",
+    );
     if (!renderedMarkdownContainer) return;
     renderedMarkdownContainer.style.height = "min-content";
     const newHeight = renderedMarkdownContainer.clientHeight;
@@ -5259,15 +6984,18 @@ var AutoResizeNodeCanvasExtension = class extends CanvasExtension {
   }
   setNodeHeight(node, height) {
     if (height === 0) return;
-    const maxHeight = this.plugin.settings.getSetting("autoResizeNodeMaxHeight");
+    const maxHeight = this.plugin.settings.getSetting(
+      "autoResizeNodeMaxHeight",
+    );
     if (maxHeight != -1 && height > maxHeight) height = maxHeight;
     const nodeData = node.getData();
     height = Math.max(height, node.canvas.config.minContainerDimension);
     if (this.plugin.settings.getSetting("autoResizeNodeSnapToGrid"))
-      height = Math.ceil(height / CanvasHelper.GRID_SIZE) * CanvasHelper.GRID_SIZE;
+      height =
+        Math.ceil(height / CanvasHelper.GRID_SIZE) * CanvasHelper.GRID_SIZE;
     node.setData({
       ...nodeData,
-      height
+      height,
     });
   }
 };
@@ -5283,85 +7011,147 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
     return "portalsFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.vault.on("modify", (file) => {
-      for (const canvas of this.plugin.getCanvases())
-        this.onFileModified(canvas, file);
-    }));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.onPopupMenu(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-removed",
-      (canvas, node) => this.onNodeRemoved(canvas, node)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-moved",
-      (canvas, node, _keyboard) => this.onNodeMoved(canvas, node)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-resized",
-      (canvas, node) => this.onNodeResized(canvas, node)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:dragging-state-changed",
-      (canvas, startedDragging) => this.onDraggingStateChanged(canvas, startedDragging)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:containing-nodes-requested",
-      (canvas, bbox, nodes) => this.onContainingNodesRequested(canvas, bbox, nodes)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:edge-connection-try-dragging:before",
-      (canvas, edge, event, cancelRef) => this.onEdgeConnectionTryDraggingBefore(canvas, edge, event, cancelRef)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:edge-connection-dragging:after",
-      (canvas, edge, event, newEdge, side, previousEnds) => this.onEdgeConnectionDraggingAfter(canvas, edge, event, newEdge, side, previousEnds)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:selection-changed",
-      (canvas, oldSelection, updateSelection) => this.onSelectionChanged(canvas, oldSelection, updateSelection)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:data-requested",
-      (canvas, data) => this.onGetData(canvas, data)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:data-loaded:before",
-      (canvas, data, setData) => {
-        this.onSetData(canvas, data).then((newData) => {
-          if (newData.nodes.length === data.nodes.length && newData.edges.length === data.edges.length) return;
-          setData(newData);
-        }).catch((error) => {
-          console.error("Error loading portal data:", error);
-          new import_obsidian17.Notice("An error occurred while loading portal data. Please check console for details.");
-        });
-      }
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.vault.on("modify", (file) => {
+        for (const canvas of this.plugin.getCanvases())
+          this.onFileModified(canvas, file);
+      }),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.onPopupMenu(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-removed",
+        (canvas, node) => this.onNodeRemoved(canvas, node),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-moved",
+        (canvas, node, _keyboard) => this.onNodeMoved(canvas, node),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-resized",
+        (canvas, node) => this.onNodeResized(canvas, node),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:dragging-state-changed",
+        (canvas, startedDragging) =>
+          this.onDraggingStateChanged(canvas, startedDragging),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:containing-nodes-requested",
+        (canvas, bbox, nodes) =>
+          this.onContainingNodesRequested(canvas, bbox, nodes),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:edge-connection-try-dragging:before",
+        (canvas, edge, event, cancelRef) =>
+          this.onEdgeConnectionTryDraggingBefore(
+            canvas,
+            edge,
+            event,
+            cancelRef,
+          ),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:edge-connection-dragging:after",
+        (canvas, edge, event, newEdge, side, previousEnds) =>
+          this.onEdgeConnectionDraggingAfter(
+            canvas,
+            edge,
+            event,
+            newEdge,
+            side,
+            previousEnds,
+          ),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:selection-changed",
+        (canvas, oldSelection, updateSelection) =>
+          this.onSelectionChanged(canvas, oldSelection, updateSelection),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:data-requested",
+        (canvas, data) => this.onGetData(canvas, data),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:data-loaded:before",
+        (canvas, data, setData) => {
+          this.onSetData(canvas, data)
+            .then((newData) => {
+              if (
+                newData.nodes.length === data.nodes.length &&
+                newData.edges.length === data.edges.length
+              )
+                return;
+              setData(newData);
+            })
+            .catch((error) => {
+              console.error("Error loading portal data:", error);
+              new import_obsidian17.Notice(
+                "An error occurred while loading portal data. Please check console for details.",
+              );
+            });
+        },
+      ),
+    );
   }
   onFileModified(canvas, file) {
-    const isAffected = Object.values(canvas.nodes).filter(
-      (nodeData) => nodeData.getData().type === "file" && nodeData.currentPortalFile === file.path
-    ).length > 0;
+    const isAffected =
+      Object.values(canvas.nodes).filter(
+        (nodeData) =>
+          nodeData.getData().type === "file" &&
+          nodeData.currentPortalFile === file.path,
+      ).length > 0;
     if (!isAffected) return;
     canvas.setData(canvas.getData());
     canvas.history.current--;
     canvas.history.data.pop();
   }
   onContainingNodesRequested(_canvas, _bbox, nodes) {
-    const filteredNodes = nodes.filter((node) => !_PortalsCanvasExtension.isPortalElement(node.id));
+    const filteredNodes = nodes.filter(
+      (node) => !_PortalsCanvasExtension.isPortalElement(node.id),
+    );
     nodes.splice(0, nodes.length, ...filteredNodes);
   }
   onSelectionChanged(canvas, _oldSelection, updateSelection) {
     updateSelection(() => {
-      const updatedSelection = Array.from(canvas.selection).filter((canvasElement) => !_PortalsCanvasExtension.isPortalElement(canvasElement.id));
+      const updatedSelection = Array.from(canvas.selection).filter(
+        (canvasElement) =>
+          !_PortalsCanvasExtension.isPortalElement(canvasElement.id),
+      );
       canvas.selection = new Set(updatedSelection);
     });
   }
   onDraggingStateChanged(canvas, startedDragging) {
     if (!startedDragging) return;
-    if (!canvas.getSelectionData().nodes.some((node) => node.type === "file" && node.portal)) return;
+    if (
+      !canvas
+        .getSelectionData()
+        .nodes.some((node) => node.type === "file" && node.portal)
+    )
+      return;
     const objectSnappingEnabled = canvas.options.snapToObjects;
     if (!objectSnappingEnabled) return;
     canvas.toggleObjectSnapping(false);
@@ -5371,37 +7161,41 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
         if (startedDragging2) return;
         canvas2.toggleObjectSnapping(objectSnappingEnabled);
         this.plugin.app.workspace.offref(dragEndEventRef);
-      }
+      },
     );
     this.plugin.registerEvent(dragEndEventRef);
   }
   onNodeMoved(canvas, portalNode) {
     const portalNodeData = portalNode.getData();
-    if (portalNodeData.type !== "file" || !portalNodeData.isPortalLoaded) return;
+    if (portalNodeData.type !== "file" || !portalNodeData.isPortalLoaded)
+      return;
     const nestedNodes = this.getContainingNodes(canvas, portalNode);
     const containingNodesBBox = CanvasHelper.getBBox(nestedNodes);
     const portalOffset = {
       x: portalNodeData.x - containingNodesBBox.minX + PORTAL_PADDING,
-      y: portalNodeData.y - containingNodesBBox.minY + PORTAL_PADDING
+      y: portalNodeData.y - containingNodesBBox.minY + PORTAL_PADDING,
     };
     for (const nestedNode of nestedNodes) {
       const nestedNodeData = nestedNode.getData();
       nestedNode.setData({
         ...nestedNodeData,
         x: nestedNodeData.x + portalOffset.x,
-        y: nestedNodeData.y + portalOffset.y
+        y: nestedNodeData.y + portalOffset.y,
       });
     }
   }
   onNodeResized(_canvas, portalNode) {
     const portalNodeData = portalNode.getData();
-    if (portalNodeData.type !== "file" || !portalNodeData.isPortalLoaded) return;
+    if (portalNodeData.type !== "file" || !portalNodeData.isPortalLoaded)
+      return;
     portalNode.setData({
       ...portalNodeData,
       x: portalNode.prevX ? portalNode.prevX : portalNodeData.x,
       y: portalNode.prevY ? portalNode.prevY : portalNodeData.y,
       width: portalNode.prevWidth ? portalNode.prevWidth : portalNodeData.width,
-      height: portalNode.prevHeight ? portalNode.prevHeight : portalNodeData.height
+      height: portalNode.prevHeight
+        ? portalNode.prevHeight
+        : portalNodeData.height,
     });
   }
   onNodeRemoved(canvas, portalNode) {
@@ -5415,29 +7209,51 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
   onEdgeConnectionTryDraggingBefore(_canvas, edge, _event, cancelRef) {
     if (!_PortalsCanvasExtension.isPortalElement(edge.id)) return;
     cancelRef.value = true;
-    new import_obsidian17.Notice("Updating edges from portals is not supported yet.");
+    new import_obsidian17.Notice(
+      "Updating edges from portals is not supported yet.",
+    );
   }
-  onEdgeConnectionDraggingAfter(canvas, edge, _event, _newEdge, _side, _previousEnds) {
+  onEdgeConnectionDraggingAfter(
+    canvas,
+    edge,
+    _event,
+    _newEdge,
+    _side,
+    _previousEnds,
+  ) {
     if (_PortalsCanvasExtension.isPortalElement(edge.id)) return;
-    if (!_PortalsCanvasExtension.isPortalElement(edge.from.node.id) || !_PortalsCanvasExtension.isPortalElement(edge.to.node.id)) return;
+    if (
+      !_PortalsCanvasExtension.isPortalElement(edge.from.node.id) ||
+      !_PortalsCanvasExtension.isPortalElement(edge.to.node.id)
+    )
+      return;
     canvas.removeEdge(edge);
-    new import_obsidian17.Notice("Creating edges with both ends in portals are not supported yet.");
+    new import_obsidian17.Notice(
+      "Creating edges with both ends in portals are not supported yet.",
+    );
   }
   onPopupMenu(canvas) {
     if (canvas.readonly) return;
-    const selectedFileNodes = canvas.getSelectionData().nodes.map((nodeData) => {
-      var _a;
-      const node = canvas.nodes.get(nodeData.id);
-      if (!node) return null;
-      if (nodeData.type !== "file") return null;
-      if (((_a = node.file) == null ? void 0 : _a.extension) === "canvas") return node;
-      if (nodeData.portal) this.setPortalOpen(canvas, node, false);
-      return null;
-    }).filter((node) => node !== null);
+    const selectedFileNodes = canvas
+      .getSelectionData()
+      .nodes.map((nodeData) => {
+        var _a;
+        const node = canvas.nodes.get(nodeData.id);
+        if (!node) return null;
+        if (nodeData.type !== "file") return null;
+        if (((_a = node.file) == null ? void 0 : _a.extension) === "canvas")
+          return node;
+        if (nodeData.portal) this.setPortalOpen(canvas, node, false);
+        return null;
+      })
+      .filter((node) => node !== null);
     if (selectedFileNodes.length !== 1) return;
     const portalNode = selectedFileNodes.first();
     const portalNodeData = portalNode.getData();
-    if (portalNodeData.portal && portalNodeData.file !== portalNode.currentPortalFile)
+    if (
+      portalNodeData.portal &&
+      portalNodeData.file !== portalNode.currentPortalFile
+    )
       this.setPortalOpen(canvas, portalNode, true);
     CanvasHelper.addPopupMenuOption(
       canvas,
@@ -5448,37 +7264,47 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
         callback: () => {
           this.setPortalOpen(canvas, portalNode, !portalNodeData.portal);
           this.onPopupMenu(canvas);
-        }
-      })
+        },
+      }),
     );
   }
   setPortalOpen(canvas, portalNode, open) {
     const portalNodeData = portalNode.getData();
     portalNode.setData({
       ...portalNodeData,
-      portal: open
+      portal: open,
     });
     portalNode.currentPortalFile = open ? portalNodeData.file : void 0;
     canvas.setData(canvas.getData());
   }
   // Remove all edges and nodes from portals
   onGetData(_canvas, data) {
-    data.nodes = data.nodes.filter((nodeData) => !_PortalsCanvasExtension.isPortalElement(nodeData.id));
+    data.nodes = data.nodes.filter(
+      (nodeData) => !_PortalsCanvasExtension.isPortalElement(nodeData.id),
+    );
     for (const nodeData of data.nodes) delete nodeData.isPortalLoaded;
     const portalsIdMap = new Map(
-      data.nodes.filter((nodeData) => nodeData.portal).map((nodeData) => [nodeData.id, nodeData])
+      data.nodes
+        .filter((nodeData) => nodeData.portal)
+        .map((nodeData) => [nodeData.id, nodeData]),
     );
     data.edges = data.edges.filter((edgeData) => {
       var _a;
       if (_PortalsCanvasExtension.isPortalElement(edgeData.id)) return false;
-      const isFromNodeFromPortal = _PortalsCanvasExtension.getNestedIds(edgeData.fromNode).length > 1;
-      const isToNodeFromPortal = _PortalsCanvasExtension.getNestedIds(edgeData.toNode).length > 1;
+      const isFromNodeFromPortal =
+        _PortalsCanvasExtension.getNestedIds(edgeData.fromNode).length > 1;
+      const isToNodeFromPortal =
+        _PortalsCanvasExtension.getNestedIds(edgeData.toNode).length > 1;
       if (!isFromNodeFromPortal && !isToNodeFromPortal) return true;
       if (isFromNodeFromPortal && isToNodeFromPortal) return false;
-      const targetPortalId = this.getParentPortalId(isFromNodeFromPortal ? edgeData.fromNode : edgeData.toNode);
+      const targetPortalId = this.getParentPortalId(
+        isFromNodeFromPortal ? edgeData.fromNode : edgeData.toNode,
+      );
       const targetPortalData = portalsIdMap.get(targetPortalId);
       if (!targetPortalData) return false;
-      (_a = targetPortalData.interdimensionalEdges) != null ? _a : targetPortalData.interdimensionalEdges = [];
+      (_a = targetPortalData.interdimensionalEdges) != null
+        ? _a
+        : (targetPortalData.interdimensionalEdges = []);
       targetPortalData.interdimensionalEdges.push(edgeData);
       return false;
     });
@@ -5487,7 +7313,9 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
   async onSetData(canvas, dataRef) {
     if (!(dataRef == null ? void 0 : dataRef.nodes)) return dataRef;
     const data = JSON.parse(JSON.stringify(dataRef));
-    const addedData = await Promise.all(data.nodes.map((nodeData) => this.tryOpenPortal(canvas, nodeData)));
+    const addedData = await Promise.all(
+      data.nodes.map((nodeData) => this.tryOpenPortal(canvas, nodeData)),
+    );
     for (const newData of addedData) {
       data.nodes.push(...newData.nodes);
       data.edges.push(...newData.edges);
@@ -5501,15 +7329,27 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
     }
     return data;
   }
-  async tryOpenPortal(canvas, portalNodeData, nestedPortalFiles = /* @__PURE__ */ new Set()) {
+  async tryOpenPortal(
+    canvas,
+    portalNodeData,
+    nestedPortalFiles = /* @__PURE__ */ new Set(),
+  ) {
     const addedData = { nodes: [], edges: [] };
-    if (portalNodeData.type !== "file" || !portalNodeData.portal) return addedData;
+    if (portalNodeData.type !== "file" || !portalNodeData.portal)
+      return addedData;
     if (portalNodeData.file === canvas.view.file.path) return addedData;
     if (nestedPortalFiles.has(portalNodeData.file)) return addedData;
     nestedPortalFiles.add(portalNodeData.file);
-    const portalFile = this.plugin.app.vault.getAbstractFileByPath(portalNodeData.file);
-    if (!(portalFile instanceof import_obsidian17.TFile) || portalFile.extension !== "canvas") return addedData;
-    const portalFileDataString = await this.plugin.app.vault.cachedRead(portalFile);
+    const portalFile = this.plugin.app.vault.getAbstractFileByPath(
+      portalNodeData.file,
+    );
+    if (
+      !(portalFile instanceof import_obsidian17.TFile) ||
+      portalFile.extension !== "canvas"
+    )
+      return addedData;
+    const portalFileDataString =
+      await this.plugin.app.vault.cachedRead(portalFile);
     if (portalFileDataString === "") return addedData;
     const portalFileData = JSON.parse(portalFileDataString);
     if (!portalFileData) return addedData;
@@ -5517,7 +7357,7 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
     const sourceMinCoordinates = CanvasHelper.getBBox(portalFileData.nodes);
     const portalOffset = {
       x: portalNodeData.x - sourceMinCoordinates.minX + PORTAL_PADDING,
-      y: portalNodeData.y - sourceMinCoordinates.minY + PORTAL_PADDING
+      y: portalNodeData.y - sourceMinCoordinates.minY + PORTAL_PADDING,
     };
     for (const nodeDataFromPortal of portalFileData.nodes) {
       let newNodeId = `${portalNodeData.id}${PORTAL_ID_DELIMITER}${nodeDataFromPortal.id}`;
@@ -5527,10 +7367,14 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
         ...nodeDataFromPortal,
         id: newNodeId,
         x: nodeDataFromPortal.x + portalOffset.x,
-        y: nodeDataFromPortal.y + portalOffset.y
+        y: nodeDataFromPortal.y + portalOffset.y,
       };
       addedData.nodes.push(addedNode);
-      const nestedNodes = await this.tryOpenPortal(canvas, addedNode, nestedPortalFiles);
+      const nestedNodes = await this.tryOpenPortal(
+        canvas,
+        addedNode,
+        nestedPortalFiles,
+      );
       addedData.nodes.push(...nestedNodes.nodes);
       addedData.edges.push(...nestedNodes.edges);
     }
@@ -5548,10 +7392,12 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
         ...edgeDataFromPortal,
         id: newEdgeId,
         fromNode: fromNodeId,
-        toNode: toNodeId
+        toNode: toNodeId,
       });
     }
-    const targetSize = this.getPortalSize(CanvasHelper.getBBox(addedData.nodes));
+    const targetSize = this.getPortalSize(
+      CanvasHelper.getBBox(addedData.nodes),
+    );
     portalNodeData.width = targetSize.width;
     portalNodeData.height = targetSize.height;
     return addedData;
@@ -5560,21 +7406,41 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
   getPortalSize(sourceBBox) {
     const sourceSize = {
       width: sourceBBox.maxX - sourceBBox.minX,
-      height: sourceBBox.maxY - sourceBBox.minY
+      height: sourceBBox.maxY - sourceBBox.minY,
     };
     const targetSize = {
-      width: Math.max(sourceSize.width + PORTAL_PADDING * 2, MIN_OPEN_PORTAL_SIZE.width),
-      height: Math.max(sourceSize.height + PORTAL_PADDING * 2, MIN_OPEN_PORTAL_SIZE.height)
+      width: Math.max(
+        sourceSize.width + PORTAL_PADDING * 2,
+        MIN_OPEN_PORTAL_SIZE.width,
+      ),
+      height: Math.max(
+        sourceSize.height + PORTAL_PADDING * 2,
+        MIN_OPEN_PORTAL_SIZE.height,
+      ),
     };
-    if (!Number.isFinite(targetSize.width)) targetSize.width = MIN_OPEN_PORTAL_SIZE.width;
-    if (!Number.isFinite(targetSize.height)) targetSize.height = MIN_OPEN_PORTAL_SIZE.height;
+    if (!Number.isFinite(targetSize.width))
+      targetSize.width = MIN_OPEN_PORTAL_SIZE.width;
+    if (!Number.isFinite(targetSize.height))
+      targetSize.height = MIN_OPEN_PORTAL_SIZE.height;
     return targetSize;
   }
   getContainingNodes(canvas, portalNode, directChildren = true) {
-    return Array.from(canvas.nodes.values()).filter((node) => this.isChildOfPortal(portalNode.getData(), node.getData(), directChildren));
+    return Array.from(canvas.nodes.values()).filter((node) =>
+      this.isChildOfPortal(
+        portalNode.getData(),
+        node.getData(),
+        directChildren,
+      ),
+    );
   }
   getContainingEdges(canvas, portalNode, directChildren = true) {
-    return Array.from(canvas.edges.values()).filter((edge) => this.isChildOfPortal(portalNode.getData(), edge.getData(), directChildren));
+    return Array.from(canvas.edges.values()).filter((edge) =>
+      this.isChildOfPortal(
+        portalNode.getData(),
+        edge.getData(),
+        directChildren,
+      ),
+    );
   }
   getParentPortalId(elementId) {
     const nestedIds = _PortalsCanvasExtension.getNestedIds(elementId);
@@ -5592,9 +7458,11 @@ var PortalsCanvasExtension = class _PortalsCanvasExtension extends CanvasExtensi
   isChildOfPortal(portal, canvasElement, directChild = true) {
     const nestedIds = _PortalsCanvasExtension.getNestedIds(canvasElement.id);
     if (nestedIds.length < 2) return false;
-    return canvasElement.id !== portal.id && // Not the portal itself
-    nestedIds.contains(portal.id) && // Is a child of the portal
-    (!directChild || nestedIds[nestedIds.length - 2] === portal.id);
+    return (
+      canvasElement.id !== portal.id && // Not the portal itself
+      nestedIds.contains(portal.id) && // Is a child of the portal
+      (!directChild || nestedIds[nestedIds.length - 2] === portal.id)
+    );
   }
 };
 
@@ -5605,15 +7473,17 @@ var FrontmatterControlButtonCanvasExtension = class extends CanvasExtension {
     return "canvasMetadataCompatibilityEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => this.addQuickSettings(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:canvas-changed", (canvas) =>
+        this.addQuickSettings(canvas),
+      ),
+    );
   }
   addQuickSettings(canvas) {
     var _a;
     if (!canvas) return;
-    const settingsContainer = (_a = canvas.quickSettingsButton) == null ? void 0 : _a.parentElement;
+    const settingsContainer =
+      (_a = canvas.quickSettingsButton) == null ? void 0 : _a.parentElement;
     if (!settingsContainer) return;
     CanvasHelper.addControlMenuButton(
       settingsContainer,
@@ -5623,19 +7493,30 @@ var FrontmatterControlButtonCanvasExtension = class extends CanvasExtension {
         label: "Properties",
         callback: () => {
           var _a2;
-          const propertiesPlugin = this.plugin.app.internalPlugins.plugins["properties"];
+          const propertiesPlugin =
+            this.plugin.app.internalPlugins.plugins["properties"];
           if (!(propertiesPlugin == null ? void 0 : propertiesPlugin._loaded)) {
-            new import_obsidian18.Notice(`Core plugin "Properties view" was not found or isn't enabled. Enable it and restart Obsidian.`);
+            new import_obsidian18.Notice(
+              `Core plugin "Properties view" was not found or isn't enabled. Enable it and restart Obsidian.`,
+            );
             return;
           }
-          let propertiesLeaf = (_a2 = this.plugin.app.workspace.getLeavesOfType("file-properties").first()) != null ? _a2 : null;
+          let propertiesLeaf =
+            (_a2 = this.plugin.app.workspace
+              .getLeavesOfType("file-properties")
+              .first()) != null
+              ? _a2
+              : null;
           if (!propertiesLeaf) {
             propertiesLeaf = this.plugin.app.workspace.getRightLeaf(false);
-            void (propertiesLeaf == null ? void 0 : propertiesLeaf.setViewState({ type: "file-properties" }));
+            void (propertiesLeaf == null
+              ? void 0
+              : propertiesLeaf.setViewState({ type: "file-properties" }));
           }
-          if (propertiesLeaf) void this.plugin.app.workspace.revealLeaf(propertiesLeaf);
-        }
-      })
+          if (propertiesLeaf)
+            void this.plugin.app.workspace.revealLeaf(propertiesLeaf);
+        },
+      }),
     );
   }
 };
@@ -5647,66 +7528,92 @@ var BetterDefaultSettingsCanvasExtension = class extends CanvasExtension {
   }
   init() {
     this.modifyCanvasSettings(this.plugin.getCurrentCanvas());
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:settings-changed",
-      () => this.modifyCanvasSettings(this.plugin.getCurrentCanvas())
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => this.modifyCanvasSettings(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:double-click",
-      (canvas, event, preventDefault) => void this.onDoubleClick(canvas, event, preventDefault)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-created",
-      (canvas, node) => {
-        this.enforceNodeGridAlignment(canvas, node);
-        this.applyDefaultNodeStyles(canvas, node);
-      }
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:edge-created",
-      (canvas, edge) => void this.applyDefaultEdgeStyles(canvas, edge)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-resized",
-      (canvas, node) => this.enforceMaxNodeWidth(canvas, node)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:settings-changed", () =>
+        this.modifyCanvasSettings(this.plugin.getCurrentCanvas()),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:canvas-changed", (canvas) =>
+        this.modifyCanvasSettings(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:double-click",
+        (canvas, event, preventDefault) =>
+          void this.onDoubleClick(canvas, event, preventDefault),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-created",
+        (canvas, node) => {
+          this.enforceNodeGridAlignment(canvas, node);
+          this.applyDefaultNodeStyles(canvas, node);
+        },
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:edge-created",
+        (canvas, edge) => void this.applyDefaultEdgeStyles(canvas, edge),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-resized",
+        (canvas, node) => this.enforceMaxNodeWidth(canvas, node),
+      ),
+    );
   }
   modifyCanvasSettings(canvas) {
     if (!canvas) return;
-    const defaultTextNodeDimensionsArray = this.plugin.settings.getSetting("defaultTextNodeDimensions");
+    const defaultTextNodeDimensionsArray = this.plugin.settings.getSetting(
+      "defaultTextNodeDimensions",
+    );
     canvas.config.defaultTextNodeDimensions = {
       width: defaultTextNodeDimensionsArray[0],
-      height: defaultTextNodeDimensionsArray[1]
+      height: defaultTextNodeDimensionsArray[1],
     };
-    const defaultFileNodeDimensionsArray = this.plugin.settings.getSetting("defaultFileNodeDimensions");
+    const defaultFileNodeDimensionsArray = this.plugin.settings.getSetting(
+      "defaultFileNodeDimensions",
+    );
     canvas.config.defaultFileNodeDimensions = {
       width: defaultFileNodeDimensionsArray[0],
-      height: defaultFileNodeDimensionsArray[1]
+      height: defaultFileNodeDimensionsArray[1],
     };
-    canvas.config.minContainerDimension = this.plugin.settings.getSetting("minNodeSize");
+    canvas.config.minContainerDimension =
+      this.plugin.settings.getSetting("minNodeSize");
   }
   async onDoubleClick(canvas, event, preventDefault) {
-    if (event.defaultPrevented || event.target !== canvas.wrapperEl || canvas.isDragging || canvas.readonly) return;
+    if (
+      event.defaultPrevented ||
+      event.target !== canvas.wrapperEl ||
+      canvas.isDragging ||
+      canvas.readonly
+    )
+      return;
     preventDefault.value = true;
     const pos = canvas.posFromEvt(event);
     switch (this.plugin.settings.getSetting("nodeTypeOnDoubleClick")) {
       case "file": {
-        const file = await new FileSelectModal(this.plugin.app, void 0, true).awaitInput();
+        const file = await new FileSelectModal(
+          this.plugin.app,
+          void 0,
+          true,
+        ).awaitInput();
         canvas.createFileNode({
           pos,
           position: "center",
-          file
+          file,
         });
         break;
       }
       default:
         canvas.createTextNode({
           pos,
-          position: "center"
+          position: "center",
         });
         break;
     }
@@ -5717,21 +7624,23 @@ var BetterDefaultSettingsCanvasExtension = class extends CanvasExtension {
     node.setData({
       ...nodeData,
       x: CanvasHelper.alignToGrid(nodeData.x),
-      y: CanvasHelper.alignToGrid(nodeData.y)
+      y: CanvasHelper.alignToGrid(nodeData.y),
     });
   }
   applyDefaultNodeStyles(_canvas, node) {
     const nodeData = node.getData();
     if (nodeData.type !== "text") return;
-    let color = this.plugin.settings.getSetting("defaultTextNodeColor").toString();
+    let color = this.plugin.settings
+      .getSetting("defaultTextNodeColor")
+      .toString();
     if (color === "0") color = void 0;
     node.setData({
       ...nodeData,
       color,
       styleAttributes: {
         ...nodeData.styleAttributes,
-        ...this.plugin.settings.getSetting("defaultTextNodeStyleAttributes")
-      }
+        ...this.plugin.settings.getSetting("defaultTextNodeStyleAttributes"),
+      },
     });
   }
   async applyDefaultEdgeStyles(canvas, edge) {
@@ -5746,34 +7655,43 @@ var BetterDefaultSettingsCanvasExtension = class extends CanvasExtension {
       color,
       styleAttributes: {
         ...edgeData.styleAttributes,
-        ...this.plugin.settings.getSetting("defaultEdgeStyleAttributes")
-      }
+        ...this.plugin.settings.getSetting("defaultEdgeStyleAttributes"),
+      },
     });
     if (canvas.canvasEl.hasClass("is-connecting")) {
       await new Promise((resolve) => {
         new MutationObserver(() => {
           if (!canvas.canvasEl.hasClass("is-connecting")) resolve();
-        }).observe(canvas.canvasEl, { attributes: true, attributeFilter: ["class"] });
+        }).observe(canvas.canvasEl, {
+          attributes: true,
+          attributeFilter: ["class"],
+        });
       });
     }
-    const lineDirection = this.plugin.settings.getSetting("defaultEdgeLineDirection");
+    const lineDirection = this.plugin.settings.getSetting(
+      "defaultEdgeLineDirection",
+    );
     edge.setData({
       ...edge.getData(),
       fromEnd: lineDirection === "bidirectional" ? "arrow" : "none",
-      toEnd: lineDirection === "nondirectional" ? "none" : "arrow"
+      toEnd: lineDirection === "nondirectional" ? "none" : "arrow",
     });
   }
   enforceMaxNodeWidth(_canvas, node) {
     const maxNodeWidth = this.plugin.settings.getSetting("maxNodeWidth");
     if (maxNodeWidth <= 0) return;
     const nodeData = node.getData();
-    if (nodeData.type !== "text" && nodeData.type !== "file" || nodeData.portal) return;
+    if (
+      (nodeData.type !== "text" && nodeData.type !== "file") ||
+      nodeData.portal
+    )
+      return;
     if (nodeData.width <= maxNodeWidth) return;
     node.setData({
       ...nodeData,
       x: node.prevX !== void 0 ? node.prevX : nodeData.x,
       // Reset the position to the previous value
-      width: maxNodeWidth
+      width: maxNodeWidth,
     });
   }
 };
@@ -5790,19 +7708,23 @@ var ColorPaletteCanvasExtension = class extends CanvasExtension {
     return true;
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "window-open",
-      (_win, _window) => this.updateCustomColorModStyleClasses()
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "css-change",
-      () => this.updateCustomColorModStyleClasses()
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("window-open", (_win, _window) =>
+        this.updateCustomColorModStyleClasses(),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("css-change", () =>
+        this.updateCustomColorModStyleClasses(),
+      ),
+    );
     this.updateCustomColorModStyleClasses();
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.patchColorSelection(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.patchColorSelection(canvas),
+      ),
+    );
     this.plugin.register(() => {
       var _a;
       return (_a = this.observer) == null ? void 0 : _a.disconnect();
@@ -5810,14 +7732,20 @@ var ColorPaletteCanvasExtension = class extends CanvasExtension {
   }
   updateCustomColorModStyleClasses() {
     var _a;
-    const customCss = this.getCustomColors().map((colorId) => `
+    const customCss = this.getCustomColors()
+      .map(
+        (colorId) => `
       .mod-canvas-color-${colorId} {
         --canvas-color: var(--canvas-color-${colorId});
       }
-    `).join("");
+    `,
+      )
+      .join("");
     for (const win of this.plugin.windowsManager.windows) {
       const doc = win.activeDocument;
-      (_a = doc.getElementById(CUSTOM_COLORS_MOD_STYLES_ID)) == null ? void 0 : _a.remove();
+      (_a = doc.getElementById(CUSTOM_COLORS_MOD_STYLES_ID)) == null
+        ? void 0
+        : _a.remove();
       const customColorModStyle = doc.createElement("style");
       customColorModStyle.id = CUSTOM_COLORS_MOD_STYLES_ID;
       doc.head.appendChild(customColorModStyle);
@@ -5827,20 +7755,29 @@ var ColorPaletteCanvasExtension = class extends CanvasExtension {
   patchColorSelection(canvas) {
     if (this.observer) this.observer.disconnect();
     this.observer = new MutationObserver((mutations) => {
-      const colorMenuOpened = mutations.some(
-        (mutation) => Object.values(mutation.addedNodes).some(
-          (node) => node.instanceOf(HTMLElement) && node.classList.contains("canvas-submenu") && Object.values(node.childNodes).some(
-            (node2) => node2.instanceOf(HTMLElement) && node2.classList.contains("canvas-color-picker-item")
-          )
-        )
+      const colorMenuOpened = mutations.some((mutation) =>
+        Object.values(mutation.addedNodes).some(
+          (node) =>
+            node.instanceOf(HTMLElement) &&
+            node.classList.contains("canvas-submenu") &&
+            Object.values(node.childNodes).some(
+              (node2) =>
+                node2.instanceOf(HTMLElement) &&
+                node2.classList.contains("canvas-color-picker-item"),
+            ),
+        ),
       );
       if (!colorMenuOpened) return;
       const submenu = canvas.menu.menuEl.querySelector(".canvas-submenu");
       if (!submenu) return;
-      const currentNodeColor = canvas.getSelectionData().nodes.map((node) => node.color).last();
+      const currentNodeColor = canvas
+        .getSelectionData()
+        .nodes.map((node) => node.color)
+        .last();
       for (const colorId of this.getCustomColors()) {
         const customColorMenuItem = this.createColorMenuItem(canvas, colorId);
-        if (currentNodeColor === colorId) customColorMenuItem.classList.add("is-active");
+        if (currentNodeColor === colorId)
+          customColorMenuItem.classList.add("is-active");
         submenu.insertBefore(customColorMenuItem, submenu.lastChild);
       }
     });
@@ -5878,34 +7815,50 @@ var CollapsibleGroupsCanvasExtension = class extends CanvasExtension {
     return "collapsibleGroupsFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-changed",
-      (canvas, node) => this.onNodeChanged(canvas, node)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-bbox-requested",
-      (canvas, node, bbox) => this.onNodeBBoxRequested(canvas, node, bbox)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:copy",
-      (canvas, selectionData) => this.onCopy(canvas, selectionData)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:data-requested",
-      (_canvas, data) => this.expandNodes(data)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:data-loaded:before",
-      (_canvas, data, _setData) => this.collapseNodes(data)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-changed",
+        (canvas, node) => this.onNodeChanged(canvas, node),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-bbox-requested",
+        (canvas, node, bbox) => this.onNodeBBoxRequested(canvas, node, bbox),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:copy",
+        (canvas, selectionData) => this.onCopy(canvas, selectionData),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:data-requested",
+        (_canvas, data) => this.expandNodes(data),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:data-loaded:before",
+        (_canvas, data, _setData) => this.collapseNodes(data),
+      ),
+    );
     this.plugin.addCommand({
       id: "toggle-collapse-group",
       name: "Toggle collapse group",
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
-        (canvas) => canvas.selection.size === 1 && canvas.selection.values().next().value.getData().type === "group",
-        (canvas) => this.toggleCollapseGroup(canvas, canvas.selection.values().next().value)
-      )
+        (canvas) =>
+          canvas.selection.size === 1 &&
+          canvas.selection.values().next().value.getData().type === "group",
+        (canvas) =>
+          this.toggleCollapseGroup(
+            canvas,
+            canvas.selection.values().next().value,
+          ),
+      ),
     });
   }
   toggleCollapseGroup(canvas, node) {
@@ -5920,20 +7873,32 @@ var CollapsibleGroupsCanvasExtension = class extends CanvasExtension {
     (_a = groupNode.collapseEl) == null ? void 0 : _a.remove();
     const collapseEl = activeDocument.createElement("div");
     collapseEl.className = "collapse-button";
-    (0, import_obsidian19.setIcon)(collapseEl, groupNodeData.collapsed ? "plus-circle" : "minus-circle");
+    (0, import_obsidian19.setIcon)(
+      collapseEl,
+      groupNodeData.collapsed ? "plus-circle" : "minus-circle",
+    );
     collapseEl.onclick = () => this.toggleCollapseGroup(canvas, groupNode);
     groupNode.collapseEl = collapseEl;
-    (_b = groupNode.labelEl) == null ? void 0 : _b.insertAdjacentElement("afterend", collapseEl);
+    (_b = groupNode.labelEl) == null
+      ? void 0
+      : _b.insertAdjacentElement("afterend", collapseEl);
   }
   onCopy(_canvas, selectionData) {
     for (const collapsedGroupData of selectionData.nodes) {
-      if (collapsedGroupData.type !== "group" || !collapsedGroupData.collapsed || !collapsedGroupData.collapsedData) continue;
-      selectionData.nodes.push(...collapsedGroupData.collapsedData.nodes.map((nodeData) => ({
-        ...nodeData,
-        // Restore the relative position of the node to the group
-        x: nodeData.x + collapsedGroupData.x,
-        y: nodeData.y + collapsedGroupData.y
-      })));
+      if (
+        collapsedGroupData.type !== "group" ||
+        !collapsedGroupData.collapsed ||
+        !collapsedGroupData.collapsedData
+      )
+        continue;
+      selectionData.nodes.push(
+        ...collapsedGroupData.collapsedData.nodes.map((nodeData) => ({
+          ...nodeData,
+          // Restore the relative position of the node to the group
+          x: nodeData.x + collapsedGroupData.x,
+          y: nodeData.y + collapsedGroupData.y,
+        })),
+      );
       selectionData.edges.push(...collapsedGroupData.collapsedData.edges);
     }
   }
@@ -5948,12 +7913,20 @@ var CollapsibleGroupsCanvasExtension = class extends CanvasExtension {
     var _a, _b;
     const nodeData = node.getData();
     if (nodeData.type !== "group" || !nodeData.collapsed) return;
-    const collapseElBBox = (_a = node.collapseEl) == null ? void 0 : _a.getBoundingClientRect();
+    const collapseElBBox =
+      (_a = node.collapseEl) == null ? void 0 : _a.getBoundingClientRect();
     if (!collapseElBBox) return;
-    const labelElBBox = (_b = node.labelEl) == null ? void 0 : _b.getBoundingClientRect();
+    const labelElBBox =
+      (_b = node.labelEl) == null ? void 0 : _b.getBoundingClientRect();
     if (!labelElBBox) return;
-    const minPos = canvas.posFromClient({ x: collapseElBBox.left, y: collapseElBBox.top });
-    const maxPos = canvas.posFromClient({ x: labelElBBox.right, y: collapseElBBox.bottom });
+    const minPos = canvas.posFromClient({
+      x: collapseElBBox.left,
+      y: collapseElBBox.top,
+    });
+    const maxPos = canvas.posFromClient({
+      x: labelElBBox.right,
+      y: collapseElBBox.bottom,
+    });
     bbox.minX = minPos.x;
     bbox.minY = minPos.y;
     bbox.maxX = maxPos.x;
@@ -5962,57 +7935,112 @@ var CollapsibleGroupsCanvasExtension = class extends CanvasExtension {
   expandNodes(data) {
     var _a;
     if (!data) return;
-    data.nodes = (_a = data.nodes) == null ? void 0 : _a.flatMap((groupNodeData) => {
-      const collapsedData = groupNodeData.collapsedData;
-      if (collapsedData === void 0) return [groupNodeData];
-      delete groupNodeData.collapsedData;
-      data.edges.push(...collapsedData.edges);
-      return [groupNodeData, ...collapsedData.nodes.map((nodeData) => ({
-        ...nodeData,
-        // Restore the relative position of the node to the group
-        x: nodeData.x + groupNodeData.x,
-        y: nodeData.y + groupNodeData.y
-      }))];
-    });
+    data.nodes =
+      (_a = data.nodes) == null
+        ? void 0
+        : _a.flatMap((groupNodeData) => {
+            const collapsedData = groupNodeData.collapsedData;
+            if (collapsedData === void 0) return [groupNodeData];
+            delete groupNodeData.collapsedData;
+            data.edges.push(...collapsedData.edges);
+            return [
+              groupNodeData,
+              ...collapsedData.nodes.map((nodeData) => ({
+                ...nodeData,
+                // Restore the relative position of the node to the group
+                x: nodeData.x + groupNodeData.x,
+                y: nodeData.y + groupNodeData.y,
+              })),
+            ];
+          });
   }
   collapseNodes(data) {
     var _a;
-    (_a = data == null ? void 0 : data.nodes) == null ? void 0 : _a.forEach((groupNodeData) => {
-      var _a2, _b, _c, _d;
-      if (!groupNodeData.collapsed) return;
-      const groupNodeBBox = CanvasHelper.getBBox([groupNodeData]);
-      const containedNodesData = data.nodes.filter(
-        (nodeData) => nodeData.id !== groupNodeData.id && BBoxHelper.insideBBox(CanvasHelper.getBBox([nodeData]), groupNodeBBox, false)
-      );
-      const containedEdgesData = data.edges.filter((edgeData) => {
-        return containedNodesData.some((nodeData) => nodeData.id === edgeData.fromNode) || containedNodesData.some((nodeData) => nodeData.id === edgeData.toNode);
-      });
-      data.nodes = data.nodes.filter((nodeData) => !containedNodesData.includes(nodeData));
-      data.edges = data.edges.filter((edgeData) => !containedEdgesData.includes(edgeData));
-      const newContainedNodesData = containedNodesData.filter((nodeData) => {
-        var _a3, _b2, _c2;
-        return !((_c2 = (_b2 = (_a3 = groupNodeData.collapsedData) == null ? void 0 : _a3.nodes) == null ? void 0 : _b2.some((e) => e.id === nodeData.id)) != null ? _c2 : false);
-      });
-      const newContainedEdgesData = containedEdgesData.filter((edgeData) => {
-        var _a3, _b2, _c2;
-        return !((_c2 = (_b2 = (_a3 = groupNodeData.collapsedData) == null ? void 0 : _a3.edges) == null ? void 0 : _b2.some((n) => n.id === edgeData.id)) != null ? _c2 : false);
-      });
-      groupNodeData.collapsedData = {
-        nodes: [
-          ...(_b = (_a2 = groupNodeData.collapsedData) == null ? void 0 : _a2.nodes) != null ? _b : [],
-          ...newContainedNodesData.map((nodeData) => ({
-            ...nodeData,
-            // Store the relative position of the node to the group
-            x: nodeData.x - groupNodeData.x,
-            y: nodeData.y - groupNodeData.y
-          }))
-        ],
-        edges: [
-          ...(_d = (_c = groupNodeData.collapsedData) == null ? void 0 : _c.edges) != null ? _d : [],
-          ...newContainedEdgesData
-        ]
-      };
-    });
+    (_a = data == null ? void 0 : data.nodes) == null
+      ? void 0
+      : _a.forEach((groupNodeData) => {
+          var _a2, _b, _c, _d;
+          if (!groupNodeData.collapsed) return;
+          const groupNodeBBox = CanvasHelper.getBBox([groupNodeData]);
+          const containedNodesData = data.nodes.filter(
+            (nodeData) =>
+              nodeData.id !== groupNodeData.id &&
+              BBoxHelper.insideBBox(
+                CanvasHelper.getBBox([nodeData]),
+                groupNodeBBox,
+                false,
+              ),
+          );
+          const containedEdgesData = data.edges.filter((edgeData) => {
+            return (
+              containedNodesData.some(
+                (nodeData) => nodeData.id === edgeData.fromNode,
+              ) ||
+              containedNodesData.some(
+                (nodeData) => nodeData.id === edgeData.toNode,
+              )
+            );
+          });
+          data.nodes = data.nodes.filter(
+            (nodeData) => !containedNodesData.includes(nodeData),
+          );
+          data.edges = data.edges.filter(
+            (edgeData) => !containedEdgesData.includes(edgeData),
+          );
+          const newContainedNodesData = containedNodesData.filter(
+            (nodeData) => {
+              var _a3, _b2, _c2;
+              return !((_c2 =
+                (_b2 =
+                  (_a3 = groupNodeData.collapsedData) == null
+                    ? void 0
+                    : _a3.nodes) == null
+                  ? void 0
+                  : _b2.some((e) => e.id === nodeData.id)) != null
+                ? _c2
+                : false);
+            },
+          );
+          const newContainedEdgesData = containedEdgesData.filter(
+            (edgeData) => {
+              var _a3, _b2, _c2;
+              return !((_c2 =
+                (_b2 =
+                  (_a3 = groupNodeData.collapsedData) == null
+                    ? void 0
+                    : _a3.edges) == null
+                  ? void 0
+                  : _b2.some((n) => n.id === edgeData.id)) != null
+                ? _c2
+                : false);
+            },
+          );
+          groupNodeData.collapsedData = {
+            nodes: [
+              ...((_b =
+                (_a2 = groupNodeData.collapsedData) == null
+                  ? void 0
+                  : _a2.nodes) != null
+                ? _b
+                : []),
+              ...newContainedNodesData.map((nodeData) => ({
+                ...nodeData,
+                // Store the relative position of the node to the group
+                x: nodeData.x - groupNodeData.x,
+                y: nodeData.y - groupNodeData.y,
+              })),
+            ],
+            edges: [
+              ...((_d =
+                (_c = groupNodeData.collapsedData) == null
+                  ? void 0
+                  : _c.edges) != null
+                ? _d
+                : []),
+              ...newContainedEdgesData,
+            ],
+          };
+        });
   }
 };
 
@@ -6029,29 +8057,40 @@ var FocusModeCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (_canvas) => true,
-        (canvas) => this.toggleFocusMode(canvas)
-      )
+        (canvas) => this.toggleFocusMode(canvas),
+      ),
     });
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => this.addControlMenuToggle(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:canvas-changed", (canvas) =>
+        this.addControlMenuToggle(canvas),
+      ),
+    );
   }
   addControlMenuToggle(canvas) {
     var _a;
-    const settingsContainer = (_a = canvas.quickSettingsButton) == null ? void 0 : _a.parentElement;
+    const settingsContainer =
+      (_a = canvas.quickSettingsButton) == null ? void 0 : _a.parentElement;
     if (!settingsContainer) return;
     const controlMenuFocusToggle = CanvasHelper.createControlMenuButton({
       id: CONTROL_MENU_FOCUS_TOGGLE_ID,
       label: "Focus Mode",
       icon: "focus",
-      callback: () => this.toggleFocusMode(canvas)
+      callback: () => this.toggleFocusMode(canvas),
     });
-    CanvasHelper.addControlMenuButton(settingsContainer, controlMenuFocusToggle);
+    CanvasHelper.addControlMenuButton(
+      settingsContainer,
+      controlMenuFocusToggle,
+    );
   }
   toggleFocusMode(canvas) {
     var _a, _b;
-    const controlMenuFocusToggle = (_b = (_a = canvas.quickSettingsButton) == null ? void 0 : _a.parentElement) == null ? void 0 : _b.querySelector(`#${CONTROL_MENU_FOCUS_TOGGLE_ID}`);
+    const controlMenuFocusToggle =
+      (_b =
+        (_a = canvas.quickSettingsButton) == null
+          ? void 0
+          : _a.parentElement) == null
+        ? void 0
+        : _b.querySelector(`#${CONTROL_MENU_FOCUS_TOGGLE_ID}`);
     if (!controlMenuFocusToggle) return;
     const newValue = controlMenuFocusToggle.dataset.toggled !== "true";
     canvas.wrapperEl.dataset.focusModeEnabled = newValue.toString();
@@ -6066,23 +8105,33 @@ var AutoFileNodeEdgesCanvasExtension = class extends CanvasExtension {
     return "autoFileNodeEdgesFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.metadataCache.on("changed", (file) => {
-      for (const canvas of this.plugin.getCanvases())
-        this.onMetadataChanged(canvas, file);
-    }));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-added",
-      (canvas, node) => this.onNodeChanged(canvas, node)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-changed",
-      (canvas, node) => this.onNodeChanged(canvas, node)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.metadataCache.on("changed", (file) => {
+        for (const canvas of this.plugin.getCanvases())
+          this.onMetadataChanged(canvas, file);
+      }),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-added",
+        (canvas, node) => this.onNodeChanged(canvas, node),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-changed",
+        (canvas, node) => this.onNodeChanged(canvas, node),
+      ),
+    );
   }
   onMetadataChanged(canvas, file) {
     var _a;
     for (const node of canvas.nodes.values()) {
-      if (node.getData().type !== "file" || ((_a = node.file) == null ? void 0 : _a.path) !== file.path) continue;
+      if (
+        node.getData().type !== "file" ||
+        ((_a = node.file) == null ? void 0 : _a.path) !== file.path
+      )
+        continue;
       this.updateFileNodeEdges(canvas, node);
     }
   }
@@ -6095,10 +8144,15 @@ var AutoFileNodeEdgesCanvasExtension = class extends CanvasExtension {
   }
   updateFileNodeEdges(canvas, node) {
     const edges = this.getFileNodeEdges(canvas, node);
-    const newEdges = Array.from(edges.values()).filter((edge) => !canvas.edges.has(edge.id));
+    const newEdges = Array.from(edges.values()).filter(
+      (edge) => !canvas.edges.has(edge.id),
+    );
     canvas.importData({ nodes: [], edges: newEdges }, false, false);
     for (const edge of canvas.edges.values()) {
-      if (edge.id.startsWith(`${AUTO_EDGE_ID_PREFIX}${node.id}`) && !edges.has(edge.id))
+      if (
+        edge.id.startsWith(`${AUTO_EDGE_ID_PREFIX}${node.id}`) &&
+        !edges.has(edge.id)
+      )
         canvas.removeEdge(edge);
     }
   }
@@ -6108,18 +8162,49 @@ var AutoFileNodeEdgesCanvasExtension = class extends CanvasExtension {
     if (!canvasFile || !node.file) return /* @__PURE__ */ new Map();
     const fileMetadata = this.plugin.app.metadataCache.getFileCache(node.file);
     if (!fileMetadata) return /* @__PURE__ */ new Map();
-    const linkedFilesFrontmatterKey = this.plugin.settings.getSetting("autoFileNodeEdgesFrontmatterKey");
-    const fileLinksToBeLinkedTo = (_b = (_a = fileMetadata.frontmatterLinks) == null ? void 0 : _a.filter((link) => link.key.split(".")[0] === linkedFilesFrontmatterKey)) != null ? _b : [];
-    const filepathsToBeLinkedTo = fileLinksToBeLinkedTo.map((link) => this.plugin.app.metadataCache.getFirstLinkpathDest(link.link, canvasFile.path)).map((file) => file == null ? void 0 : file.path).filter((path) => path !== null);
-    const nodesToBeLinkedTo = Array.from(canvas.nodes.values()).filter((otherNode) => {
-      var _a2;
-      return otherNode.id !== node.id && filepathsToBeLinkedTo.includes((_a2 = otherNode.file) == null ? void 0 : _a2.path);
-    });
+    const linkedFilesFrontmatterKey = this.plugin.settings.getSetting(
+      "autoFileNodeEdgesFrontmatterKey",
+    );
+    const fileLinksToBeLinkedTo =
+      (_b =
+        (_a = fileMetadata.frontmatterLinks) == null
+          ? void 0
+          : _a.filter(
+              (link) => link.key.split(".")[0] === linkedFilesFrontmatterKey,
+            )) != null
+        ? _b
+        : [];
+    const filepathsToBeLinkedTo = fileLinksToBeLinkedTo
+      .map((link) =>
+        this.plugin.app.metadataCache.getFirstLinkpathDest(
+          link.link,
+          canvasFile.path,
+        ),
+      )
+      .map((file) => (file == null ? void 0 : file.path))
+      .filter((path) => path !== null);
+    const nodesToBeLinkedTo = Array.from(canvas.nodes.values()).filter(
+      (otherNode) => {
+        var _a2;
+        return (
+          otherNode.id !== node.id &&
+          filepathsToBeLinkedTo.includes(
+            (_a2 = otherNode.file) == null ? void 0 : _a2.path,
+          )
+        );
+      },
+    );
     const newEdges = /* @__PURE__ */ new Map();
     for (const otherNode of nodesToBeLinkedTo) {
       const edgeId = `${AUTO_EDGE_ID_PREFIX}${node.id}${otherNode.id}`;
-      const bestFromSide = CanvasHelper.getBestSideForFloatingEdge(BBoxHelper.getCenterOfBBoxSide(otherNode.getBBox(), "right"), node);
-      const bestToSide = CanvasHelper.getBestSideForFloatingEdge(BBoxHelper.getCenterOfBBoxSide(node.getBBox(), "left"), otherNode);
+      const bestFromSide = CanvasHelper.getBestSideForFloatingEdge(
+        BBoxHelper.getCenterOfBBoxSide(otherNode.getBBox(), "right"),
+        node,
+      );
+      const bestToSide = CanvasHelper.getBestSideForFloatingEdge(
+        BBoxHelper.getCenterOfBBoxSide(node.getBBox(), "left"),
+        otherNode,
+      );
       newEdges.set(edgeId, {
         id: edgeId,
         fromNode: node.id,
@@ -6127,7 +8212,7 @@ var AutoFileNodeEdgesCanvasExtension = class extends CanvasExtension {
         fromFloating: true,
         toNode: otherNode.id,
         toSide: bestToSide,
-        toFloating: true
+        toFloating: true,
       });
     }
     return newEdges;
@@ -6140,23 +8225,37 @@ var FlipEdgeCanvasExtension = class extends CanvasExtension {
     return "flipEdgeFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.onPopupMenuCreated(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.onPopupMenuCreated(canvas),
+      ),
+    );
   }
   onPopupMenuCreated(canvas) {
     var _a, _b;
-    const popupMenuEl = (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
+    const popupMenuEl =
+      (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
     if (!popupMenuEl) return;
-    const POSSIBLE_ICONS = ["lucide-arrow-right", "lucide-move-horizontal", "line-horizontal"];
+    const POSSIBLE_ICONS = [
+      "lucide-arrow-right",
+      "lucide-move-horizontal",
+      "line-horizontal",
+    ];
     let edgeDirectionButton = null;
     for (const icon of POSSIBLE_ICONS) {
-      edgeDirectionButton = (_b = popupMenuEl.querySelector(`button:not([id]) > .svg-icon.${icon}`)) == null ? void 0 : _b.parentElement;
+      edgeDirectionButton =
+        (_b = popupMenuEl.querySelector(
+          `button:not([id]) > .svg-icon.${icon}`,
+        )) == null
+          ? void 0
+          : _b.parentElement;
       if (edgeDirectionButton) break;
     }
     if (!edgeDirectionButton) return;
-    edgeDirectionButton.addEventListener("click", () => this.onEdgeDirectionDropdownCreated(canvas));
+    edgeDirectionButton.addEventListener("click", () =>
+      this.onEdgeDirectionDropdownCreated(canvas),
+    );
   }
   onEdgeDirectionDropdownCreated(canvas) {
     const dropdownEl = activeDocument.body.querySelector("div.menu");
@@ -6166,25 +8265,28 @@ var FlipEdgeCanvasExtension = class extends CanvasExtension {
     const flipEdgeButton = CanvasHelper.createDropdownOptionElement({
       icon: "flip-horizontal-2",
       label: "Flip Edge",
-      callback: () => this.flipEdge(canvas)
+      callback: () => this.flipEdge(canvas),
     });
     dropdownEl.appendChild(flipEdgeButton);
   }
   flipEdge(canvas) {
     const selectedEdges = [...canvas.selection].filter(
-      (item) => item.path !== void 0
+      (item) => item.path !== void 0,
     );
     if (selectedEdges.length === 0) return;
     for (const edge of selectedEdges) {
-      edge.update({
-        ...edge.from,
-        node: edge.to.node,
-        side: edge.to.side
-      }, {
-        ...edge.to,
-        node: edge.from.node,
-        side: edge.from.side
-      });
+      edge.update(
+        {
+          ...edge.from,
+          node: edge.to.node,
+          side: edge.to.side,
+        },
+        {
+          ...edge.to,
+          node: edge.from.node,
+          side: edge.from.side,
+        },
+      );
     }
     canvas.pushHistory(canvas.getData());
   }
@@ -6195,36 +8297,41 @@ var DIRECTION_MENU_MAP = {
   connected: {
     id: "select-connected-edges",
     icon: "arrows-selected",
-    label: "Select Connected Edges"
+    label: "Select Connected Edges",
   },
   outgoing: {
     id: "select-outgoing-edges",
     icon: "arrow-right-selected",
-    label: "Select Outgoing Edges"
+    label: "Select Outgoing Edges",
   },
   incoming: {
     id: "select-incoming-edges",
     icon: "arrow-left-selected",
-    label: "Select Incoming Edges"
-  }
+    label: "Select Incoming Edges",
+  },
 };
 var EdgeSelectionCanvasExtension = class extends CanvasExtension {
   isEnabled() {
     return "edgeSelectionEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:popup-menu-created",
-      (canvas) => this.onPopupMenuCreated(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:popup-menu-created",
+        (canvas) => this.onPopupMenuCreated(canvas),
+      ),
+    );
   }
   onPopupMenuCreated(canvas) {
     var _a;
-    const popupMenuEl = (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
+    const popupMenuEl =
+      (_a = canvas == null ? void 0 : canvas.menu) == null ? void 0 : _a.menuEl;
     if (!popupMenuEl) return;
     const selectionNodeData = canvas.getSelectionData().nodes;
     if (canvas.readonly || selectionNodeData.length === 0) return;
-    const selectEdgeByDirection = this.plugin.settings.getSetting("selectEdgeByDirection");
+    const selectEdgeByDirection = this.plugin.settings.getSetting(
+      "selectEdgeByDirection",
+    );
     const menuDirectionSet = /* @__PURE__ */ new Set(["connected"]);
     if (selectionNodeData.length === 1) {
       const node = canvas.nodes.get(selectionNodeData[0].id);
@@ -6246,10 +8353,13 @@ var EdgeSelectionCanvasExtension = class extends CanvasExtension {
     }
     menuDirectionSet.forEach((direction) => {
       const config = DIRECTION_MENU_MAP[direction];
-      CanvasHelper.addPopupMenuOption(canvas, CanvasHelper.createPopupMenuOption({
-        ...config,
-        callback: () => CanvasHelper.selectEdgesForNodes(canvas, direction)
-      }));
+      CanvasHelper.addPopupMenuOption(
+        canvas,
+        CanvasHelper.createPopupMenuOption({
+          ...config,
+          callback: () => CanvasHelper.selectEdgesForNodes(canvas, direction),
+        }),
+      );
     });
   }
 };
@@ -6278,10 +8388,9 @@ function resolveUrl(url, baseUrl) {
 }
 var uuid = /* @__PURE__ */ (() => {
   let counter = 0;
-  const random = () => (
+  const random = () =>
     // eslint-disable-next-line no-bitwise
-    `0000${(Math.random() * 36 ** 4 << 0).toString(36)}`.slice(-4)
-  );
+    `0000${((Math.random() * 36 ** 4) << 0).toString(36)}`.slice(-4);
   return () => {
     counter += 1;
     return `u${random()}${counter}`;
@@ -6319,9 +8428,11 @@ function getPixelRatio() {
   let FINAL_PROCESS;
   try {
     FINAL_PROCESS = process;
-  } catch (e) {
-  }
-  const val = FINAL_PROCESS && FINAL_PROCESS.env ? FINAL_PROCESS.env.devicePixelRatio : null;
+  } catch (e) {}
+  const val =
+    FINAL_PROCESS && FINAL_PROCESS.env
+      ? FINAL_PROCESS.env.devicePixelRatio
+      : null;
   if (val) {
     ratio = parseInt(val, 10);
     if (Number.isNaN(ratio)) {
@@ -6332,8 +8443,14 @@ function getPixelRatio() {
 }
 var canvasDimensionLimit = 16384;
 function checkCanvasDimensions(canvas) {
-  if (canvas.width > canvasDimensionLimit || canvas.height > canvasDimensionLimit) {
-    if (canvas.width > canvasDimensionLimit && canvas.height > canvasDimensionLimit) {
+  if (
+    canvas.width > canvasDimensionLimit ||
+    canvas.height > canvasDimensionLimit
+  ) {
+    if (
+      canvas.width > canvasDimensionLimit &&
+      canvas.height > canvasDimensionLimit
+    ) {
       if (canvas.width > canvas.height) {
         canvas.height *= canvasDimensionLimit / canvas.width;
         canvas.width = canvasDimensionLimit;
@@ -6362,7 +8479,10 @@ function createImage(url) {
   });
 }
 async function svgToDataURL(svg) {
-  return Promise.resolve().then(() => new XMLSerializer().serializeToString(svg)).then(encodeURIComponent).then((html) => `data:image/svg+xml;charset=utf-8,${html}`);
+  return Promise.resolve()
+    .then(() => new XMLSerializer().serializeToString(svg))
+    .then(encodeURIComponent)
+    .then((html) => `data:image/svg+xml;charset=utf-8,${html}`);
 }
 async function nodeToDataURL(node, width, height) {
   const xmlns = "http://www.w3.org/2000/svg";
@@ -6381,12 +8501,13 @@ async function nodeToDataURL(node, width, height) {
   return svgToDataURL(svg);
 }
 var isInstanceOfElement = (node, instance) => {
-  if (node instanceof instance)
-    return true;
+  if (node instanceof instance) return true;
   const nodePrototype = Object.getPrototypeOf(node);
-  if (nodePrototype === null)
-    return false;
-  return nodePrototype.constructor.name === instance.name || isInstanceOfElement(nodePrototype, instance);
+  if (nodePrototype === null) return false;
+  return (
+    nodePrototype.constructor.name === instance.name ||
+    isInstanceOfElement(nodePrototype, instance)
+  );
 };
 
 // node_modules/html-to-image/es/clone-pseudos.js
@@ -6395,15 +8516,19 @@ function formatCSSText(style) {
   return `${style.cssText} content: '${content.replace(/'|"/g, "")}';`;
 }
 function formatCSSProperties(style) {
-  return toArray(style).map((name) => {
-    const value = style.getPropertyValue(name);
-    const priority = style.getPropertyPriority(name);
-    return `${name}: ${value}${priority ? " !important" : ""};`;
-  }).join(" ");
+  return toArray(style)
+    .map((name) => {
+      const value = style.getPropertyValue(name);
+      const priority = style.getPropertyPriority(name);
+      return `${name}: ${value}${priority ? " !important" : ""};`;
+    })
+    .join(" ");
 }
 function getPseudoElementStyle(className, pseudo, style) {
   const selector = `.${className}:${pseudo}`;
-  const cssText = style.cssText ? formatCSSText(style) : formatCSSProperties(style);
+  const cssText = style.cssText
+    ? formatCSSText(style)
+    : formatCSSProperties(style);
   return document.createTextNode(`${selector}{${cssText}}`);
 }
 function clonePseudoElement(nativeNode, clonedNode, pseudo) {
@@ -6441,7 +8566,7 @@ var mimes = {
   gif: "image/gif",
   tiff: "image/tiff",
   svg: "image/svg+xml",
-  webp: "image/webp"
+  webp: "image/webp",
 };
 function getExtension(url) {
   const match = /\.([^./]*?)$/g.exec(url);
@@ -6493,21 +8618,31 @@ function getCacheKey(url, contentType, includeQueryParams) {
   return contentType ? `[${contentType}]${key}` : key;
 }
 async function resourceToDataURL(resourceUrl, contentType, options) {
-  const cacheKey = getCacheKey(resourceUrl, contentType, options.includeQueryParams);
+  const cacheKey = getCacheKey(
+    resourceUrl,
+    contentType,
+    options.includeQueryParams,
+  );
   if (cache[cacheKey] != null) {
     return cache[cacheKey];
   }
   if (options.cacheBust) {
-    resourceUrl += (/\?/.test(resourceUrl) ? "&" : "?") + (/* @__PURE__ */ new Date()).getTime();
+    resourceUrl +=
+      (/\?/.test(resourceUrl) ? "&" : "?") +
+      /* @__PURE__ */ new Date().getTime();
   }
   let dataURL;
   try {
-    const content = await fetchAsDataURL(resourceUrl, options.fetchRequestInit, ({ res: res2, result }) => {
-      if (!contentType) {
-        contentType = res2.headers.get("Content-Type") || "";
-      }
-      return getContentFromDataUrl(result);
-    });
+    const content = await fetchAsDataURL(
+      resourceUrl,
+      options.fetchRequestInit,
+      ({ res: res2, result }) => {
+        if (!contentType) {
+          contentType = res2.headers.get("Content-Type") || "";
+        }
+        return getContentFromDataUrl(result);
+      },
+    );
     dataURL = makeDataUrl(content, contentType);
   } catch (error) {
     dataURL = options.imagePlaceholder || "";
@@ -6537,7 +8672,9 @@ async function cloneVideoElement(video, options) {
     const ctx = canvas.getContext("2d");
     canvas.width = video.clientWidth;
     canvas.height = video.clientHeight;
-    ctx === null || ctx === void 0 ? void 0 : ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx === null || ctx === void 0
+      ? void 0
+      : ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataURL2 = canvas.toDataURL();
     return createImage(dataURL2);
   }
@@ -6549,11 +8686,17 @@ async function cloneVideoElement(video, options) {
 async function cloneIFrameElement(iframe) {
   var _a;
   try {
-    if ((_a = iframe === null || iframe === void 0 ? void 0 : iframe.contentDocument) === null || _a === void 0 ? void 0 : _a.body) {
+    if (
+      (_a =
+        iframe === null || iframe === void 0
+          ? void 0
+          : iframe.contentDocument) === null || _a === void 0
+        ? void 0
+        : _a.body
+    ) {
       return await cloneNode(iframe.contentDocument.body, {}, true);
     }
-  } catch (_b) {
-  }
+  } catch (_b) {}
   return iframe.cloneNode(false);
 }
 async function cloneSingleNode(node, options) {
@@ -6568,25 +8711,43 @@ async function cloneSingleNode(node, options) {
   }
   return node.cloneNode(false);
 }
-var isSlotElement = (node) => node.tagName != null && node.tagName.toUpperCase() === "SLOT";
+var isSlotElement = (node) =>
+  node.tagName != null && node.tagName.toUpperCase() === "SLOT";
 async function cloneChildren(nativeNode, clonedNode, options) {
   var _a, _b;
   let children = [];
   if (isSlotElement(nativeNode) && nativeNode.assignedNodes) {
     children = toArray(nativeNode.assignedNodes());
-  } else if (isInstanceOfElement(nativeNode, HTMLIFrameElement) && ((_a = nativeNode.contentDocument) === null || _a === void 0 ? void 0 : _a.body)) {
+  } else if (
+    isInstanceOfElement(nativeNode, HTMLIFrameElement) &&
+    ((_a = nativeNode.contentDocument) === null || _a === void 0
+      ? void 0
+      : _a.body)
+  ) {
     children = toArray(nativeNode.contentDocument.body.childNodes);
   } else {
-    children = toArray(((_b = nativeNode.shadowRoot) !== null && _b !== void 0 ? _b : nativeNode).childNodes);
+    children = toArray(
+      ((_b = nativeNode.shadowRoot) !== null && _b !== void 0 ? _b : nativeNode)
+        .childNodes,
+    );
   }
-  if (children.length === 0 || isInstanceOfElement(nativeNode, HTMLVideoElement)) {
+  if (
+    children.length === 0 ||
+    isInstanceOfElement(nativeNode, HTMLVideoElement)
+  ) {
     return clonedNode;
   }
-  await children.reduce((deferred, child) => deferred.then(() => cloneNode(child, options)).then((clonedChild) => {
-    if (clonedChild) {
-      clonedNode.appendChild(clonedChild);
-    }
-  }), Promise.resolve());
+  await children.reduce(
+    (deferred, child) =>
+      deferred
+        .then(() => cloneNode(child, options))
+        .then((clonedChild) => {
+          if (clonedChild) {
+            clonedNode.appendChild(clonedChild);
+          }
+        }),
+    Promise.resolve(),
+  );
   return clonedNode;
 }
 function cloneCSSStyle(nativeNode, clonedNode) {
@@ -6602,16 +8763,25 @@ function cloneCSSStyle(nativeNode, clonedNode) {
     toArray(sourceStyle).forEach((name) => {
       let value = sourceStyle.getPropertyValue(name);
       if (name === "font-size" && value.endsWith("px")) {
-        const reducedFont = Math.floor(parseFloat(value.substring(0, value.length - 2))) - 0.1;
+        const reducedFont =
+          Math.floor(parseFloat(value.substring(0, value.length - 2))) - 0.1;
         value = `${reducedFont}px`;
       }
-      if (isInstanceOfElement(nativeNode, HTMLIFrameElement) && name === "display" && value === "inline") {
+      if (
+        isInstanceOfElement(nativeNode, HTMLIFrameElement) &&
+        name === "display" &&
+        value === "inline"
+      ) {
         value = "block";
       }
       if (name === "d" && clonedNode.getAttribute("d")) {
         value = `path(${clonedNode.getAttribute("d")})`;
       }
-      targetStyle.setProperty(name, value, sourceStyle.getPropertyPriority(name));
+      targetStyle.setProperty(
+        name,
+        value,
+        sourceStyle.getPropertyPriority(name),
+      );
     });
   }
 }
@@ -6626,7 +8796,9 @@ function cloneInputValue(nativeNode, clonedNode) {
 function cloneSelectValue(nativeNode, clonedNode) {
   if (isInstanceOfElement(nativeNode, HTMLSelectElement)) {
     const clonedSelect = clonedNode;
-    const selectedOption = Array.from(clonedSelect.children).find((child) => nativeNode.value === child.getAttribute("value"));
+    const selectedOption = Array.from(clonedSelect.children).find(
+      (child) => nativeNode.value === child.getAttribute("value"),
+    );
     if (selectedOption) {
       selectedOption.setAttribute("selected", "");
     }
@@ -6681,7 +8853,11 @@ async function cloneNode(node, options, isRoot) {
   if (!isRoot && options.filter && !options.filter(node)) {
     return null;
   }
-  return Promise.resolve(node).then((clonedNode) => cloneSingleNode(clonedNode, options)).then((clonedNode) => cloneChildren(node, clonedNode, options)).then((clonedNode) => decorate(node, clonedNode)).then((clonedNode) => ensureSVGSymbols(clonedNode, options));
+  return Promise.resolve(node)
+    .then((clonedNode) => cloneSingleNode(clonedNode, options))
+    .then((clonedNode) => cloneChildren(node, clonedNode, options))
+    .then((clonedNode) => decorate(node, clonedNode))
+    .then((clonedNode) => ensureSVGSymbols(clonedNode, options));
 }
 
 // node_modules/html-to-image/es/embed-resources.js
@@ -6700,9 +8876,17 @@ function parseURLs(cssText) {
   });
   return urls.filter((url) => !isDataUrl(url));
 }
-async function embed(cssText, resourceURL, baseURL, options, getContentFromUrl) {
+async function embed(
+  cssText,
+  resourceURL,
+  baseURL,
+  options,
+  getContentFromUrl,
+) {
   try {
-    const resolvedURL = baseURL ? resolveUrl(resourceURL, baseURL) : resourceURL;
+    const resolvedURL = baseURL
+      ? resolveUrl(resourceURL, baseURL)
+      : resourceURL;
     const contentType = getMimeType(resourceURL);
     let dataURL;
     if (getContentFromUrl) {
@@ -6712,22 +8896,23 @@ async function embed(cssText, resourceURL, baseURL, options, getContentFromUrl) 
       dataURL = await resourceToDataURL(resolvedURL, contentType, options);
     }
     return cssText.replace(toRegex(resourceURL), `$1${dataURL}$3`);
-  } catch (error) {
-  }
+  } catch (error) {}
   return cssText;
 }
 function filterPreferredFontFormat(str, { preferredFontFormat }) {
-  return !preferredFontFormat ? str : str.replace(FONT_SRC_REGEX, (match) => {
-    while (true) {
-      const [src, , format] = URL_WITH_FORMAT_REGEX.exec(match) || [];
-      if (!format) {
-        return "";
-      }
-      if (format === preferredFontFormat) {
-        return `src: ${src};`;
-      }
-    }
-  });
+  return !preferredFontFormat
+    ? str
+    : str.replace(FONT_SRC_REGEX, (match) => {
+        while (true) {
+          const [src, , format] = URL_WITH_FORMAT_REGEX.exec(match) || [];
+          if (!format) {
+            return "";
+          }
+          if (format === preferredFontFormat) {
+            return `src: ${src};`;
+          }
+        }
+      });
 }
 function shouldEmbed(url) {
   return url.search(URL_REGEX) !== -1;
@@ -6738,31 +8923,48 @@ async function embedResources(cssText, baseUrl, options) {
   }
   const filteredCSSText = filterPreferredFontFormat(cssText, options);
   const urls = parseURLs(filteredCSSText);
-  return urls.reduce((deferred, url) => deferred.then((css) => embed(css, url, baseUrl, options)), Promise.resolve(filteredCSSText));
+  return urls.reduce(
+    (deferred, url) =>
+      deferred.then((css) => embed(css, url, baseUrl, options)),
+    Promise.resolve(filteredCSSText),
+  );
 }
 
 // node_modules/html-to-image/es/embed-images.js
 async function embedProp(propName, node, options) {
   var _a;
-  const propValue = (_a = node.style) === null || _a === void 0 ? void 0 : _a.getPropertyValue(propName);
+  const propValue =
+    (_a = node.style) === null || _a === void 0
+      ? void 0
+      : _a.getPropertyValue(propName);
   if (propValue) {
     const cssString = await embedResources(propValue, null, options);
-    node.style.setProperty(propName, cssString, node.style.getPropertyPriority(propName));
+    node.style.setProperty(
+      propName,
+      cssString,
+      node.style.getPropertyPriority(propName),
+    );
     return true;
   }
   return false;
 }
 async function embedBackground(clonedNode, options) {
-  if (!await embedProp("background", clonedNode, options)) {
+  if (!(await embedProp("background", clonedNode, options))) {
     await embedProp("background-image", clonedNode, options);
   }
-  if (!await embedProp("mask", clonedNode, options)) {
+  if (!(await embedProp("mask", clonedNode, options))) {
     await embedProp("mask-image", clonedNode, options);
   }
 }
 async function embedImageNode(clonedNode, options) {
   const isImageElement = isInstanceOfElement(clonedNode, HTMLImageElement);
-  if (!(isImageElement && !isDataUrl(clonedNode.src)) && !(isInstanceOfElement(clonedNode, SVGImageElement) && !isDataUrl(clonedNode.href.baseVal))) {
+  if (
+    !(isImageElement && !isDataUrl(clonedNode.src)) &&
+    !(
+      isInstanceOfElement(clonedNode, SVGImageElement) &&
+      !isDataUrl(clonedNode.href.baseVal)
+    )
+  ) {
     return;
   }
   const url = isImageElement ? clonedNode.src : clonedNode.href.baseVal;
@@ -6855,7 +9057,10 @@ function parseCSS(source) {
   const result = [];
   const commentsRegex = /(\/\*[\s\S]*?\*\/)/gi;
   let cssText = source.replace(commentsRegex, "");
-  const keyframesRegex = new RegExp("((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})", "gi");
+  const keyframesRegex = new RegExp(
+    "((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})",
+    "gi",
+  );
   while (true) {
     const matches = keyframesRegex.exec(cssText);
     if (matches === null) {
@@ -6865,7 +9070,8 @@ function parseCSS(source) {
   }
   cssText = cssText.replace(keyframesRegex, "");
   const importRegex = /@import[\s\S]*?url\([^)]*\)[\s\S]*?;/gi;
-  const combinedCSSRegex = "((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})";
+  const combinedCSSRegex =
+    "((\\s*?(?:\\/\\*[\\s\\S]*?\\*\\/)?\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})";
   const unifiedRegex = new RegExp(combinedCSSRegex, "gi");
   while (true) {
     let matches = importRegex.exec(cssText);
@@ -6893,29 +9099,47 @@ async function getCSSRules(styleSheets, options) {
           if (item.type === CSSRule.IMPORT_RULE) {
             let importIndex = index + 1;
             const url = item.href;
-            const deferred = fetchCSS(url).then((metadata) => embedFonts(metadata, options)).then((cssText) => parseCSS(cssText).forEach((rule) => {
-              try {
-                sheet.insertRule(rule, rule.startsWith("@import") ? importIndex += 1 : sheet.cssRules.length);
-              } catch (error) {
-                console.error("Error inserting rule from remote css", {
-                  rule,
-                  error
-                });
-              }
-            })).catch((e) => {
-              console.error("Error loading remote css", e.toString());
-            });
+            const deferred = fetchCSS(url)
+              .then((metadata) => embedFonts(metadata, options))
+              .then((cssText) =>
+                parseCSS(cssText).forEach((rule) => {
+                  try {
+                    sheet.insertRule(
+                      rule,
+                      rule.startsWith("@import")
+                        ? (importIndex += 1)
+                        : sheet.cssRules.length,
+                    );
+                  } catch (error) {
+                    console.error("Error inserting rule from remote css", {
+                      rule,
+                      error,
+                    });
+                  }
+                }),
+              )
+              .catch((e) => {
+                console.error("Error loading remote css", e.toString());
+              });
             deferreds.push(deferred);
           }
         });
       } catch (e) {
-        const inline = styleSheets.find((a) => a.href == null) || document.styleSheets[0];
+        const inline =
+          styleSheets.find((a) => a.href == null) || document.styleSheets[0];
         if (sheet.href != null) {
-          deferreds.push(fetchCSS(sheet.href).then((metadata) => embedFonts(metadata, options)).then((cssText) => parseCSS(cssText).forEach((rule) => {
-            inline.insertRule(rule, sheet.cssRules.length);
-          })).catch((err) => {
-            console.error("Error loading remote stylesheet", err);
-          }));
+          deferreds.push(
+            fetchCSS(sheet.href)
+              .then((metadata) => embedFonts(metadata, options))
+              .then((cssText) =>
+                parseCSS(cssText).forEach((rule) => {
+                  inline.insertRule(rule, sheet.cssRules.length);
+                }),
+              )
+              .catch((err) => {
+                console.error("Error loading remote stylesheet", err);
+              }),
+          );
         }
         console.error("Error inlining remote css file", e);
       }
@@ -6937,7 +9161,9 @@ async function getCSSRules(styleSheets, options) {
   });
 }
 function getWebFontRules(cssRules) {
-  return cssRules.filter((rule) => rule.type === CSSRule.FONT_FACE_RULE).filter((rule) => shouldEmbed(rule.style.getPropertyValue("src")));
+  return cssRules
+    .filter((rule) => rule.type === CSSRule.FONT_FACE_RULE)
+    .filter((rule) => shouldEmbed(rule.style.getPropertyValue("src")));
 }
 async function parseWebFontRules(node, options) {
   if (node.ownerDocument == null) {
@@ -6949,14 +9175,21 @@ async function parseWebFontRules(node, options) {
 }
 async function getWebFontCSS(node, options) {
   const rules = await parseWebFontRules(node, options);
-  const cssTexts = await Promise.all(rules.map((rule) => {
-    const baseUrl = rule.parentStyleSheet ? rule.parentStyleSheet.href : null;
-    return embedResources(rule.cssText, baseUrl, options);
-  }));
+  const cssTexts = await Promise.all(
+    rules.map((rule) => {
+      const baseUrl = rule.parentStyleSheet ? rule.parentStyleSheet.href : null;
+      return embedResources(rule.cssText, baseUrl, options);
+    }),
+  );
   return cssTexts.join("\n");
 }
 async function embedWebFonts(clonedNode, options) {
-  const cssText = options.fontEmbedCSS != null ? options.fontEmbedCSS : options.skipFonts ? null : await getWebFontCSS(clonedNode, options);
+  const cssText =
+    options.fontEmbedCSS != null
+      ? options.fontEmbedCSS
+      : options.skipFonts
+        ? null
+        : await getWebFontCSS(clonedNode, options);
   if (cssText) {
     const styleNode = document.createElement("style");
     const sytleContent = document.createTextNode(cssText);
@@ -7015,20 +9248,22 @@ var ExportCanvasExtension = class extends CanvasExtension {
     return "betterExportFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-breakpoint-changed",
-      (canvas, node, breakpointRef) => {
-        if (canvas.screenshotting) breakpointRef.value = true;
-      }
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-breakpoint-changed",
+        (canvas, node, breakpointRef) => {
+          if (canvas.screenshotting) breakpointRef.value = true;
+        },
+      ),
+    );
     this.plugin.addCommand({
       id: "export-all-as-image",
       name: "Export canvas as image",
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => canvas.nodes.size > 0,
-        (canvas) => void this.showExportImageSettingsModal(canvas, null)
-      )
+        (canvas) => void this.showExportImageSettingsModal(canvas, null),
+      ),
     });
     this.plugin.addCommand({
       id: "export-selected-as-image",
@@ -7036,11 +9271,15 @@ var ExportCanvasExtension = class extends CanvasExtension {
       checkCallback: CanvasHelper.canvasCommand(
         this.plugin,
         (canvas) => canvas.selection.size > 0,
-        (canvas) => void this.showExportImageSettingsModal(
-          canvas,
-          canvas.getSelectionData().nodes.map((nodeData) => canvas.nodes.get(nodeData.id)).filter((node) => node !== void 0)
-        )
-      )
+        (canvas) =>
+          void this.showExportImageSettingsModal(
+            canvas,
+            canvas
+              .getSelectionData()
+              .nodes.map((nodeData) => canvas.nodes.get(nodeData.id))
+              .filter((node) => node !== void 0),
+          ),
+      ),
     });
   }
   async showExportImageSettingsModal(canvas, nodesToExport) {
@@ -7052,74 +9291,162 @@ var ExportCanvasExtension = class extends CanvasExtension {
     const updateDynamicSettings = () => {
       var _a, _b, _c, _d, _e, _f;
       if (svg) {
-        (_a = pixelRatioSetting == null ? void 0 : pixelRatioSetting.settingEl) == null ? void 0 : _a.hide();
-        (_b = noFontExportSetting == null ? void 0 : noFontExportSetting.settingEl) == null ? void 0 : _b.show();
-        (_c = transparentBackgroundSetting == null ? void 0 : transparentBackgroundSetting.settingEl) == null ? void 0 : _c.hide();
+        (_a =
+          pixelRatioSetting == null ? void 0 : pixelRatioSetting.settingEl) ==
+        null
+          ? void 0
+          : _a.hide();
+        (_b =
+          noFontExportSetting == null
+            ? void 0
+            : noFontExportSetting.settingEl) == null
+          ? void 0
+          : _b.show();
+        (_c =
+          transparentBackgroundSetting == null
+            ? void 0
+            : transparentBackgroundSetting.settingEl) == null
+          ? void 0
+          : _c.hide();
       } else {
-        (_d = pixelRatioSetting == null ? void 0 : pixelRatioSetting.settingEl) == null ? void 0 : _d.show();
-        (_e = noFontExportSetting == null ? void 0 : noFontExportSetting.settingEl) == null ? void 0 : _e.hide();
-        (_f = transparentBackgroundSetting == null ? void 0 : transparentBackgroundSetting.settingEl) == null ? void 0 : _f.show();
+        (_d =
+          pixelRatioSetting == null ? void 0 : pixelRatioSetting.settingEl) ==
+        null
+          ? void 0
+          : _d.show();
+        (_e =
+          noFontExportSetting == null
+            ? void 0
+            : noFontExportSetting.settingEl) == null
+          ? void 0
+          : _e.hide();
+        (_f =
+          transparentBackgroundSetting == null
+            ? void 0
+            : transparentBackgroundSetting.settingEl) == null
+          ? void 0
+          : _f.show();
       }
     };
     let svg = false;
-    new import_obsidian20.Setting(modal.contentEl).setName("Export file format").setDesc("Choose the file format to export the canvas as.").addDropdown(
-      (dropdown) => dropdown.addOptions({
-        png: "PNG",
-        svg: "SVG"
-      }).setValue(svg ? "svg" : "png").onChange((value) => {
-        svg = value === "svg";
-        updateDynamicSettings();
-      })
-    );
+    new import_obsidian20.Setting(modal.contentEl)
+      .setName("Export file format")
+      .setDesc("Choose the file format to export the canvas as.")
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOptions({
+            png: "PNG",
+            svg: "SVG",
+          })
+          .setValue(svg ? "svg" : "png")
+          .onChange((value) => {
+            svg = value === "svg";
+            updateDynamicSettings();
+          }),
+      );
     let pixelRatioFactor = 1;
-    pixelRatioSetting = new import_obsidian20.Setting(modal.contentEl).setName("Pixel ratio").setDesc("Higher pixel ratios result in higher resolution images but also larger file sizes.").addSlider(
-      (slider) => slider.setDynamicTooltip().setLimits(0.2, 5, 0.1).setValue(pixelRatioFactor).onChange((value) => pixelRatioFactor = value)
-    );
+    pixelRatioSetting = new import_obsidian20.Setting(modal.contentEl)
+      .setName("Pixel ratio")
+      .setDesc(
+        "Higher pixel ratios result in higher resolution images but also larger file sizes.",
+      )
+      .addSlider((slider) =>
+        slider
+          .setDynamicTooltip()
+          .setLimits(0.2, 5, 0.1)
+          .setValue(pixelRatioFactor)
+          .onChange((value) => (pixelRatioFactor = value)),
+      );
     let noFontExport = true;
-    noFontExportSetting = new import_obsidian20.Setting(modal.contentEl).setName("Skip font export").setDesc("This will not include the fonts in the exported SVG. This will make the SVG file smaller.").addToggle(
-      (toggle) => toggle.setValue(noFontExport).onChange((value) => noFontExport = value)
-    );
-    let theme = activeDocument.body.classList.contains("theme-dark") ? "dark" : "light";
-    new import_obsidian20.Setting(modal.contentEl).setName("Theme").setDesc("The theme used for the export.").addDropdown(
-      (dropdown) => dropdown.addOptions({
-        light: "Light",
-        dark: "Dark"
-      }).setValue(theme).onChange((value) => theme = value)
-    );
+    noFontExportSetting = new import_obsidian20.Setting(modal.contentEl)
+      .setName("Skip font export")
+      .setDesc(
+        "This will not include the fonts in the exported SVG. This will make the SVG file smaller.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(noFontExport)
+          .onChange((value) => (noFontExport = value)),
+      );
+    let theme = activeDocument.body.classList.contains("theme-dark")
+      ? "dark"
+      : "light";
+    new import_obsidian20.Setting(modal.contentEl)
+      .setName("Theme")
+      .setDesc("The theme used for the export.")
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOptions({
+            light: "Light",
+            dark: "Dark",
+          })
+          .setValue(theme)
+          .onChange((value) => (theme = value)),
+      );
     let watermark = false;
-    new import_obsidian20.Setting(modal.contentEl).setName("Show logo").setDesc("This will add an Obsidian + Advanced Canvas logo to the bottom left.").addToggle(
-      (toggle) => toggle.setValue(watermark).onChange((value) => watermark = value)
-    );
+    new import_obsidian20.Setting(modal.contentEl)
+      .setName("Show logo")
+      .setDesc(
+        "This will add an Obsidian + Advanced Canvas logo to the bottom left.",
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(watermark).onChange((value) => (watermark = value)),
+      );
     let garbledText = false;
-    new import_obsidian20.Setting(modal.contentEl).setName("Privacy mode").setDesc("This will obscure any text on your canvas.").addToggle(
-      (toggle) => toggle.setValue(garbledText).onChange((value) => garbledText = value)
-    );
+    new import_obsidian20.Setting(modal.contentEl)
+      .setName("Privacy mode")
+      .setDesc("This will obscure any text on your canvas.")
+      .addToggle((toggle) =>
+        toggle.setValue(garbledText).onChange((value) => (garbledText = value)),
+      );
     let transparentBackground = false;
-    transparentBackgroundSetting = new import_obsidian20.Setting(modal.contentEl).setName("Transparent background").setDesc("This will make the background of the image transparent.").addToggle(
-      (toggle) => toggle.setValue(transparentBackground).onChange((value) => transparentBackground = value)
-    );
-    new import_obsidian20.Setting(modal.contentEl).addButton(
-      (button) => button.setButtonText("Save").setCta().onClick(async () => {
-        modal.close();
-        await this.exportImage(
-          canvas,
-          nodesToExport,
-          svg,
-          svg ? 1 : pixelRatioFactor,
-          svg ? noFontExport : false,
-          theme,
-          watermark,
-          garbledText,
-          svg ? true : transparentBackground
-        );
-      })
+    transparentBackgroundSetting = new import_obsidian20.Setting(
+      modal.contentEl,
+    )
+      .setName("Transparent background")
+      .setDesc("This will make the background of the image transparent.")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(transparentBackground)
+          .onChange((value) => (transparentBackground = value)),
+      );
+    new import_obsidian20.Setting(modal.contentEl).addButton((button) =>
+      button
+        .setButtonText("Save")
+        .setCta()
+        .onClick(async () => {
+          modal.close();
+          await this.exportImage(
+            canvas,
+            nodesToExport,
+            svg,
+            svg ? 1 : pixelRatioFactor,
+            svg ? noFontExport : false,
+            theme,
+            watermark,
+            garbledText,
+            svg ? true : transparentBackground,
+          );
+        }),
     );
     updateDynamicSettings();
     modal.open();
   }
-  async exportImage(canvas, nodesToExport, svg, pixelRatioFactor, noFontExport, theme, watermark, garbledText, transparentBackground) {
+  async exportImage(
+    canvas,
+    nodesToExport,
+    svg,
+    pixelRatioFactor,
+    noFontExport,
+    theme,
+    watermark,
+    garbledText,
+    transparentBackground,
+  ) {
     var _a, _b, _c;
-    const cachedTheme = activeDocument.body.classList.contains("theme-dark") ? "dark" : "light";
+    const cachedTheme = activeDocument.body.classList.contains("theme-dark")
+      ? "dark"
+      : "light";
     if (theme !== cachedTheme) {
       activeDocument.body.classList.toggle("theme-dark", theme === "dark");
       activeDocument.body.classList.toggle("theme-light", theme === "light");
@@ -7129,9 +9456,16 @@ var ExportCanvasExtension = class extends CanvasExtension {
     const nodesToExportIds = nodesToExport.map((node) => node.getData().id);
     const edgesToExport = [...canvas.edges.values()].filter((edge) => {
       const edgeData = edge.getData();
-      return nodesToExportIds.includes(edgeData.fromNode) && nodesToExportIds.includes(edgeData.toNode);
+      return (
+        nodesToExportIds.includes(edgeData.fromNode) &&
+        nodesToExportIds.includes(edgeData.toNode)
+      );
     });
-    const backgroundColor = transparentBackground ? void 0 : window.getComputedStyle(canvas.canvasEl).getPropertyValue("--canvas-background");
+    const backgroundColor = transparentBackground
+      ? void 0
+      : window
+          .getComputedStyle(canvas.canvasEl)
+          .getPropertyValue("--canvas-background");
     new import_obsidian20.Notice("Exporting the canvas. Please wait...");
     const interactionBlocker = this.getInteractionBlocker();
     activeDocument.body.appendChild(interactionBlocker);
@@ -7143,68 +9477,152 @@ var ExportCanvasExtension = class extends CanvasExtension {
     canvas.deselectAll();
     const cachedViewport = { x: canvas.x, y: canvas.y, zoom: canvas.zoom };
     try {
-      const targetBoundingBox = CanvasHelper.getBBox([...nodesToExport, ...edgesToExport]);
-      let enlargedTargetBoundingBox = BBoxHelper.scaleBBox(targetBoundingBox, 1.1);
-      const enlargedTargetBoundingBoxSize = { width: enlargedTargetBoundingBox.maxX - enlargedTargetBoundingBox.minX, height: enlargedTargetBoundingBox.maxY - enlargedTargetBoundingBox.minY };
-      const canvasElSize = { width: canvas.canvasEl.clientWidth, height: canvas.canvasEl.clientHeight };
-      const requiredPixelRatio = Math.max(enlargedTargetBoundingBoxSize.width / canvasElSize.width, enlargedTargetBoundingBoxSize.height / canvasElSize.height);
-      const pixelRatio = svg ? void 0 : Math.round(requiredPixelRatio * pixelRatioFactor);
-      watermarkEl = watermark ? this.getWatermark(enlargedTargetBoundingBox) : null;
+      const targetBoundingBox = CanvasHelper.getBBox([
+        ...nodesToExport,
+        ...edgesToExport,
+      ]);
+      let enlargedTargetBoundingBox = BBoxHelper.scaleBBox(
+        targetBoundingBox,
+        1.1,
+      );
+      const enlargedTargetBoundingBoxSize = {
+        width: enlargedTargetBoundingBox.maxX - enlargedTargetBoundingBox.minX,
+        height: enlargedTargetBoundingBox.maxY - enlargedTargetBoundingBox.minY,
+      };
+      const canvasElSize = {
+        width: canvas.canvasEl.clientWidth,
+        height: canvas.canvasEl.clientHeight,
+      };
+      const requiredPixelRatio = Math.max(
+        enlargedTargetBoundingBoxSize.width / canvasElSize.width,
+        enlargedTargetBoundingBoxSize.height / canvasElSize.height,
+      );
+      const pixelRatio = svg
+        ? void 0
+        : Math.round(requiredPixelRatio * pixelRatioFactor);
+      watermarkEl = watermark
+        ? this.getWatermark(enlargedTargetBoundingBox)
+        : null;
       if (watermarkEl) canvas.canvasEl.appendChild(watermarkEl);
-      const actualAspectRatio = canvas.canvasRect.width / canvas.canvasRect.height;
-      const targetAspectRatio = (enlargedTargetBoundingBox.maxX - enlargedTargetBoundingBox.minX) / (enlargedTargetBoundingBox.maxY - enlargedTargetBoundingBox.minY);
+      const actualAspectRatio =
+        canvas.canvasRect.width / canvas.canvasRect.height;
+      const targetAspectRatio =
+        (enlargedTargetBoundingBox.maxX - enlargedTargetBoundingBox.minX) /
+        (enlargedTargetBoundingBox.maxY - enlargedTargetBoundingBox.minY);
       let adjustedBoundingBox = { ...enlargedTargetBoundingBox };
       if (actualAspectRatio > targetAspectRatio) {
-        const targetHeight = enlargedTargetBoundingBox.maxY - enlargedTargetBoundingBox.minY;
+        const targetHeight =
+          enlargedTargetBoundingBox.maxY - enlargedTargetBoundingBox.minY;
         const actualWidth = targetHeight * actualAspectRatio;
         adjustedBoundingBox.maxX = enlargedTargetBoundingBox.minX + actualWidth;
       } else {
-        const targetWidth = enlargedTargetBoundingBox.maxX - enlargedTargetBoundingBox.minX;
+        const targetWidth =
+          enlargedTargetBoundingBox.maxX - enlargedTargetBoundingBox.minX;
         const actualHeight = targetWidth / actualAspectRatio;
-        adjustedBoundingBox.maxY = enlargedTargetBoundingBox.minY + actualHeight;
+        adjustedBoundingBox.maxY =
+          enlargedTargetBoundingBox.minY + actualHeight;
       }
       canvas.zoomToRealBbox(adjustedBoundingBox);
       canvas.setViewport(canvas.tx, canvas.ty, canvas.tZoom);
       await sleep(10);
-      let canvasScale = parseFloat(((_a = canvas.canvasEl.style.transform.match(/scale\((\d+(\.\d+)?)\)/)) == null ? void 0 : _a[1]) || "1");
-      const edgePathsBBox = BBoxHelper.combineBBoxes(edgesToExport.map((edge) => {
-        const edgeCenter = edge.getCenter();
-        const labelWidth = edge.labelElement ? edge.labelElement.wrapperEl.getBoundingClientRect().width / canvasScale : 0;
-        return { minX: edgeCenter.x - labelWidth / 2, minY: edgeCenter.y, maxX: edgeCenter.x + labelWidth / 2, maxY: edgeCenter.y };
-      }));
+      let canvasScale = parseFloat(
+        ((_a = canvas.canvasEl.style.transform.match(
+          /scale\((\d+(\.\d+)?)\)/,
+        )) == null
+          ? void 0
+          : _a[1]) || "1",
+      );
+      const edgePathsBBox = BBoxHelper.combineBBoxes(
+        edgesToExport.map((edge) => {
+          const edgeCenter = edge.getCenter();
+          const labelWidth = edge.labelElement
+            ? edge.labelElement.wrapperEl.getBoundingClientRect().width /
+              canvasScale
+            : 0;
+          return {
+            minX: edgeCenter.x - labelWidth / 2,
+            minY: edgeCenter.y,
+            maxX: edgeCenter.x + labelWidth / 2,
+            maxY: edgeCenter.y,
+          };
+        }),
+      );
       const enlargedEdgePathsBBox = BBoxHelper.enlargeBBox(edgePathsBBox, 1.1);
-      enlargedTargetBoundingBox = BBoxHelper.combineBBoxes([enlargedTargetBoundingBox, enlargedEdgePathsBBox]);
-      adjustedBoundingBox = BBoxHelper.combineBBoxes([adjustedBoundingBox, enlargedEdgePathsBBox]);
+      enlargedTargetBoundingBox = BBoxHelper.combineBBoxes([
+        enlargedTargetBoundingBox,
+        enlargedEdgePathsBBox,
+      ]);
+      adjustedBoundingBox = BBoxHelper.combineBBoxes([
+        adjustedBoundingBox,
+        enlargedEdgePathsBBox,
+      ]);
       canvas.zoomToRealBbox(adjustedBoundingBox);
       canvas.setViewport(canvas.tx, canvas.ty, canvas.tZoom);
       await sleep(10);
       const canvasViewportBBox = canvas.getViewportBBox();
-      canvasScale = parseFloat(((_b = canvas.canvasEl.style.transform.match(/scale\((\d+(\.\d+)?)\)/)) == null ? void 0 : _b[1]) || "1");
-      let width = (canvasViewportBBox.maxX - canvasViewportBBox.minX) * canvasScale;
-      let height = (canvasViewportBBox.maxY - canvasViewportBBox.minY) * canvasScale;
+      canvasScale = parseFloat(
+        ((_b = canvas.canvasEl.style.transform.match(
+          /scale\((\d+(\.\d+)?)\)/,
+        )) == null
+          ? void 0
+          : _b[1]) || "1",
+      );
+      let width =
+        (canvasViewportBBox.maxX - canvasViewportBBox.minX) * canvasScale;
+      let height =
+        (canvasViewportBBox.maxY - canvasViewportBBox.minY) * canvasScale;
       if (actualAspectRatio > targetAspectRatio)
         width = height * targetAspectRatio;
       else height = width / targetAspectRatio;
-      let unloadedNodes = nodesToExport.filter((node) => node.initialized === false || node.isContentMounted === false);
+      let unloadedNodes = nodesToExport.filter(
+        (node) => node.initialized === false || node.isContentMounted === false,
+      );
       const startTimestamp = performance.now();
-      while (unloadedNodes.length > 0 && performance.now() - startTimestamp < MAX_ALLOWED_LOADING_TIME) {
+      while (
+        unloadedNodes.length > 0 &&
+        performance.now() - startTimestamp < MAX_ALLOWED_LOADING_TIME
+      ) {
         await sleep(10);
-        unloadedNodes = nodesToExport.filter((node) => node.initialized === false || node.isContentMounted === false);
+        unloadedNodes = nodesToExport.filter(
+          (node) =>
+            node.initialized === false || node.isContentMounted === false,
+        );
       }
       if (unloadedNodes.length === 0) {
         const nodeElements = nodesToExport.map((node) => node.nodeEl);
-        const edgePathAndArrowElements = edgesToExport.map((edge) => [edge.lineGroupEl, edge.lineEndGroupEl]).flat();
-        const edgeLabelElements = edgesToExport.map((edge) => {
-          var _a2;
-          return (_a2 = edge.labelElement) == null ? void 0 : _a2.wrapperEl;
-        }).filter((labelElement) => labelElement !== void 0);
+        const edgePathAndArrowElements = edgesToExport
+          .map((edge) => [edge.lineGroupEl, edge.lineEndGroupEl])
+          .flat();
+        const edgeLabelElements = edgesToExport
+          .map((edge) => {
+            var _a2;
+            return (_a2 = edge.labelElement) == null ? void 0 : _a2.wrapperEl;
+          })
+          .filter((labelElement) => labelElement !== void 0);
         const filter = (element) => {
           var _a2, _b2, _c2, _d;
-          if (((_a2 = element.classList) == null ? void 0 : _a2.contains("canvas-node")) && !nodeElements.includes(element))
+          if (
+            ((_a2 = element.classList) == null
+              ? void 0
+              : _a2.contains("canvas-node")) &&
+            !nodeElements.includes(element)
+          )
             return false;
-          if (((_c2 = (_b2 = element.parentElement) == null ? void 0 : _b2.classList) == null ? void 0 : _c2.contains("canvas-edges")) && !edgePathAndArrowElements.includes(element))
+          if (
+            ((_c2 =
+              (_b2 = element.parentElement) == null ? void 0 : _b2.classList) ==
+            null
+              ? void 0
+              : _c2.contains("canvas-edges")) &&
+            !edgePathAndArrowElements.includes(element)
+          )
             return false;
-          if (((_d = element.classList) == null ? void 0 : _d.contains("canvas-path-label-wrapper")) && !edgeLabelElements.includes(element))
+          if (
+            ((_d = element.classList) == null
+              ? void 0
+              : _d.contains("canvas-path-label-wrapper")) &&
+            !edgeLabelElements.includes(element)
+          )
             return false;
           return true;
         };
@@ -7213,26 +9631,30 @@ var ExportCanvasExtension = class extends CanvasExtension {
           backgroundColor,
           height,
           width,
-          filter
+          filter,
         };
         if (noFontExport) options.fontEmbedCSS = "";
-        let imageDataUri = svg ? await toSvg(canvas.canvasEl, options) : await toPng(canvas.canvasEl, options);
+        let imageDataUri = svg
+          ? await toSvg(canvas.canvasEl, options)
+          : await toPng(canvas.canvasEl, options);
         if (svg) {
           const header = `<?xml version="1.0" encoding="UTF-8"?>`;
           imageDataUri = imageDataUri.replace(
             encodeURIComponent("<svg "),
-            encodeURIComponent(`${header}<svg `)
+            encodeURIComponent(`${header}<svg `),
           );
         }
         let baseFilename = `${((_c = canvas.view.file) == null ? void 0 : _c.basename) || "Untitled"}`;
-        if (!isWholeCanvas) baseFilename += ` - Selection of ${nodesToExport.length}`;
+        if (!isWholeCanvas)
+          baseFilename += ` - Selection of ${nodesToExport.length}`;
         const filename = `${baseFilename}.${svg ? "svg" : "png"}`;
         const downloadEl = activeDocument.createElement("a");
         downloadEl.href = imageDataUri;
         downloadEl.download = filename;
         downloadEl.click();
       } else {
-        const ERROR_MESSAGE = "Export cancelled: Nodes did not finish loading in time";
+        const ERROR_MESSAGE =
+          "Export cancelled: Nodes did not finish loading in time";
         new import_obsidian20.Notice(ERROR_MESSAGE);
         console.error(ERROR_MESSAGE);
       }
@@ -7241,12 +9663,22 @@ var ExportCanvasExtension = class extends CanvasExtension {
       canvas.canvasEl.classList.remove("is-exporting");
       if (garbledText) canvas.wrapperEl.classList.remove("is-text-garbled");
       if (watermarkEl) canvas.canvasEl.removeChild(watermarkEl);
-      canvas.updateSelection(() => canvas.selection = cachedSelection);
-      canvas.setViewport(cachedViewport.x, cachedViewport.y, cachedViewport.zoom);
+      canvas.updateSelection(() => (canvas.selection = cachedSelection));
+      canvas.setViewport(
+        cachedViewport.x,
+        cachedViewport.y,
+        cachedViewport.zoom,
+      );
       interactionBlocker.remove();
       if (theme !== cachedTheme) {
-        activeDocument.body.classList.toggle("theme-dark", cachedTheme === "dark");
-        activeDocument.body.classList.toggle("theme-light", cachedTheme === "light");
+        activeDocument.body.classList.toggle(
+          "theme-dark",
+          cachedTheme === "dark",
+        );
+        activeDocument.body.classList.toggle(
+          "theme-light",
+          cachedTheme === "light",
+        );
       }
     }
   }
@@ -7263,30 +9695,40 @@ var ExportCanvasExtension = class extends CanvasExtension {
     const progressBarLine = progressBarIndicator.createDiv();
     progressBarLine.classList.add("progress-bar-line");
     const progressBarSublineIncrease = progressBarIndicator.createDiv();
-    progressBarSublineIncrease.classList.add("progress-bar-subline", "mod-increase");
+    progressBarSublineIncrease.classList.add(
+      "progress-bar-subline",
+      "mod-increase",
+    );
     const progressBarSublineDecrease = progressBarIndicator.createDiv();
-    progressBarSublineDecrease.classList.add("progress-bar-subline", "mod-decrease");
+    progressBarSublineDecrease.classList.add(
+      "progress-bar-subline",
+      "mod-decrease",
+    );
     return interactionBlocker;
   }
   getWatermark(bbox) {
     const bboxWidth = bbox.maxX - bbox.minX;
     const width = Math.max(200, bboxWidth * 0.3);
     const WATERMARK_SIZE = { width: 215, height: 25 };
-    const height = WATERMARK_SIZE.height / WATERMARK_SIZE.width * width;
+    const height = (WATERMARK_SIZE.height / WATERMARK_SIZE.width) * width;
     const watermarkPadding = {
       x: bboxWidth * 0.02,
-      y: bboxWidth * 0.014
+      y: bboxWidth * 0.014,
     };
     bbox.maxY += height + watermarkPadding.y;
-    const watermarkEl = activeDocument.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const watermarkEl = activeDocument.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "svg",
+    );
     watermarkEl.id = "watermark-ac";
     watermarkEl.style.transform = `translate(${bbox.minX + watermarkPadding.x}px, ${bbox.maxY - height - watermarkPadding.y}px)`;
     watermarkEl.setAttrs({
       viewBox: `0 0 ${WATERMARK_SIZE.width} ${WATERMARK_SIZE.height}`,
       width: width.toString(),
-      fill: "currentColor"
+      fill: "currentColor",
     });
-    watermarkEl.innerHTML = '<path d="M7 14.6a12 12 0 0 1 2.8-.6 10 10 0 0 1 .5-8.8l.4-.7a32.9 32.9 0 0 0 .9-2.3v-1c-.1-.4-.3-.7-.7-1.1-.6-.2-1.1 0-1.6.3L4.2 5.1c-.3.2-.5.6-.6 1l-.4 3a14.6 14.6 0 0 1 3.7 5.5Zm-4-4.2-.1.3-2.8 6c-.2.7-.1 1.4.4 1.9L4.8 23a8.7 8.7 0 0 0 .8-8.7c-.7-1.8-1.9-3.2-2.6-4Z"/><path d="M5.8 23.5H6a23.8 23.8 0 0 1 7.4 1.4c1.2.4 2.3-.5 2.5-1.7a7 7 0 0 1 .8-2.7c-.8-2-1.6-3.2-2.6-4a5 5 0 0 0-2.9-1.3c-1.6-.2-3 .2-4 .5.6 2.3.4 5-1.4 7.8Z"/><path d="m17.4 19.3 2-3c0-.4 0-.7-.2-1a18 18 0 0 1-2-3.5c-.7-1.4-.7-3.5-.8-4.6 0-.4 0-.7-.3-1l-3.4-4.3v.6L12 4l-.5 1-.3.6A11 11 0 0 0 10 9.4c0 1.3 0 2.8.9 4.7h.4c1.1.2 2.3.6 3.5 1.6 1 .8 1.8 2 2.5 3.6ZM39.8 4.5c-6 0-10.3 3.7-10.3 8.9 0 5.1 4.3 8.9 10.3 8.9 5.9 0 10.2-3.8 10.2-9 0-5-4.3-8.8-10.2-8.8Zm0 3.5c3.5 0 6.1 2.1 6.1 5.4 0 3.2-2.6 5.4-6.1 5.4-3.6 0-6.2-2.2-6.2-5.4 0-3.3 2.6-5.4 6.2-5.4Zm15.7 12.6c.8.9 2.5 1.7 4.6 1.7 4.3 0 6.8-3 6.8-6.6C67 12 64.4 9 60.1 9c-2.1 0-3.8.8-4.6 1.7v-6h-3.9V22h3.9v-1.4Zm-.1-5c0-2 1.7-3.4 3.9-3.4 2 0 3.9 1.2 3.9 3.5 0 2.2-1.8 3.5-4 3.5-2.1 0-3.8-1.4-3.8-3.4v-.2ZM67.3 20a11 11 0 0 0 7.2 2.3c4 0 7-1.5 7-4.4 0-3-2.9-3.5-6.1-3.8-2.8-.4-3.6-.4-3.6-1.1 0-.7.9-1 2.5-1 2 0 3.7.5 4.8 1.6l2-2.3A9.7 9.7 0 0 0 74.5 9c-4 0-6.5 1.7-6.5 4.3 0 2.7 2.5 3.3 5.6 3.7 2.8.3 4 .3 4 1.2 0 .8-1 1.1-2.8 1.1-2.2 0-4.1-.7-5.7-2l-1.8 2.5ZM82.8 8h4V4.9h-4V8Zm3.9 1.4h-3.8V22h3.8V9.4Zm13.1 11.2V22h3.9V4.8h-3.9v6C99 9.8 97.4 9 95.2 9c-4.3 0-6.8 3-6.8 6.6 0 3.6 2.5 6.6 6.8 6.6 2.2 0 3.8-.8 4.6-1.7Zm.1-5v.2c0 2-1.7 3.4-3.9 3.4-2 0-3.9-1.3-3.9-3.5 0-2.3 1.8-3.5 4-3.5 2.1 0 3.8 1.4 3.8 3.4ZM106 8h4V4.9h-4V8Zm3.9 1.4H106V22h3.9V9.4Zm7 12.9a8 8 0 0 0 5.2-1.7c.6 1.2 2.2 2 5 1.4v-2.8c-1.4.3-1.7 0-1.7-.7v-4.6c0-3.2-2.3-4.8-6.4-4.8-3.5 0-6.2 1.5-7 3.8l3.4 1c.4-1 1.7-1.8 3.5-1.8 2 0 2.8.8 2.8 1.7v.1l-5 .5c-3 .3-5.2 1.5-5.2 4 0 2.4 2.2 3.9 5.4 3.9Zm4.8-5.1c0 1.4-2.2 2.3-4.1 2.3-1.5 0-2.4-.5-2.4-1.3s.7-1.1 2-1.3l4.5-.4v.7Zm6.7 4.8h3.8v-6c0-2.2 1.2-3.5 3.3-3.5 2 0 3 1.3 3 3.4V22h3.8v-7.2c0-3.5-2.2-5.7-5.5-5.7-2 0-3.6.8-4.6 1.8V9.4h-3.8V22Z"/><path fill-rule="evenodd" stroke="currentColor" stroke-width="0.5px" d="M191.822 20.035A3.288 3.288 0 0 0 191.812 19.951A2.225 2.225 0 0 0 191.728 19.825A3.914 3.914 0 0 0 191.649 19.779A2.868 2.868 0 0 0 191.535 19.755Q191.388 19.755 191.329 19.85A9.99 9.99 0 0 0 191.248 20.005A9.059 9.059 0 0 0 191.234 20.042A20.576 20.576 0 0 1 191.04 20.456A15.291 15.291 0 0 1 190.688 20.854A13.176 13.176 0 0 1 190.086 21.116A18.046 18.046 0 0 1 189.778 21.141A16.538 16.538 0 0 1 189.506 21.117A22.39 22.39 0 0 1 189.246 21.057A12.53 12.53 0 0 1 188.825 20.838A15.259 15.259 0 0 1 188.718 20.746Q188.476 20.518 188.315 20.126A19.046 19.046 0 0 1 188.212 19.778Q188.177 19.602 188.163 19.395A41.406 41.406 0 0 1 188.154 19.118A38.021 38.021 0 0 1 188.176 18.694Q188.2 18.485 188.249 18.307A18.247 18.247 0 0 1 188.319 18.1A22.415 22.415 0 0 1 188.472 17.79Q188.57 17.628 188.687 17.506A13.277 13.277 0 0 1 188.732 17.463A15.164 15.164 0 0 1 189.051 17.229A13.142 13.142 0 0 1 189.274 17.134A20.296 20.296 0 0 1 189.592 17.058A16.216 16.216 0 0 1 189.834 17.039Q190.032 17.039 190.179 17.076A8.428 8.428 0 0 1 190.265 17.102A20.826 20.826 0 0 1 190.385 17.15Q190.443 17.176 190.492 17.203A10.532 10.532 0 0 1 190.548 17.235A13.851 13.851 0 0 1 190.796 17.429A16.001 16.001 0 0 1 190.849 17.484Q190.989 17.634 191.087 17.816A28.524 28.524 0 0 0 191.143 17.923A32.076 32.076 0 0 0 191.164 17.96A8.099 8.099 0 0 0 191.246 18.077A7.413 7.413 0 0 0 191.259 18.093A5.796 5.796 0 0 0 191.329 18.16A4.911 4.911 0 0 0 191.371 18.191A2.41 2.41 0 0 0 191.488 18.228A2.956 2.956 0 0 0 191.507 18.229A3.152 3.152 0 0 0 191.589 18.219A2.121 2.121 0 0 0 191.714 18.131A4.225 4.225 0 0 0 191.758 18.048A3.083 3.083 0 0 0 191.78 17.935A2.636 2.636 0 0 0 191.777 17.896Q191.77 17.853 191.751 17.792A15.123 15.123 0 0 0 191.735 17.743A12.471 12.471 0 0 0 191.685 17.624Q191.648 17.544 191.595 17.456Q191.506 17.308 191.365 17.148A29.801 29.801 0 0 0 191.346 17.127A16.118 16.118 0 0 0 191.103 16.907A19.423 19.423 0 0 0 190.972 16.819A20.302 20.302 0 0 0 190.685 16.673A25.928 25.928 0 0 0 190.461 16.591A19.442 19.442 0 0 0 190.11 16.518A25.565 25.565 0 0 0 189.806 16.5A24.519 24.519 0 0 0 189.175 16.579A21.58 21.58 0 0 0 188.868 16.686Q188.441 16.871 188.13 17.207A22.873 22.873 0 0 0 187.739 17.792A27.604 27.604 0 0 0 187.643 18.023A28.76 28.76 0 0 0 187.489 18.699A36.041 36.041 0 0 0 187.468 19.09Q187.468 19.657 187.65 20.189A25.617 25.617 0 0 0 187.925 20.762A21.934 21.934 0 0 0 188.182 21.085Q188.35 21.26 188.553 21.376Q188.756 21.491 188.973 21.558Q189.19 21.624 189.411 21.652Q189.631 21.68 189.841 21.68Q190.33 21.68 190.687 21.519A14.886 14.886 0 0 0 190.758 21.484A23.571 23.571 0 0 0 191.1 21.27A18.016 18.016 0 0 0 191.371 21.019A21.893 21.893 0 0 0 191.572 20.749A16.519 16.519 0 0 0 191.714 20.473A24.164 24.164 0 0 0 191.766 20.326Q191.812 20.183 191.82 20.08A5.511 5.511 0 0 0 191.822 20.035ZM210.729 20.539A10.256 10.256 0 0 0 210.709 20.331Q210.681 20.195 210.613 20.089A6.408 6.408 0 0 0 210.603 20.074Q210.477 19.888 210.285 19.769Q210.092 19.65 209.865 19.58Q209.637 19.51 209.427 19.468Q209.112 19.398 208.909 19.332Q208.769 19.286 208.67 19.234A8.38 8.38 0 0 1 208.591 19.188Q208.506 19.132 208.459 19.069A3.226 3.226 0 0 1 208.43 19.024A4.079 4.079 0 0 1 208.384 18.844A4.773 4.773 0 0 1 208.384 18.831Q208.384 18.614 208.563 18.485A6.016 6.016 0 0 1 208.611 18.453A9.288 9.288 0 0 1 208.884 18.349Q209.018 18.32 209.175 18.32A15.627 15.627 0 0 1 209.378 18.332Q209.479 18.346 209.562 18.373A6.348 6.348 0 0 1 209.714 18.446A8.886 8.886 0 0 1 209.849 18.555Q209.934 18.64 209.98 18.739A5.694 5.694 0 0 1 209.98 18.74A21.387 21.387 0 0 0 210.014 18.808Q210.051 18.879 210.082 18.923A4.301 4.301 0 0 0 210.103 18.95A1.554 1.554 0 0 0 210.167 18.995Q210.193 19.005 210.226 19.01A4.094 4.094 0 0 0 210.281 19.013Q210.34 19.013 210.381 19A1.678 1.678 0 0 0 210.421 18.982A2.886 2.886 0 0 0 210.467 18.945A2.322 2.322 0 0 0 210.498 18.908A2.481 2.481 0 0 0 210.521 18.867A1.908 1.908 0 0 0 210.533 18.824Q210.539 18.79 210.54 18.77A1.657 1.657 0 0 0 210.54 18.761Q210.54 18.719 210.503 18.605A25.229 25.229 0 0 0 210.491 18.569Q210.451 18.451 210.345 18.329A12.347 12.347 0 0 0 210.295 18.275A9.871 9.871 0 0 0 210.149 18.153Q210.034 18.074 209.879 18.005A12.077 12.077 0 0 0 209.651 17.933Q209.534 17.907 209.395 17.895A28.523 28.523 0 0 0 209.161 17.886Q208.923 17.886 208.736 17.922A15.474 15.474 0 0 0 208.692 17.932A15.47 15.47 0 0 0 208.491 17.991A11.956 11.956 0 0 0 208.335 18.061Q208.083 18.201 207.943 18.439A10.425 10.425 0 0 0 207.835 18.69A8.678 8.678 0 0 0 207.803 18.922A8.458 8.458 0 0 0 207.827 19.126A6.855 6.855 0 0 0 207.898 19.304A10.914 10.914 0 0 0 208.01 19.466A8.765 8.765 0 0 0 208.118 19.573A13.929 13.929 0 0 0 208.273 19.684A12.994 12.994 0 0 0 208.276 19.685A9.406 9.406 0 0 0 208.342 19.722Q208.379 19.741 208.423 19.759A19.716 19.716 0 0 0 208.482 19.783Q208.569 19.817 208.683 19.854A61.793 61.793 0 0 0 208.794 19.888Q208.975 19.943 209.246 20.011A175.761 175.761 0 0 0 209.259 20.014Q209.392 20.049 209.543 20.091A11.079 11.079 0 0 1 209.724 20.159A9.425 9.425 0 0 1 209.812 20.207Q209.931 20.28 210.011 20.389A3.951 3.951 0 0 1 210.079 20.538Q210.092 20.597 210.092 20.665A4.625 4.625 0 0 1 209.993 20.949A7.213 7.213 0 0 1 209.879 21.068A6.795 6.795 0 0 1 209.657 21.188Q209.485 21.246 209.245 21.246Q208.982 21.246 208.8 21.18A6.716 6.716 0 0 1 208.611 21.078Q208.398 20.91 208.293 20.665A7.271 7.271 0 0 0 208.241 20.564A5.814 5.814 0 0 0 208.192 20.497A1.892 1.892 0 0 0 208.095 20.437Q208.064 20.429 208.027 20.427A3.869 3.869 0 0 0 208.013 20.427A2.684 2.684 0 0 0 207.902 20.45A2.607 2.607 0 0 0 207.824 20.504A2.794 2.794 0 0 0 207.773 20.573A2.276 2.276 0 0 0 207.747 20.679Q207.747 20.868 207.849 21.029A18.825 18.825 0 0 0 207.938 21.159Q207.996 21.236 208.055 21.295A13.024 13.024 0 0 0 208.518 21.581A14.764 14.764 0 0 0 208.521 21.582A14.51 14.51 0 0 0 208.761 21.645Q208.883 21.667 209.025 21.675A30.93 30.93 0 0 0 209.203 21.68Q209.548 21.68 209.798 21.62A13.282 13.282 0 0 0 210.019 21.547A17.031 17.031 0 0 0 210.226 21.44Q210.382 21.345 210.481 21.229A11.064 11.064 0 0 0 210.597 21.065A7.971 7.971 0 0 0 210.684 20.851A23.38 23.38 0 0 0 210.707 20.737Q210.728 20.629 210.729 20.55A6.492 6.492 0 0 0 210.729 20.539ZM149.486 20.469A20.565 20.565 0 0 0 149.509 20.43Q149.535 20.385 149.569 20.321A90.19 90.19 0 0 0 149.602 20.259Q149.675 20.119 149.749 19.962A37.1 37.1 0 0 0 149.84 19.75A31.562 31.562 0 0 0 149.874 19.657A12.867 12.867 0 0 0 149.902 19.573Q149.927 19.482 149.927 19.419Q149.927 19.3 149.843 19.22Q149.759 19.139 149.64 19.139A2.273 2.273 0 0 0 149.482 19.204Q149.434 19.248 149.395 19.321A14.995 14.995 0 0 0 149.383 19.346Q149.363 19.388 149.329 19.465Q149.283 19.566 149.231 19.682Q149.178 19.797 149.133 19.899A99.51 99.51 0 0 1 149.111 19.946Q149.082 20.011 149.066 20.042Q148.968 19.938 148.891 19.851A68.292 68.292 0 0 1 148.881 19.839A1775.331 1775.331 0 0 1 148.805 19.754Q148.754 19.696 148.695 19.629A79.458 79.458 0 0 1 148.64 19.566Q148.552 19.465 148.44 19.328A466.983 466.983 0 0 1 148.358 19.23Q148.246 19.093 148.095 18.907A1543.854 1543.854 0 0 1 148.044 18.845Q148.506 18.6 148.8 18.303A10.277 10.277 0 0 0 149.021 17.98A9.508 9.508 0 0 0 149.094 17.606Q149.094 17.473 149.047 17.311A16.194 16.194 0 0 0 149.031 17.26A10.364 10.364 0 0 0 148.872 16.958A12.188 12.188 0 0 0 148.825 16.899A10.761 10.761 0 0 0 148.611 16.71A13.818 13.818 0 0 0 148.45 16.616Q148.241 16.511 147.945 16.501A18.707 18.707 0 0 0 147.883 16.5A15.973 15.973 0 0 0 147.614 16.522A11.629 11.629 0 0 0 147.334 16.605A13.053 13.053 0 0 0 147.095 16.742A10.73 10.73 0 0 0 146.945 16.875A10.831 10.831 0 0 0 146.739 17.186A10.281 10.281 0 0 0 146.718 17.239A11.786 11.786 0 0 0 146.65 17.524A10.583 10.583 0 0 0 146.644 17.634A10.236 10.236 0 0 0 146.703 17.97A13.462 13.462 0 0 0 146.788 18.163A32.918 32.918 0 0 0 146.933 18.407Q147.038 18.57 147.176 18.747Q146.98 18.852 146.773 18.985Q146.567 19.118 146.396 19.29Q146.224 19.461 146.112 19.689A10.729 10.729 0 0 0 146.016 20.001A14.179 14.179 0 0 0 146 20.217A12.88 12.88 0 0 0 146.038 20.523A16.369 16.369 0 0 0 146.098 20.714A13.928 13.928 0 0 0 146.374 21.16A15.957 15.957 0 0 0 146.399 21.187A14.894 14.894 0 0 0 146.71 21.434A18.905 18.905 0 0 0 146.914 21.54A15.13 15.13 0 0 0 147.256 21.645Q147.417 21.675 147.602 21.679A26.164 26.164 0 0 0 147.659 21.68Q147.953 21.68 148.181 21.614A20.209 20.209 0 0 0 148.417 21.529A15.925 15.925 0 0 0 148.583 21.446A16.498 16.498 0 0 0 148.784 21.309A13.958 13.958 0 0 0 148.888 21.218A33.819 33.819 0 0 0 149.023 21.079A26.636 26.636 0 0 0 149.115 20.973L149.266 21.124Q149.338 21.196 149.462 21.307A122.767 122.767 0 0 0 149.542 21.379Q149.655 21.479 149.734 21.54A17.292 17.292 0 0 0 149.752 21.554Q149.821 21.606 149.869 21.634A5.331 5.331 0 0 0 149.889 21.645A4.838 4.838 0 0 0 149.916 21.659Q149.95 21.674 149.973 21.677A5.79 5.79 0 0 0 150.011 21.68A4.806 4.806 0 0 0 150.032 21.68A2.48 2.48 0 0 0 150.12 21.663Q150.153 21.651 150.188 21.629A5.246 5.246 0 0 0 150.225 21.603Q150.326 21.526 150.326 21.372A2.778 2.778 0 0 0 150.319 21.308A2.031 2.031 0 0 0 150.284 21.232A5.843 5.843 0 0 0 150.256 21.198Q150.214 21.15 150.144 21.085A119.856 119.856 0 0 1 150.081 21.031Q150.004 20.966 149.948 20.916A37.409 37.409 0 0 1 149.931 20.9Q149.85 20.826 149.784 20.767Q149.717 20.707 149.654 20.641A52.27 52.27 0 0 0 149.62 20.605Q149.565 20.548 149.486 20.469ZM172.432 21.183L172.432 19.279A51.556 51.556 0 0 0 172.432 19.211Q172.431 19.149 172.429 19.073A18.916 18.916 0 0 0 172.409 18.853A21.017 21.017 0 0 0 172.404 18.821Q172.383 18.691 172.334 18.565Q172.285 18.439 172.194 18.334Q172.005 18.117 171.757 18.002A12.033 12.033 0 0 0 171.449 17.908A16.569 16.569 0 0 0 171.172 17.886A16.106 16.106 0 0 0 170.97 17.898Q170.864 17.912 170.773 17.94A9.472 9.472 0 0 0 170.745 17.949Q170.563 18.012 170.427 18.107A14.499 14.499 0 0 0 170.272 18.229A12 12 0 0 0 170.192 18.31Q170.094 18.418 170.024 18.509A59.749 59.749 0 0 0 170.024 18.43Q170.023 18.399 170.022 18.372A28.64 28.64 0 0 0 170.021 18.32Q170.018 18.267 170.016 18.224A56.933 56.933 0 0 0 170.014 18.187Q170.01 18.131 169.996 18.093Q169.982 18.054 169.961 18.019A1.527 1.527 0 0 0 169.935 17.979Q169.912 17.952 169.874 17.928A2.736 2.736 0 0 0 169.733 17.886A3.297 3.297 0 0 0 169.723 17.886A3.514 3.514 0 0 0 169.666 17.891Q169.625 17.897 169.594 17.914A7.268 7.268 0 0 0 169.552 17.938Q169.533 17.95 169.517 17.962A3.925 3.925 0 0 0 169.506 17.97A2.17 2.17 0 0 0 169.455 18.054Q169.444 18.085 169.44 18.122A3.872 3.872 0 0 0 169.44 18.124A16 16 0 0 0 169.433 18.203Q169.431 18.239 169.43 18.281A34.968 34.968 0 0 0 169.429 18.369L169.429 21.183Q169.429 21.294 169.434 21.378A16.104 16.104 0 0 0 169.44 21.439A2.976 2.976 0 0 0 169.455 21.508A2.094 2.094 0 0 0 169.513 21.596A3.572 3.572 0 0 0 169.615 21.658A3.123 3.123 0 0 0 169.73 21.68Q169.849 21.68 169.947 21.596A2.227 2.227 0 0 0 170.009 21.503A3.192 3.192 0 0 0 170.024 21.439Q170.034 21.366 170.037 21.265A29.244 29.244 0 0 0 170.038 21.183L170.038 20.028A136.267 136.267 0 0 1 170.039 19.891Q170.041 19.696 170.049 19.559Q170.059 19.377 170.08 19.258A13.249 13.249 0 0 1 170.096 19.182Q170.112 19.114 170.133 19.066Q170.164 18.992 170.206 18.922Q170.332 18.691 170.57 18.555Q170.808 18.418 171.074 18.418Q171.263 18.418 171.438 18.506Q171.613 18.593 171.711 18.768A5.723 5.723 0 0 1 171.751 18.856Q171.768 18.902 171.781 18.956A12.31 12.31 0 0 1 171.795 19.027Q171.823 19.188 171.823 19.454L171.823 21.183Q171.823 21.294 171.828 21.378A16.104 16.104 0 0 0 171.834 21.439A2.976 2.976 0 0 0 171.849 21.508A2.094 2.094 0 0 0 171.907 21.596A3.143 3.143 0 0 0 172.114 21.68A4.083 4.083 0 0 0 172.131 21.68Q172.25 21.68 172.348 21.596A2.116 2.116 0 0 0 172.409 21.5A3.049 3.049 0 0 0 172.422 21.439A17.011 17.011 0 0 0 172.428 21.359Q172.432 21.282 172.432 21.183ZM199.648 21.183L199.648 19.279A51.556 51.556 0 0 0 199.648 19.211Q199.647 19.149 199.645 19.073A18.916 18.916 0 0 0 199.625 18.853A21.017 21.017 0 0 0 199.62 18.821Q199.599 18.691 199.55 18.565Q199.501 18.439 199.41 18.334Q199.221 18.117 198.973 18.002A12.033 12.033 0 0 0 198.665 17.908A16.569 16.569 0 0 0 198.388 17.886A16.106 16.106 0 0 0 198.186 17.898Q198.08 17.912 197.989 17.94A9.472 9.472 0 0 0 197.961 17.949Q197.779 18.012 197.643 18.107A14.499 14.499 0 0 0 197.488 18.229A12 12 0 0 0 197.408 18.31Q197.31 18.418 197.24 18.509A59.749 59.749 0 0 0 197.24 18.43Q197.239 18.399 197.238 18.372A28.64 28.64 0 0 0 197.237 18.32Q197.234 18.267 197.232 18.224A56.933 56.933 0 0 0 197.23 18.187Q197.226 18.131 197.212 18.093Q197.198 18.054 197.177 18.019A1.527 1.527 0 0 0 197.151 17.979Q197.128 17.952 197.09 17.928A2.736 2.736 0 0 0 196.949 17.886A3.297 3.297 0 0 0 196.939 17.886A3.514 3.514 0 0 0 196.882 17.891Q196.841 17.897 196.81 17.914A7.268 7.268 0 0 0 196.768 17.938Q196.749 17.95 196.733 17.962A3.925 3.925 0 0 0 196.722 17.97A2.17 2.17 0 0 0 196.671 18.054Q196.66 18.085 196.656 18.122A3.872 3.872 0 0 0 196.656 18.124A16 16 0 0 0 196.649 18.203Q196.647 18.239 196.646 18.281A34.968 34.968 0 0 0 196.645 18.369L196.645 21.183Q196.645 21.294 196.65 21.378A16.104 16.104 0 0 0 196.656 21.439A2.976 2.976 0 0 0 196.671 21.508A2.094 2.094 0 0 0 196.729 21.596A3.572 3.572 0 0 0 196.831 21.658A3.123 3.123 0 0 0 196.946 21.68Q197.065 21.68 197.163 21.596A2.227 2.227 0 0 0 197.225 21.503A3.192 3.192 0 0 0 197.24 21.439Q197.25 21.366 197.253 21.265A29.244 29.244 0 0 0 197.254 21.183L197.254 20.028A136.267 136.267 0 0 1 197.255 19.891Q197.257 19.696 197.265 19.559Q197.275 19.377 197.296 19.258A13.249 13.249 0 0 1 197.312 19.182Q197.328 19.114 197.349 19.066Q197.38 18.992 197.422 18.922Q197.548 18.691 197.786 18.555Q198.024 18.418 198.29 18.418Q198.479 18.418 198.654 18.506Q198.829 18.593 198.927 18.768A5.723 5.723 0 0 1 198.967 18.856Q198.984 18.902 198.997 18.956A12.31 12.31 0 0 1 199.011 19.027Q199.039 19.188 199.039 19.454L199.039 21.183Q199.039 21.294 199.044 21.378A16.104 16.104 0 0 0 199.05 21.439A2.976 2.976 0 0 0 199.065 21.508A2.094 2.094 0 0 0 199.123 21.596A3.143 3.143 0 0 0 199.33 21.68A4.083 4.083 0 0 0 199.347 21.68Q199.466 21.68 199.564 21.596A2.116 2.116 0 0 0 199.625 21.5A3.049 3.049 0 0 0 199.638 21.439A17.011 17.011 0 0 0 199.644 21.359Q199.648 21.282 199.648 21.183ZM176.534 20.532A3.117 3.117 0 0 0 176.522 20.444A2.336 2.336 0 0 0 176.443 20.326A3.647 3.647 0 0 0 176.368 20.278A2.675 2.675 0 0 0 176.254 20.252Q176.195 20.252 176.154 20.273A1.457 1.457 0 0 0 176.132 20.287Q176.086 20.322 176.051 20.364A0.884 0.884 0 0 0 176.043 20.373Q176.031 20.389 176.013 20.424Q175.988 20.469 175.96 20.522A19.281 19.281 0 0 1 175.922 20.59A16.39 16.39 0 0 1 175.904 20.62Q175.877 20.664 175.869 20.685A0.832 0.832 0 0 0 175.869 20.686Q175.729 20.938 175.481 21.071Q175.232 21.204 174.938 21.204A11.312 11.312 0 0 1 174.567 21.146A9.482 9.482 0 0 1 174.123 20.823A12.884 12.884 0 0 1 173.909 20.4Q173.825 20.123 173.825 19.762Q173.825 19.265 174.005 18.929A11.724 11.724 0 0 1 174.133 18.737A9.92 9.92 0 0 1 174.858 18.365A13.208 13.208 0 0 1 174.952 18.362Q175.149 18.362 175.297 18.41A7.63 7.63 0 0 1 175.348 18.429A11.407 11.407 0 0 1 175.489 18.497A8.28 8.28 0 0 1 175.621 18.59Q175.729 18.684 175.796 18.782A95.188 95.188 0 0 1 175.827 18.828Q175.857 18.874 175.879 18.908A25.527 25.527 0 0 1 175.897 18.936Q175.946 19.027 175.988 19.076Q176.018 19.111 176.044 19.133A2.786 2.786 0 0 0 176.065 19.15Q176.093 19.169 176.119 19.175A1.041 1.041 0 0 0 176.132 19.178A5.79 5.79 0 0 0 176.17 19.181A4.806 4.806 0 0 0 176.191 19.181A2.779 2.779 0 0 0 176.373 19.113A3.543 3.543 0 0 0 176.38 19.107A2.405 2.405 0 0 0 176.464 18.932A3.241 3.241 0 0 0 176.464 18.915Q176.464 18.824 176.426 18.737A9.75 9.75 0 0 0 176.371 18.629A8.253 8.253 0 0 0 176.338 18.579A16.685 16.685 0 0 0 176.24 18.444A21.161 21.161 0 0 0 176.149 18.338A11.789 11.789 0 0 0 175.991 18.194A14.908 14.908 0 0 0 175.873 18.114A13.143 13.143 0 0 0 175.68 18.017A17.807 17.807 0 0 0 175.481 17.949A16.11 16.11 0 0 0 175.266 17.906Q175.155 17.891 175.03 17.887A28.494 28.494 0 0 0 174.945 17.886Q174.427 17.886 174.095 18.065A15.968 15.968 0 0 0 173.748 18.312A13.867 13.867 0 0 0 173.566 18.523Q173.37 18.803 173.293 19.139Q173.216 19.475 173.216 19.79A33.884 33.884 0 0 0 173.227 20.07Q173.238 20.204 173.26 20.318A15.789 15.789 0 0 0 173.297 20.466Q173.357 20.666 173.426 20.811A13.31 13.31 0 0 0 173.475 20.903A12.835 12.835 0 0 0 173.544 21.018Q173.583 21.076 173.631 21.136A21.776 21.776 0 0 0 173.647 21.155A11.374 11.374 0 0 0 173.779 21.291A15.635 15.635 0 0 0 173.93 21.407Q174.105 21.526 174.361 21.603A16.697 16.697 0 0 0 174.604 21.656Q174.772 21.68 174.973 21.68Q175.414 21.68 175.712 21.53A20.695 20.695 0 0 0 175.965 21.379A14.971 14.971 0 0 0 176.195 21.183A16.44 16.44 0 0 0 176.327 21.025Q176.39 20.939 176.432 20.854A8.98 8.98 0 0 0 176.457 20.798Q176.53 20.62 176.534 20.541A1.736 1.736 0 0 0 176.534 20.532ZM153.742 20.147L155.975 20.147L156.423 21.253Q156.492 21.426 156.55 21.53A10.295 10.295 0 0 0 156.574 21.572A2.117 2.117 0 0 0 156.693 21.663Q156.745 21.68 156.815 21.68A3.648 3.648 0 0 0 156.926 21.664A2.913 2.913 0 0 0 157.06 21.575Q157.151 21.47 157.151 21.372Q157.151 21.295 157.127 21.218Q157.108 21.159 157.071 21.067A48.599 48.599 0 0 0 157.046 21.008L155.401 17.088Q155.352 16.969 155.293 16.833A12.279 12.279 0 0 0 155.259 16.762Q155.217 16.68 155.177 16.64A3.694 3.694 0 0 0 155.091 16.569A4.791 4.791 0 0 0 155.03 16.539Q154.939 16.5 154.841 16.5A6.137 6.137 0 0 0 154.757 16.506Q154.692 16.515 154.642 16.539A4.007 4.007 0 0 0 154.506 16.645A4.629 4.629 0 0 0 154.502 16.651Q154.448 16.717 154.403 16.814A11.485 11.485 0 0 0 154.393 16.836Q154.344 16.948 154.288 17.095L152.699 21.036A43.035 43.035 0 0 0 152.676 21.093Q152.648 21.163 152.631 21.215A13.482 13.482 0 0 0 152.626 21.232Q152.601 21.309 152.601 21.386Q152.601 21.49 152.69 21.583A4.693 4.693 0 0 0 152.692 21.586A3.044 3.044 0 0 0 152.91 21.68A4.049 4.049 0 0 0 152.923 21.68A4.561 4.561 0 0 0 153.008 21.673Q153.057 21.663 153.093 21.643A1.998 1.998 0 0 0 153.165 21.575A9.744 9.744 0 0 0 153.207 21.5Q153.248 21.42 153.293 21.305A35.447 35.447 0 0 0 153.308 21.267L153.742 20.147ZM167.875 21.085A156.604 156.604 0 0 0 167.919 21.236A174.514 174.514 0 0 0 167.935 21.288A9.866 9.866 0 0 0 167.991 21.434A8.679 8.679 0 0 0 168.015 21.481Q168.064 21.568 168.127 21.624Q168.19 21.68 168.281 21.68Q168.4 21.68 168.488 21.607A2.978 2.978 0 0 0 168.535 21.557Q168.567 21.514 168.573 21.467A1.833 1.833 0 0 0 168.575 21.442A5.283 5.283 0 0 0 168.567 21.354Q168.559 21.307 168.544 21.257A113.074 113.074 0 0 1 168.533 21.221Q168.511 21.15 168.505 21.127A9.687 9.687 0 0 1 168.48 21.059Q168.468 21.022 168.456 20.98A21.964 21.964 0 0 1 168.439 20.91Q168.412 20.799 168.408 20.605A35.786 35.786 0 0 1 168.407 20.525Q168.407 20.467 168.41 20.329A329.739 329.739 0 0 1 168.411 20.305Q168.414 20.147 168.418 19.965Q168.421 19.783 168.425 19.619A290.299 290.299 0 0 0 168.426 19.542Q168.428 19.437 168.428 19.384A50.037 50.037 0 0 0 168.415 19.009A40.849 40.849 0 0 0 168.393 18.796A10.854 10.854 0 0 0 168.312 18.497A9.517 9.517 0 0 0 168.211 18.32Q168.064 18.117 167.767 18.002Q167.472 17.887 166.962 17.886A46.251 46.251 0 0 0 166.951 17.886Q166.608 17.886 166.356 17.946A13.799 13.799 0 0 0 166.15 18.012Q165.917 18.108 165.764 18.227A10.032 10.032 0 0 0 165.677 18.303Q165.509 18.467 165.453 18.632A19.398 19.398 0 0 0 165.429 18.708Q165.407 18.782 165.4 18.833A3.082 3.082 0 0 0 165.397 18.873A2.545 2.545 0 0 0 165.417 18.975A2.432 2.432 0 0 0 165.478 19.059Q165.558 19.132 165.67 19.132Q165.76 19.132 165.815 19.096A1.703 1.703 0 0 0 165.866 19.045Q165.922 18.957 165.971 18.838Q166.027 18.698 166.136 18.6Q166.244 18.502 166.381 18.443A11.745 11.745 0 0 1 166.636 18.365A13.202 13.202 0 0 1 166.675 18.359Q166.832 18.334 166.993 18.334Q167.28 18.334 167.443 18.404A5.36 5.36 0 0 1 167.459 18.411A6.24 6.24 0 0 1 167.586 18.489A4.723 4.723 0 0 1 167.7 18.621A7.268 7.268 0 0 1 167.786 18.86A8.677 8.677 0 0 1 167.795 18.922A52.243 52.243 0 0 1 167.815 19.182A58.488 58.488 0 0 1 167.819 19.272A58.673 58.673 0 0 1 167.762 19.292Q167.682 19.319 167.627 19.335Q167.553 19.356 167.476 19.377Q167.425 19.39 167.299 19.415A131.725 131.725 0 0 1 167.277 19.419Q167.133 19.447 166.972 19.475A202.132 202.132 0 0 0 166.738 19.517A176.919 176.919 0 0 0 166.664 19.531A182.46 182.46 0 0 0 166.596 19.544Q166.511 19.561 166.465 19.571A21.283 21.283 0 0 0 166.454 19.573A87.884 87.884 0 0 0 166.304 19.607Q166.228 19.625 166.144 19.646A150.463 150.463 0 0 0 166.087 19.661Q165.88 19.713 165.698 19.829A9.901 9.901 0 0 0 165.422 20.092A11.635 11.635 0 0 0 165.39 20.14Q165.28 20.312 165.266 20.569A14.069 14.069 0 0 0 165.264 20.644Q165.264 20.833 165.334 21.019Q165.404 21.204 165.551 21.351A10.381 10.381 0 0 0 165.782 21.523A13.004 13.004 0 0 0 165.919 21.589A11.509 11.509 0 0 0 166.167 21.659Q166.282 21.678 166.413 21.68A19.554 19.554 0 0 0 166.44 21.68A22.373 22.373 0 0 0 166.719 21.663A16.841 16.841 0 0 0 166.969 21.614Q167.203 21.547 167.382 21.453A21.631 21.631 0 0 0 167.527 21.369Q167.6 21.322 167.661 21.274A12.71 12.71 0 0 0 167.683 21.257A45.541 45.541 0 0 0 167.754 21.196Q167.825 21.135 167.872 21.088A13.449 13.449 0 0 0 167.875 21.085ZM195.091 21.085A156.604 156.604 0 0 0 195.135 21.236A174.514 174.514 0 0 0 195.151 21.288A9.866 9.866 0 0 0 195.207 21.434A8.679 8.679 0 0 0 195.231 21.481Q195.28 21.568 195.343 21.624Q195.406 21.68 195.497 21.68Q195.616 21.68 195.704 21.607A2.978 2.978 0 0 0 195.751 21.557Q195.783 21.514 195.789 21.467A1.833 1.833 0 0 0 195.791 21.442A5.283 5.283 0 0 0 195.783 21.354Q195.775 21.307 195.76 21.257A113.074 113.074 0 0 1 195.749 21.221Q195.727 21.15 195.721 21.127A9.687 9.687 0 0 1 195.696 21.059Q195.684 21.022 195.672 20.98A21.964 21.964 0 0 1 195.655 20.91Q195.628 20.799 195.624 20.605A35.786 35.786 0 0 1 195.623 20.525Q195.623 20.467 195.626 20.329A329.739 329.739 0 0 1 195.627 20.305Q195.63 20.147 195.634 19.965Q195.637 19.783 195.641 19.619A290.299 290.299 0 0 0 195.642 19.542Q195.644 19.437 195.644 19.384A50.037 50.037 0 0 0 195.631 19.009A40.849 40.849 0 0 0 195.609 18.796A10.854 10.854 0 0 0 195.528 18.497A9.517 9.517 0 0 0 195.427 18.32Q195.28 18.117 194.983 18.002Q194.688 17.887 194.178 17.886A46.251 46.251 0 0 0 194.167 17.886Q193.824 17.886 193.572 17.946A13.799 13.799 0 0 0 193.366 18.012Q193.133 18.108 192.98 18.227A10.032 10.032 0 0 0 192.893 18.303Q192.725 18.467 192.669 18.632A19.398 19.398 0 0 0 192.645 18.708Q192.623 18.782 192.616 18.833A3.082 3.082 0 0 0 192.613 18.873A2.545 2.545 0 0 0 192.633 18.975A2.432 2.432 0 0 0 192.694 19.059Q192.774 19.132 192.886 19.132Q192.976 19.132 193.031 19.096A1.703 1.703 0 0 0 193.082 19.045Q193.138 18.957 193.187 18.838Q193.243 18.698 193.352 18.6Q193.46 18.502 193.597 18.443A11.745 11.745 0 0 1 193.852 18.365A13.202 13.202 0 0 1 193.891 18.359Q194.048 18.334 194.209 18.334Q194.496 18.334 194.659 18.404A5.36 5.36 0 0 1 194.675 18.411A6.24 6.24 0 0 1 194.802 18.489A4.723 4.723 0 0 1 194.916 18.621A7.268 7.268 0 0 1 195.002 18.86A8.677 8.677 0 0 1 195.011 18.922A52.243 52.243 0 0 1 195.031 19.182A58.488 58.488 0 0 1 195.035 19.272A58.673 58.673 0 0 1 194.978 19.292Q194.898 19.319 194.843 19.335Q194.769 19.356 194.692 19.377Q194.641 19.39 194.515 19.415A131.725 131.725 0 0 1 194.493 19.419Q194.349 19.447 194.188 19.475A202.132 202.132 0 0 0 193.954 19.517A176.919 176.919 0 0 0 193.88 19.531A182.46 182.46 0 0 0 193.812 19.544Q193.727 19.561 193.681 19.571A21.283 21.283 0 0 0 193.67 19.573A87.884 87.884 0 0 0 193.52 19.607Q193.444 19.625 193.36 19.646A150.463 150.463 0 0 0 193.303 19.661Q193.096 19.713 192.914 19.829A9.901 9.901 0 0 0 192.638 20.092A11.635 11.635 0 0 0 192.606 20.14Q192.496 20.312 192.482 20.569A14.069 14.069 0 0 0 192.48 20.644Q192.48 20.833 192.55 21.019Q192.62 21.204 192.767 21.351A10.381 10.381 0 0 0 192.998 21.523A13.004 13.004 0 0 0 193.135 21.589A11.509 11.509 0 0 0 193.383 21.659Q193.498 21.678 193.629 21.68A19.554 19.554 0 0 0 193.656 21.68A22.373 22.373 0 0 0 193.935 21.663A16.841 16.841 0 0 0 194.185 21.614Q194.419 21.547 194.598 21.453A21.631 21.631 0 0 0 194.743 21.369Q194.816 21.322 194.877 21.274A12.71 12.71 0 0 0 194.899 21.257A45.541 45.541 0 0 0 194.97 21.196Q195.041 21.135 195.088 21.088A13.449 13.449 0 0 0 195.091 21.085ZM206.424 21.085A156.604 156.604 0 0 0 206.468 21.236A174.514 174.514 0 0 0 206.484 21.288A9.866 9.866 0 0 0 206.54 21.434A8.679 8.679 0 0 0 206.564 21.481Q206.613 21.568 206.676 21.624Q206.739 21.68 206.83 21.68Q206.949 21.68 207.037 21.607A2.978 2.978 0 0 0 207.084 21.557Q207.116 21.514 207.122 21.467A1.833 1.833 0 0 0 207.124 21.442A5.283 5.283 0 0 0 207.116 21.354Q207.108 21.307 207.093 21.257A113.074 113.074 0 0 1 207.082 21.221Q207.06 21.15 207.054 21.127A9.687 9.687 0 0 1 207.029 21.059Q207.017 21.022 207.005 20.98A21.964 21.964 0 0 1 206.988 20.91Q206.961 20.799 206.957 20.605A35.786 35.786 0 0 1 206.956 20.525Q206.956 20.467 206.959 20.329A329.739 329.739 0 0 1 206.96 20.305Q206.963 20.147 206.967 19.965Q206.97 19.783 206.974 19.619A290.299 290.299 0 0 0 206.975 19.542Q206.977 19.437 206.977 19.384A50.037 50.037 0 0 0 206.964 19.009A40.849 40.849 0 0 0 206.942 18.796A10.854 10.854 0 0 0 206.861 18.497A9.517 9.517 0 0 0 206.76 18.32Q206.613 18.117 206.316 18.002Q206.021 17.887 205.511 17.886A46.251 46.251 0 0 0 205.5 17.886Q205.157 17.886 204.905 17.946A13.799 13.799 0 0 0 204.699 18.012Q204.466 18.108 204.313 18.227A10.032 10.032 0 0 0 204.226 18.303Q204.058 18.467 204.002 18.632A19.398 19.398 0 0 0 203.978 18.708Q203.956 18.782 203.949 18.833A3.082 3.082 0 0 0 203.946 18.873A2.545 2.545 0 0 0 203.966 18.975A2.432 2.432 0 0 0 204.027 19.059Q204.107 19.132 204.219 19.132Q204.309 19.132 204.364 19.096A1.703 1.703 0 0 0 204.415 19.045Q204.471 18.957 204.52 18.838Q204.576 18.698 204.685 18.6Q204.793 18.502 204.93 18.443A11.745 11.745 0 0 1 205.185 18.365A13.202 13.202 0 0 1 205.224 18.359Q205.381 18.334 205.542 18.334Q205.829 18.334 205.992 18.404A5.36 5.36 0 0 1 206.008 18.411A6.24 6.24 0 0 1 206.135 18.489A4.723 4.723 0 0 1 206.249 18.621A7.268 7.268 0 0 1 206.335 18.86A8.677 8.677 0 0 1 206.344 18.922A52.243 52.243 0 0 1 206.364 19.182A58.488 58.488 0 0 1 206.368 19.272A58.673 58.673 0 0 1 206.311 19.292Q206.231 19.319 206.176 19.335Q206.102 19.356 206.025 19.377Q205.974 19.39 205.848 19.415A131.725 131.725 0 0 1 205.826 19.419Q205.682 19.447 205.521 19.475A202.132 202.132 0 0 0 205.287 19.517A176.919 176.919 0 0 0 205.213 19.531A182.46 182.46 0 0 0 205.145 19.544Q205.06 19.561 205.014 19.571A21.283 21.283 0 0 0 205.003 19.573A87.884 87.884 0 0 0 204.853 19.607Q204.777 19.625 204.693 19.646A150.463 150.463 0 0 0 204.636 19.661Q204.429 19.713 204.247 19.829A9.901 9.901 0 0 0 203.971 20.092A11.635 11.635 0 0 0 203.939 20.14Q203.829 20.312 203.815 20.569A14.069 14.069 0 0 0 203.813 20.644Q203.813 20.833 203.883 21.019Q203.953 21.204 204.1 21.351A10.381 10.381 0 0 0 204.331 21.523A13.004 13.004 0 0 0 204.468 21.589A11.509 11.509 0 0 0 204.716 21.659Q204.831 21.678 204.962 21.68A19.554 19.554 0 0 0 204.989 21.68A22.373 22.373 0 0 0 205.268 21.663A16.841 16.841 0 0 0 205.518 21.614Q205.752 21.547 205.931 21.453A21.631 21.631 0 0 0 206.076 21.369Q206.149 21.322 206.21 21.274A12.71 12.71 0 0 0 206.232 21.257A45.541 45.541 0 0 0 206.303 21.196Q206.374 21.135 206.421 21.088A13.449 13.449 0 0 0 206.424 21.085ZM177.794 19.902L179.971 19.902Q180.062 19.902 180.157 19.895Q180.251 19.888 180.332 19.853Q180.412 19.818 180.461 19.738Q180.51 19.657 180.51 19.51A8.226 8.226 0 0 0 180.508 19.461Q180.504 19.391 180.489 19.283A16.26 16.26 0 0 0 180.46 19.129Q180.442 19.055 180.416 18.973A26.778 26.778 0 0 0 180.409 18.95A17.318 17.318 0 0 0 180.314 18.72A21.358 21.358 0 0 0 180.237 18.579A13.255 13.255 0 0 0 179.998 18.285A15.344 15.344 0 0 0 179.943 18.236Q179.761 18.082 179.502 17.984A14.303 14.303 0 0 0 179.228 17.912Q179.1 17.891 178.954 17.887A24.995 24.995 0 0 0 178.886 17.886Q178.461 17.886 178.146 18.023A13.781 13.781 0 0 0 178.123 18.033Q177.801 18.18 177.591 18.436A16.765 16.765 0 0 0 177.319 18.911A19.805 19.805 0 0 0 177.276 19.038A24.845 24.845 0 0 0 177.174 19.655A28.502 28.502 0 0 0 177.171 19.776Q177.171 20.175 177.273 20.525Q177.374 20.875 177.588 21.131Q177.801 21.386 178.127 21.533A15.933 15.933 0 0 0 178.507 21.648Q178.679 21.678 178.874 21.68A26.983 26.983 0 0 0 178.9 21.68A24.666 24.666 0 0 0 179.157 21.667Q179.289 21.654 179.401 21.625A13.385 13.385 0 0 0 179.478 21.603A19.788 19.788 0 0 0 179.675 21.529Q179.793 21.477 179.887 21.414Q180.055 21.302 180.157 21.176Q180.234 21.08 180.289 21A17.945 17.945 0 0 0 180.321 20.952A14.683 14.683 0 0 0 180.372 20.859A17.681 17.681 0 0 0 180.402 20.798Q180.44 20.714 180.44 20.63A2.258 2.258 0 0 0 180.378 20.474A2.928 2.928 0 0 0 180.374 20.469A2.17 2.17 0 0 0 180.216 20.399A2.698 2.698 0 0 0 180.209 20.399Q180.097 20.399 180.041 20.466A26.352 26.352 0 0 0 180.002 20.513Q179.987 20.532 179.974 20.549A12.788 12.788 0 0 0 179.95 20.581Q179.873 20.7 179.786 20.819Q179.698 20.938 179.583 21.029A8.961 8.961 0 0 1 179.405 21.137A11.002 11.002 0 0 1 179.31 21.176Q179.152 21.232 178.928 21.232Q178.711 21.232 178.512 21.162A9.41 9.41 0 0 1 178.157 20.937A10.742 10.742 0 0 1 178.155 20.935A10.148 10.148 0 0 1 177.998 20.73A13.99 13.99 0 0 1 177.899 20.522A14.497 14.497 0 0 1 177.829 20.268Q177.806 20.143 177.798 20A26.817 26.817 0 0 1 177.794 19.902ZM160.49 21.05L160.49 21.267A12.437 12.437 0 0 0 160.49 21.29Q160.491 21.321 160.493 21.362A37.885 37.885 0 0 0 160.494 21.376A4.031 4.031 0 0 0 160.51 21.469A4.921 4.921 0 0 0 160.525 21.512Q160.553 21.582 160.613 21.631Q160.66 21.67 160.74 21.678A4.425 4.425 0 0 0 160.784 21.68A3.105 3.105 0 0 0 160.895 21.661A2.79 2.79 0 0 0 160.994 21.596A2.175 2.175 0 0 0 161.062 21.48A2.923 2.923 0 0 0 161.068 21.446A13.958 13.958 0 0 0 161.073 21.381Q161.078 21.305 161.078 21.204A44.546 44.546 0 0 0 161.078 21.197L161.078 17.004A44.226 44.226 0 0 0 161.076 16.874A49.881 49.881 0 0 0 161.075 16.829A5.027 5.027 0 0 0 161.062 16.732A4.139 4.139 0 0 0 161.04 16.665Q161.008 16.591 160.945 16.546Q160.882 16.5 160.77 16.5Q160.694 16.5 160.641 16.521A2.056 2.056 0 0 0 160.595 16.546Q160.532 16.591 160.504 16.665A4.762 4.762 0 0 0 160.478 16.766A5.995 5.995 0 0 0 160.473 16.829Q160.469 16.92 160.469 17.011L160.469 18.516A2.504 2.504 0 0 0 160.457 18.498Q160.428 18.459 160.357 18.38A10.281 10.281 0 0 0 160.279 18.302Q160.234 18.262 160.179 18.22A21.748 21.748 0 0 0 160.105 18.166Q159.944 18.054 159.717 17.97A13.078 13.078 0 0 0 159.455 17.905Q159.329 17.886 159.188 17.886Q158.801 17.886 158.524 18.01A11.161 11.161 0 0 0 158.411 18.068A15.529 15.529 0 0 0 158.032 18.379A14.284 14.284 0 0 0 157.918 18.527Q157.732 18.803 157.659 19.132A31.593 31.593 0 0 0 157.6 19.484A24.8 24.8 0 0 0 157.585 19.748A25.356 25.356 0 0 0 157.6 20.012Q157.616 20.17 157.652 20.347Q157.718 20.679 157.9 20.977Q158.082 21.274 158.394 21.477A11.715 11.715 0 0 0 158.748 21.629Q158.901 21.667 159.08 21.677A22.684 22.684 0 0 0 159.202 21.68A19.893 19.893 0 0 0 159.439 21.667Q159.56 21.652 159.664 21.622A11.619 11.619 0 0 0 159.703 21.61Q159.916 21.54 160.07 21.442Q160.224 21.344 160.326 21.236Q160.425 21.13 160.487 21.054A20.372 20.372 0 0 0 160.49 21.05ZM184.01 21.05L184.01 21.267A12.437 12.437 0 0 0 184.01 21.29Q184.011 21.321 184.013 21.362A37.885 37.885 0 0 0 184.014 21.376A4.031 4.031 0 0 0 184.03 21.469A4.921 4.921 0 0 0 184.045 21.512Q184.073 21.582 184.133 21.631Q184.18 21.67 184.26 21.678A4.425 4.425 0 0 0 184.304 21.68A3.105 3.105 0 0 0 184.415 21.661A2.79 2.79 0 0 0 184.514 21.596A2.175 2.175 0 0 0 184.582 21.48A2.923 2.923 0 0 0 184.588 21.446A13.958 13.958 0 0 0 184.593 21.381Q184.598 21.305 184.598 21.204A44.546 44.546 0 0 0 184.598 21.197L184.598 17.004A44.226 44.226 0 0 0 184.596 16.874A49.881 49.881 0 0 0 184.595 16.829A5.027 5.027 0 0 0 184.582 16.732A4.139 4.139 0 0 0 184.56 16.665Q184.528 16.591 184.465 16.546Q184.402 16.5 184.29 16.5Q184.214 16.5 184.161 16.521A2.056 2.056 0 0 0 184.115 16.546Q184.052 16.591 184.024 16.665A4.762 4.762 0 0 0 183.998 16.766A5.995 5.995 0 0 0 183.993 16.829Q183.989 16.92 183.989 17.011L183.989 18.516A2.504 2.504 0 0 0 183.977 18.498Q183.948 18.459 183.877 18.38A10.281 10.281 0 0 0 183.799 18.302Q183.754 18.262 183.699 18.22A21.748 21.748 0 0 0 183.625 18.166Q183.464 18.054 183.237 17.97A13.078 13.078 0 0 0 182.975 17.905Q182.849 17.886 182.708 17.886Q182.321 17.886 182.044 18.01A11.161 11.161 0 0 0 181.931 18.068A15.529 15.529 0 0 0 181.552 18.379A14.284 14.284 0 0 0 181.438 18.527Q181.252 18.803 181.179 19.132A31.593 31.593 0 0 0 181.12 19.484A24.8 24.8 0 0 0 181.105 19.748A25.356 25.356 0 0 0 181.12 20.012Q181.136 20.17 181.172 20.347Q181.238 20.679 181.42 20.977Q181.602 21.274 181.914 21.477A11.715 11.715 0 0 0 182.268 21.629Q182.421 21.667 182.6 21.677A22.684 22.684 0 0 0 182.722 21.68A19.893 19.893 0 0 0 182.959 21.667Q183.08 21.652 183.184 21.622A11.619 11.619 0 0 0 183.223 21.61Q183.436 21.54 183.59 21.442Q183.744 21.344 183.846 21.236Q183.945 21.13 184.007 21.054A20.372 20.372 0 0 0 184.01 21.05ZM164.312 18.264L163.325 20.903L162.331 18.264Q162.271 18.09 162.211 17.993A6.228 6.228 0 0 0 162.205 17.984A2.038 2.038 0 0 0 162.077 17.895Q162.04 17.886 161.995 17.886Q161.848 17.886 161.771 17.977A4.199 4.199 0 0 0 161.73 18.035Q161.694 18.095 161.694 18.152A4.814 4.814 0 0 0 161.699 18.22A3.684 3.684 0 0 0 161.712 18.278A9.92 9.92 0 0 0 161.723 18.311Q161.738 18.355 161.766 18.427A84.529 84.529 0 0 0 161.785 18.474L162.891 21.232Q162.952 21.378 163.01 21.483A12.632 12.632 0 0 0 163.056 21.558A2.582 2.582 0 0 0 163.21 21.666Q163.255 21.678 163.309 21.68A5.626 5.626 0 0 0 163.325 21.68A4.256 4.256 0 0 0 163.424 21.669A2.598 2.598 0 0 0 163.588 21.558Q163.646 21.469 163.706 21.338A30.263 30.263 0 0 0 163.752 21.232L164.858 18.474A79.208 79.208 0 0 0 164.883 18.411Q164.913 18.334 164.927 18.292A7.545 7.545 0 0 0 164.932 18.278A3.771 3.771 0 0 0 164.946 18.209A4.945 4.945 0 0 0 164.949 18.152Q164.949 18.097 164.909 18.032A4.909 4.909 0 0 0 164.872 17.981A2.49 2.49 0 0 0 164.723 17.893A3.793 3.793 0 0 0 164.648 17.886A3.446 3.446 0 0 0 164.568 17.895Q164.513 17.908 164.475 17.941A2.009 2.009 0 0 0 164.438 17.984A7.867 7.867 0 0 0 164.399 18.054Q164.358 18.133 164.318 18.248A26.244 26.244 0 0 0 164.312 18.264ZM202.861 18.264L201.874 20.903L200.88 18.264Q200.82 18.09 200.76 17.993A6.228 6.228 0 0 0 200.754 17.984A2.038 2.038 0 0 0 200.626 17.895Q200.589 17.886 200.544 17.886Q200.397 17.886 200.32 17.977A4.199 4.199 0 0 0 200.279 18.035Q200.243 18.095 200.243 18.152A4.814 4.814 0 0 0 200.248 18.22A3.684 3.684 0 0 0 200.261 18.278A9.92 9.92 0 0 0 200.272 18.311Q200.287 18.355 200.315 18.427A84.529 84.529 0 0 0 200.334 18.474L201.44 21.232Q201.501 21.378 201.559 21.483A12.632 12.632 0 0 0 201.605 21.558A2.582 2.582 0 0 0 201.759 21.666Q201.804 21.678 201.858 21.68A5.626 5.626 0 0 0 201.874 21.68A4.256 4.256 0 0 0 201.973 21.669A2.598 2.598 0 0 0 202.137 21.558Q202.195 21.469 202.255 21.338A30.263 30.263 0 0 0 202.301 21.232L203.407 18.474A79.208 79.208 0 0 0 203.432 18.411Q203.462 18.334 203.476 18.292A7.545 7.545 0 0 0 203.481 18.278A3.771 3.771 0 0 0 203.495 18.209A4.945 4.945 0 0 0 203.498 18.152Q203.498 18.097 203.458 18.032A4.909 4.909 0 0 0 203.421 17.981A2.49 2.49 0 0 0 203.272 17.893A3.793 3.793 0 0 0 203.197 17.886A3.446 3.446 0 0 0 203.117 17.895Q203.062 17.908 203.024 17.941A2.009 2.009 0 0 0 202.987 17.984A7.867 7.867 0 0 0 202.948 18.054Q202.907 18.133 202.867 18.248A26.244 26.244 0 0 0 202.861 18.264ZM159.076 21.172A9.992 9.992 0 0 0 159.321 21.204Q159.524 21.204 159.731 21.134A9.14 9.14 0 0 0 159.831 21.093A9.773 9.773 0 0 0 160.102 20.9A10.93 10.93 0 0 0 160.26 20.697A14.782 14.782 0 0 0 160.371 20.473Q160.437 20.309 160.461 20.094A24.26 24.26 0 0 0 160.476 19.818Q160.476 19.356 160.343 19.073A18.755 18.755 0 0 0 160.322 19.029Q160.196 18.777 160.025 18.632A12.131 12.131 0 0 0 159.883 18.528A9.354 9.354 0 0 0 159.64 18.418A19.608 19.608 0 0 0 159.535 18.392Q159.402 18.362 159.3 18.362A11.478 11.478 0 0 0 159.207 18.366A9.465 9.465 0 0 0 158.845 18.467Q158.642 18.572 158.499 18.761Q158.355 18.95 158.282 19.206A17.995 17.995 0 0 0 158.242 19.373A20.798 20.798 0 0 0 158.208 19.755A27.923 27.923 0 0 0 158.211 19.894Q158.227 20.21 158.317 20.438Q158.371 20.576 158.438 20.688A11.647 11.647 0 0 0 158.586 20.886Q158.747 21.057 158.943 21.131A12.502 12.502 0 0 0 159.076 21.172ZM182.596 21.172A9.992 9.992 0 0 0 182.841 21.204Q183.044 21.204 183.251 21.134A9.14 9.14 0 0 0 183.351 21.093A9.773 9.773 0 0 0 183.622 20.9A10.93 10.93 0 0 0 183.78 20.697A14.782 14.782 0 0 0 183.891 20.473Q183.957 20.309 183.981 20.094A24.26 24.26 0 0 0 183.996 19.818Q183.996 19.356 183.863 19.073A18.755 18.755 0 0 0 183.842 19.029Q183.716 18.777 183.545 18.632A12.131 12.131 0 0 0 183.403 18.528A9.354 9.354 0 0 0 183.16 18.418A19.608 19.608 0 0 0 183.055 18.392Q182.922 18.362 182.82 18.362A11.478 11.478 0 0 0 182.727 18.366A9.465 9.465 0 0 0 182.365 18.467Q182.162 18.572 182.019 18.761Q181.875 18.95 181.802 19.206A17.995 17.995 0 0 0 181.762 19.373A20.798 20.798 0 0 0 181.728 19.755A27.923 27.923 0 0 0 181.731 19.894Q181.747 20.21 181.837 20.438Q181.891 20.576 181.958 20.688A11.647 11.647 0 0 0 182.106 20.886Q182.267 21.057 182.463 21.131A12.502 12.502 0 0 0 182.596 21.172ZM155.772 19.608L153.931 19.608L154.834 17.263L155.772 19.608ZM147.704 19.422A124.043 124.043 0 0 0 147.736 19.461A187.068 187.068 0 0 0 147.977 19.75A209.521 209.521 0 0 0 148.062 19.85Q148.233 20.049 148.405 20.238A280.942 280.942 0 0 0 148.527 20.372Q148.575 20.424 148.619 20.471A146.266 146.266 0 0 0 148.702 20.56A32.139 32.139 0 0 1 148.675 20.594Q148.644 20.633 148.602 20.683A116.402 116.402 0 0 1 148.562 20.732A12.456 12.456 0 0 1 148.433 20.863A15.356 15.356 0 0 1 148.342 20.938A13.22 13.22 0 0 1 148.163 21.051A16.357 16.357 0 0 1 148.041 21.11Q147.869 21.183 147.652 21.183A9.592 9.592 0 0 1 147.375 21.144A8.638 8.638 0 0 1 147.243 21.092Q147.057 21.001 146.921 20.854Q146.784 20.707 146.711 20.525Q146.637 20.343 146.637 20.154A8.237 8.237 0 0 1 146.655 19.979A6.431 6.431 0 0 1 146.711 19.822A10.984 10.984 0 0 1 146.895 19.564A12.277 12.277 0 0 1 146.903 19.556A14.899 14.899 0 0 1 147.147 19.354A16.679 16.679 0 0 1 147.176 19.335Q147.33 19.237 147.491 19.146Q147.572 19.259 147.704 19.422ZM167.826 19.706Q167.826 20.014 167.802 20.256A11.719 11.719 0 0 1 167.753 20.495A9.411 9.411 0 0 1 167.672 20.679Q167.595 20.819 167.469 20.917Q167.343 21.015 167.193 21.078Q167.042 21.141 166.885 21.173A16.044 16.044 0 0 1 166.654 21.202A14.108 14.108 0 0 1 166.58 21.204A10.041 10.041 0 0 1 166.436 21.194Q166.337 21.18 166.258 21.145A7.637 7.637 0 0 1 166.147 21.084A5.572 5.572 0 0 1 166.045 20.998A5.836 5.836 0 0 1 165.939 20.839A5.49 5.49 0 0 1 165.926 20.805A6.447 6.447 0 0 1 165.894 20.689A5.291 5.291 0 0 1 165.887 20.602Q165.887 20.553 165.905 20.476A4.746 4.746 0 0 1 165.935 20.386A6.234 6.234 0 0 1 165.971 20.319A4.921 4.921 0 0 1 166.039 20.232A6.678 6.678 0 0 1 166.111 20.168A5.299 5.299 0 0 1 166.201 20.113Q166.247 20.091 166.302 20.072A10.661 10.661 0 0 1 166.356 20.056A55.947 55.947 0 0 1 166.613 19.996A71.051 71.051 0 0 1 166.832 19.955A87.518 87.518 0 0 0 167.072 19.909Q167.194 19.884 167.329 19.853A147.944 147.944 0 0 0 167.42 19.832Q167.527 19.805 167.61 19.781A25.521 25.521 0 0 0 167.658 19.766A34.628 34.628 0 0 0 167.728 19.742Q167.762 19.731 167.792 19.719A18.009 18.009 0 0 0 167.826 19.706ZM195.042 19.706Q195.042 20.014 195.018 20.256A11.719 11.719 0 0 1 194.969 20.495A9.411 9.411 0 0 1 194.888 20.679Q194.811 20.819 194.685 20.917Q194.559 21.015 194.409 21.078Q194.258 21.141 194.101 21.173A16.044 16.044 0 0 1 193.87 21.202A14.108 14.108 0 0 1 193.796 21.204A10.041 10.041 0 0 1 193.652 21.194Q193.553 21.18 193.474 21.145A7.637 7.637 0 0 1 193.363 21.084A5.572 5.572 0 0 1 193.261 20.998A5.836 5.836 0 0 1 193.155 20.839A5.49 5.49 0 0 1 193.142 20.805A6.447 6.447 0 0 1 193.11 20.689A5.291 5.291 0 0 1 193.103 20.602Q193.103 20.553 193.121 20.476A4.746 4.746 0 0 1 193.151 20.386A6.234 6.234 0 0 1 193.187 20.319A4.921 4.921 0 0 1 193.255 20.232A6.678 6.678 0 0 1 193.327 20.168A5.299 5.299 0 0 1 193.417 20.113Q193.463 20.091 193.518 20.072A10.661 10.661 0 0 1 193.572 20.056A55.947 55.947 0 0 1 193.829 19.996A71.051 71.051 0 0 1 194.048 19.955A87.518 87.518 0 0 0 194.288 19.909Q194.41 19.884 194.545 19.853A147.944 147.944 0 0 0 194.636 19.832Q194.743 19.805 194.826 19.781A25.521 25.521 0 0 0 194.874 19.766A34.628 34.628 0 0 0 194.944 19.742Q194.978 19.731 195.008 19.719A18.009 18.009 0 0 0 195.042 19.706ZM206.375 19.706Q206.375 20.014 206.351 20.256A11.719 11.719 0 0 1 206.302 20.495A9.411 9.411 0 0 1 206.221 20.679Q206.144 20.819 206.018 20.917Q205.892 21.015 205.742 21.078Q205.591 21.141 205.434 21.173A16.044 16.044 0 0 1 205.203 21.202A14.108 14.108 0 0 1 205.129 21.204A10.041 10.041 0 0 1 204.985 21.194Q204.886 21.18 204.807 21.145A7.637 7.637 0 0 1 204.696 21.084A5.572 5.572 0 0 1 204.594 20.998A5.836 5.836 0 0 1 204.488 20.839A5.49 5.49 0 0 1 204.475 20.805A6.447 6.447 0 0 1 204.443 20.689A5.291 5.291 0 0 1 204.436 20.602Q204.436 20.553 204.454 20.476A4.746 4.746 0 0 1 204.484 20.386A6.234 6.234 0 0 1 204.52 20.319A4.921 4.921 0 0 1 204.588 20.232A6.678 6.678 0 0 1 204.66 20.168A5.299 5.299 0 0 1 204.75 20.113Q204.796 20.091 204.851 20.072A10.661 10.661 0 0 1 204.905 20.056A55.947 55.947 0 0 1 205.162 19.996A71.051 71.051 0 0 1 205.381 19.955A87.518 87.518 0 0 0 205.621 19.909Q205.743 19.884 205.878 19.853A147.944 147.944 0 0 0 205.969 19.832Q206.076 19.805 206.159 19.781A25.521 25.521 0 0 0 206.207 19.766A34.628 34.628 0 0 0 206.277 19.742Q206.311 19.731 206.341 19.719A18.009 18.009 0 0 0 206.375 19.706ZM179.887 19.482L177.801 19.482A28.069 28.069 0 0 1 177.814 19.387Q177.827 19.303 177.847 19.202A10.166 10.166 0 0 1 177.92 18.976A12.334 12.334 0 0 1 177.969 18.88Q178.018 18.789 178.095 18.691A8.296 8.296 0 0 1 178.243 18.546A9.616 9.616 0 0 1 178.284 18.516Q178.396 18.439 178.54 18.387Q178.683 18.334 178.865 18.334Q179.166 18.334 179.376 18.464Q179.586 18.593 179.705 18.796A14.726 14.726 0 0 1 179.78 18.94Q179.813 19.014 179.831 19.082A7.079 7.079 0 0 1 179.849 19.164A57.705 57.705 0 0 1 179.879 19.404A51.717 51.717 0 0 1 179.887 19.482ZM147.722 18.46A5.735 5.735 0 0 0 147.714 18.448Q147.698 18.426 147.666 18.383A159.702 159.702 0 0 1 147.622 18.324A204.664 204.664 0 0 1 147.575 18.261Q147.526 18.194 147.484 18.138A28.341 28.341 0 0 0 147.469 18.119Q147.447 18.089 147.435 18.075A1.535 1.535 0 0 0 147.428 18.068Q147.372 17.991 147.313 17.854A6.976 6.976 0 0 1 147.255 17.63A6.56 6.56 0 0 1 147.253 17.578Q147.253 17.466 147.299 17.357Q147.344 17.249 147.428 17.165A6.428 6.428 0 0 1 147.588 17.049A7.566 7.566 0 0 1 147.631 17.029A6.258 6.258 0 0 1 147.86 16.977A7.29 7.29 0 0 1 147.89 16.976A6.985 6.985 0 0 1 148.099 17.006A5.558 5.558 0 0 1 148.342 17.158Q148.513 17.34 148.513 17.585A5.96 5.96 0 0 1 148.479 17.788A5.572 5.572 0 0 1 148.45 17.854A8.463 8.463 0 0 1 148.321 18.039A9.906 9.906 0 0 1 148.279 18.082A14.839 14.839 0 0 1 148.113 18.22A17.789 17.789 0 0 1 148.027 18.278A67.874 67.874 0 0 1 147.801 18.415A77.011 77.011 0 0 1 147.722 18.46Z"/>';
+    watermarkEl.innerHTML =
+      '<path d="M7 14.6a12 12 0 0 1 2.8-.6 10 10 0 0 1 .5-8.8l.4-.7a32.9 32.9 0 0 0 .9-2.3v-1c-.1-.4-.3-.7-.7-1.1-.6-.2-1.1 0-1.6.3L4.2 5.1c-.3.2-.5.6-.6 1l-.4 3a14.6 14.6 0 0 1 3.7 5.5Zm-4-4.2-.1.3-2.8 6c-.2.7-.1 1.4.4 1.9L4.8 23a8.7 8.7 0 0 0 .8-8.7c-.7-1.8-1.9-3.2-2.6-4Z"/><path d="M5.8 23.5H6a23.8 23.8 0 0 1 7.4 1.4c1.2.4 2.3-.5 2.5-1.7a7 7 0 0 1 .8-2.7c-.8-2-1.6-3.2-2.6-4a5 5 0 0 0-2.9-1.3c-1.6-.2-3 .2-4 .5.6 2.3.4 5-1.4 7.8Z"/><path d="m17.4 19.3 2-3c0-.4 0-.7-.2-1a18 18 0 0 1-2-3.5c-.7-1.4-.7-3.5-.8-4.6 0-.4 0-.7-.3-1l-3.4-4.3v.6L12 4l-.5 1-.3.6A11 11 0 0 0 10 9.4c0 1.3 0 2.8.9 4.7h.4c1.1.2 2.3.6 3.5 1.6 1 .8 1.8 2 2.5 3.6ZM39.8 4.5c-6 0-10.3 3.7-10.3 8.9 0 5.1 4.3 8.9 10.3 8.9 5.9 0 10.2-3.8 10.2-9 0-5-4.3-8.8-10.2-8.8Zm0 3.5c3.5 0 6.1 2.1 6.1 5.4 0 3.2-2.6 5.4-6.1 5.4-3.6 0-6.2-2.2-6.2-5.4 0-3.3 2.6-5.4 6.2-5.4Zm15.7 12.6c.8.9 2.5 1.7 4.6 1.7 4.3 0 6.8-3 6.8-6.6C67 12 64.4 9 60.1 9c-2.1 0-3.8.8-4.6 1.7v-6h-3.9V22h3.9v-1.4Zm-.1-5c0-2 1.7-3.4 3.9-3.4 2 0 3.9 1.2 3.9 3.5 0 2.2-1.8 3.5-4 3.5-2.1 0-3.8-1.4-3.8-3.4v-.2ZM67.3 20a11 11 0 0 0 7.2 2.3c4 0 7-1.5 7-4.4 0-3-2.9-3.5-6.1-3.8-2.8-.4-3.6-.4-3.6-1.1 0-.7.9-1 2.5-1 2 0 3.7.5 4.8 1.6l2-2.3A9.7 9.7 0 0 0 74.5 9c-4 0-6.5 1.7-6.5 4.3 0 2.7 2.5 3.3 5.6 3.7 2.8.3 4 .3 4 1.2 0 .8-1 1.1-2.8 1.1-2.2 0-4.1-.7-5.7-2l-1.8 2.5ZM82.8 8h4V4.9h-4V8Zm3.9 1.4h-3.8V22h3.8V9.4Zm13.1 11.2V22h3.9V4.8h-3.9v6C99 9.8 97.4 9 95.2 9c-4.3 0-6.8 3-6.8 6.6 0 3.6 2.5 6.6 6.8 6.6 2.2 0 3.8-.8 4.6-1.7Zm.1-5v.2c0 2-1.7 3.4-3.9 3.4-2 0-3.9-1.3-3.9-3.5 0-2.3 1.8-3.5 4-3.5 2.1 0 3.8 1.4 3.8 3.4ZM106 8h4V4.9h-4V8Zm3.9 1.4H106V22h3.9V9.4Zm7 12.9a8 8 0 0 0 5.2-1.7c.6 1.2 2.2 2 5 1.4v-2.8c-1.4.3-1.7 0-1.7-.7v-4.6c0-3.2-2.3-4.8-6.4-4.8-3.5 0-6.2 1.5-7 3.8l3.4 1c.4-1 1.7-1.8 3.5-1.8 2 0 2.8.8 2.8 1.7v.1l-5 .5c-3 .3-5.2 1.5-5.2 4 0 2.4 2.2 3.9 5.4 3.9Zm4.8-5.1c0 1.4-2.2 2.3-4.1 2.3-1.5 0-2.4-.5-2.4-1.3s.7-1.1 2-1.3l4.5-.4v.7Zm6.7 4.8h3.8v-6c0-2.2 1.2-3.5 3.3-3.5 2 0 3 1.3 3 3.4V22h3.8v-7.2c0-3.5-2.2-5.7-5.5-5.7-2 0-3.6.8-4.6 1.8V9.4h-3.8V22Z"/><path fill-rule="evenodd" stroke="currentColor" stroke-width="0.5px" d="M191.822 20.035A3.288 3.288 0 0 0 191.812 19.951A2.225 2.225 0 0 0 191.728 19.825A3.914 3.914 0 0 0 191.649 19.779A2.868 2.868 0 0 0 191.535 19.755Q191.388 19.755 191.329 19.85A9.99 9.99 0 0 0 191.248 20.005A9.059 9.059 0 0 0 191.234 20.042A20.576 20.576 0 0 1 191.04 20.456A15.291 15.291 0 0 1 190.688 20.854A13.176 13.176 0 0 1 190.086 21.116A18.046 18.046 0 0 1 189.778 21.141A16.538 16.538 0 0 1 189.506 21.117A22.39 22.39 0 0 1 189.246 21.057A12.53 12.53 0 0 1 188.825 20.838A15.259 15.259 0 0 1 188.718 20.746Q188.476 20.518 188.315 20.126A19.046 19.046 0 0 1 188.212 19.778Q188.177 19.602 188.163 19.395A41.406 41.406 0 0 1 188.154 19.118A38.021 38.021 0 0 1 188.176 18.694Q188.2 18.485 188.249 18.307A18.247 18.247 0 0 1 188.319 18.1A22.415 22.415 0 0 1 188.472 17.79Q188.57 17.628 188.687 17.506A13.277 13.277 0 0 1 188.732 17.463A15.164 15.164 0 0 1 189.051 17.229A13.142 13.142 0 0 1 189.274 17.134A20.296 20.296 0 0 1 189.592 17.058A16.216 16.216 0 0 1 189.834 17.039Q190.032 17.039 190.179 17.076A8.428 8.428 0 0 1 190.265 17.102A20.826 20.826 0 0 1 190.385 17.15Q190.443 17.176 190.492 17.203A10.532 10.532 0 0 1 190.548 17.235A13.851 13.851 0 0 1 190.796 17.429A16.001 16.001 0 0 1 190.849 17.484Q190.989 17.634 191.087 17.816A28.524 28.524 0 0 0 191.143 17.923A32.076 32.076 0 0 0 191.164 17.96A8.099 8.099 0 0 0 191.246 18.077A7.413 7.413 0 0 0 191.259 18.093A5.796 5.796 0 0 0 191.329 18.16A4.911 4.911 0 0 0 191.371 18.191A2.41 2.41 0 0 0 191.488 18.228A2.956 2.956 0 0 0 191.507 18.229A3.152 3.152 0 0 0 191.589 18.219A2.121 2.121 0 0 0 191.714 18.131A4.225 4.225 0 0 0 191.758 18.048A3.083 3.083 0 0 0 191.78 17.935A2.636 2.636 0 0 0 191.777 17.896Q191.77 17.853 191.751 17.792A15.123 15.123 0 0 0 191.735 17.743A12.471 12.471 0 0 0 191.685 17.624Q191.648 17.544 191.595 17.456Q191.506 17.308 191.365 17.148A29.801 29.801 0 0 0 191.346 17.127A16.118 16.118 0 0 0 191.103 16.907A19.423 19.423 0 0 0 190.972 16.819A20.302 20.302 0 0 0 190.685 16.673A25.928 25.928 0 0 0 190.461 16.591A19.442 19.442 0 0 0 190.11 16.518A25.565 25.565 0 0 0 189.806 16.5A24.519 24.519 0 0 0 189.175 16.579A21.58 21.58 0 0 0 188.868 16.686Q188.441 16.871 188.13 17.207A22.873 22.873 0 0 0 187.739 17.792A27.604 27.604 0 0 0 187.643 18.023A28.76 28.76 0 0 0 187.489 18.699A36.041 36.041 0 0 0 187.468 19.09Q187.468 19.657 187.65 20.189A25.617 25.617 0 0 0 187.925 20.762A21.934 21.934 0 0 0 188.182 21.085Q188.35 21.26 188.553 21.376Q188.756 21.491 188.973 21.558Q189.19 21.624 189.411 21.652Q189.631 21.68 189.841 21.68Q190.33 21.68 190.687 21.519A14.886 14.886 0 0 0 190.758 21.484A23.571 23.571 0 0 0 191.1 21.27A18.016 18.016 0 0 0 191.371 21.019A21.893 21.893 0 0 0 191.572 20.749A16.519 16.519 0 0 0 191.714 20.473A24.164 24.164 0 0 0 191.766 20.326Q191.812 20.183 191.82 20.08A5.511 5.511 0 0 0 191.822 20.035ZM210.729 20.539A10.256 10.256 0 0 0 210.709 20.331Q210.681 20.195 210.613 20.089A6.408 6.408 0 0 0 210.603 20.074Q210.477 19.888 210.285 19.769Q210.092 19.65 209.865 19.58Q209.637 19.51 209.427 19.468Q209.112 19.398 208.909 19.332Q208.769 19.286 208.67 19.234A8.38 8.38 0 0 1 208.591 19.188Q208.506 19.132 208.459 19.069A3.226 3.226 0 0 1 208.43 19.024A4.079 4.079 0 0 1 208.384 18.844A4.773 4.773 0 0 1 208.384 18.831Q208.384 18.614 208.563 18.485A6.016 6.016 0 0 1 208.611 18.453A9.288 9.288 0 0 1 208.884 18.349Q209.018 18.32 209.175 18.32A15.627 15.627 0 0 1 209.378 18.332Q209.479 18.346 209.562 18.373A6.348 6.348 0 0 1 209.714 18.446A8.886 8.886 0 0 1 209.849 18.555Q209.934 18.64 209.98 18.739A5.694 5.694 0 0 1 209.98 18.74A21.387 21.387 0 0 0 210.014 18.808Q210.051 18.879 210.082 18.923A4.301 4.301 0 0 0 210.103 18.95A1.554 1.554 0 0 0 210.167 18.995Q210.193 19.005 210.226 19.01A4.094 4.094 0 0 0 210.281 19.013Q210.34 19.013 210.381 19A1.678 1.678 0 0 0 210.421 18.982A2.886 2.886 0 0 0 210.467 18.945A2.322 2.322 0 0 0 210.498 18.908A2.481 2.481 0 0 0 210.521 18.867A1.908 1.908 0 0 0 210.533 18.824Q210.539 18.79 210.54 18.77A1.657 1.657 0 0 0 210.54 18.761Q210.54 18.719 210.503 18.605A25.229 25.229 0 0 0 210.491 18.569Q210.451 18.451 210.345 18.329A12.347 12.347 0 0 0 210.295 18.275A9.871 9.871 0 0 0 210.149 18.153Q210.034 18.074 209.879 18.005A12.077 12.077 0 0 0 209.651 17.933Q209.534 17.907 209.395 17.895A28.523 28.523 0 0 0 209.161 17.886Q208.923 17.886 208.736 17.922A15.474 15.474 0 0 0 208.692 17.932A15.47 15.47 0 0 0 208.491 17.991A11.956 11.956 0 0 0 208.335 18.061Q208.083 18.201 207.943 18.439A10.425 10.425 0 0 0 207.835 18.69A8.678 8.678 0 0 0 207.803 18.922A8.458 8.458 0 0 0 207.827 19.126A6.855 6.855 0 0 0 207.898 19.304A10.914 10.914 0 0 0 208.01 19.466A8.765 8.765 0 0 0 208.118 19.573A13.929 13.929 0 0 0 208.273 19.684A12.994 12.994 0 0 0 208.276 19.685A9.406 9.406 0 0 0 208.342 19.722Q208.379 19.741 208.423 19.759A19.716 19.716 0 0 0 208.482 19.783Q208.569 19.817 208.683 19.854A61.793 61.793 0 0 0 208.794 19.888Q208.975 19.943 209.246 20.011A175.761 175.761 0 0 0 209.259 20.014Q209.392 20.049 209.543 20.091A11.079 11.079 0 0 1 209.724 20.159A9.425 9.425 0 0 1 209.812 20.207Q209.931 20.28 210.011 20.389A3.951 3.951 0 0 1 210.079 20.538Q210.092 20.597 210.092 20.665A4.625 4.625 0 0 1 209.993 20.949A7.213 7.213 0 0 1 209.879 21.068A6.795 6.795 0 0 1 209.657 21.188Q209.485 21.246 209.245 21.246Q208.982 21.246 208.8 21.18A6.716 6.716 0 0 1 208.611 21.078Q208.398 20.91 208.293 20.665A7.271 7.271 0 0 0 208.241 20.564A5.814 5.814 0 0 0 208.192 20.497A1.892 1.892 0 0 0 208.095 20.437Q208.064 20.429 208.027 20.427A3.869 3.869 0 0 0 208.013 20.427A2.684 2.684 0 0 0 207.902 20.45A2.607 2.607 0 0 0 207.824 20.504A2.794 2.794 0 0 0 207.773 20.573A2.276 2.276 0 0 0 207.747 20.679Q207.747 20.868 207.849 21.029A18.825 18.825 0 0 0 207.938 21.159Q207.996 21.236 208.055 21.295A13.024 13.024 0 0 0 208.518 21.581A14.764 14.764 0 0 0 208.521 21.582A14.51 14.51 0 0 0 208.761 21.645Q208.883 21.667 209.025 21.675A30.93 30.93 0 0 0 209.203 21.68Q209.548 21.68 209.798 21.62A13.282 13.282 0 0 0 210.019 21.547A17.031 17.031 0 0 0 210.226 21.44Q210.382 21.345 210.481 21.229A11.064 11.064 0 0 0 210.597 21.065A7.971 7.971 0 0 0 210.684 20.851A23.38 23.38 0 0 0 210.707 20.737Q210.728 20.629 210.729 20.55A6.492 6.492 0 0 0 210.729 20.539ZM149.486 20.469A20.565 20.565 0 0 0 149.509 20.43Q149.535 20.385 149.569 20.321A90.19 90.19 0 0 0 149.602 20.259Q149.675 20.119 149.749 19.962A37.1 37.1 0 0 0 149.84 19.75A31.562 31.562 0 0 0 149.874 19.657A12.867 12.867 0 0 0 149.902 19.573Q149.927 19.482 149.927 19.419Q149.927 19.3 149.843 19.22Q149.759 19.139 149.64 19.139A2.273 2.273 0 0 0 149.482 19.204Q149.434 19.248 149.395 19.321A14.995 14.995 0 0 0 149.383 19.346Q149.363 19.388 149.329 19.465Q149.283 19.566 149.231 19.682Q149.178 19.797 149.133 19.899A99.51 99.51 0 0 1 149.111 19.946Q149.082 20.011 149.066 20.042Q148.968 19.938 148.891 19.851A68.292 68.292 0 0 1 148.881 19.839A1775.331 1775.331 0 0 1 148.805 19.754Q148.754 19.696 148.695 19.629A79.458 79.458 0 0 1 148.64 19.566Q148.552 19.465 148.44 19.328A466.983 466.983 0 0 1 148.358 19.23Q148.246 19.093 148.095 18.907A1543.854 1543.854 0 0 1 148.044 18.845Q148.506 18.6 148.8 18.303A10.277 10.277 0 0 0 149.021 17.98A9.508 9.508 0 0 0 149.094 17.606Q149.094 17.473 149.047 17.311A16.194 16.194 0 0 0 149.031 17.26A10.364 10.364 0 0 0 148.872 16.958A12.188 12.188 0 0 0 148.825 16.899A10.761 10.761 0 0 0 148.611 16.71A13.818 13.818 0 0 0 148.45 16.616Q148.241 16.511 147.945 16.501A18.707 18.707 0 0 0 147.883 16.5A15.973 15.973 0 0 0 147.614 16.522A11.629 11.629 0 0 0 147.334 16.605A13.053 13.053 0 0 0 147.095 16.742A10.73 10.73 0 0 0 146.945 16.875A10.831 10.831 0 0 0 146.739 17.186A10.281 10.281 0 0 0 146.718 17.239A11.786 11.786 0 0 0 146.65 17.524A10.583 10.583 0 0 0 146.644 17.634A10.236 10.236 0 0 0 146.703 17.97A13.462 13.462 0 0 0 146.788 18.163A32.918 32.918 0 0 0 146.933 18.407Q147.038 18.57 147.176 18.747Q146.98 18.852 146.773 18.985Q146.567 19.118 146.396 19.29Q146.224 19.461 146.112 19.689A10.729 10.729 0 0 0 146.016 20.001A14.179 14.179 0 0 0 146 20.217A12.88 12.88 0 0 0 146.038 20.523A16.369 16.369 0 0 0 146.098 20.714A13.928 13.928 0 0 0 146.374 21.16A15.957 15.957 0 0 0 146.399 21.187A14.894 14.894 0 0 0 146.71 21.434A18.905 18.905 0 0 0 146.914 21.54A15.13 15.13 0 0 0 147.256 21.645Q147.417 21.675 147.602 21.679A26.164 26.164 0 0 0 147.659 21.68Q147.953 21.68 148.181 21.614A20.209 20.209 0 0 0 148.417 21.529A15.925 15.925 0 0 0 148.583 21.446A16.498 16.498 0 0 0 148.784 21.309A13.958 13.958 0 0 0 148.888 21.218A33.819 33.819 0 0 0 149.023 21.079A26.636 26.636 0 0 0 149.115 20.973L149.266 21.124Q149.338 21.196 149.462 21.307A122.767 122.767 0 0 0 149.542 21.379Q149.655 21.479 149.734 21.54A17.292 17.292 0 0 0 149.752 21.554Q149.821 21.606 149.869 21.634A5.331 5.331 0 0 0 149.889 21.645A4.838 4.838 0 0 0 149.916 21.659Q149.95 21.674 149.973 21.677A5.79 5.79 0 0 0 150.011 21.68A4.806 4.806 0 0 0 150.032 21.68A2.48 2.48 0 0 0 150.12 21.663Q150.153 21.651 150.188 21.629A5.246 5.246 0 0 0 150.225 21.603Q150.326 21.526 150.326 21.372A2.778 2.778 0 0 0 150.319 21.308A2.031 2.031 0 0 0 150.284 21.232A5.843 5.843 0 0 0 150.256 21.198Q150.214 21.15 150.144 21.085A119.856 119.856 0 0 1 150.081 21.031Q150.004 20.966 149.948 20.916A37.409 37.409 0 0 1 149.931 20.9Q149.85 20.826 149.784 20.767Q149.717 20.707 149.654 20.641A52.27 52.27 0 0 0 149.62 20.605Q149.565 20.548 149.486 20.469ZM172.432 21.183L172.432 19.279A51.556 51.556 0 0 0 172.432 19.211Q172.431 19.149 172.429 19.073A18.916 18.916 0 0 0 172.409 18.853A21.017 21.017 0 0 0 172.404 18.821Q172.383 18.691 172.334 18.565Q172.285 18.439 172.194 18.334Q172.005 18.117 171.757 18.002A12.033 12.033 0 0 0 171.449 17.908A16.569 16.569 0 0 0 171.172 17.886A16.106 16.106 0 0 0 170.97 17.898Q170.864 17.912 170.773 17.94A9.472 9.472 0 0 0 170.745 17.949Q170.563 18.012 170.427 18.107A14.499 14.499 0 0 0 170.272 18.229A12 12 0 0 0 170.192 18.31Q170.094 18.418 170.024 18.509A59.749 59.749 0 0 0 170.024 18.43Q170.023 18.399 170.022 18.372A28.64 28.64 0 0 0 170.021 18.32Q170.018 18.267 170.016 18.224A56.933 56.933 0 0 0 170.014 18.187Q170.01 18.131 169.996 18.093Q169.982 18.054 169.961 18.019A1.527 1.527 0 0 0 169.935 17.979Q169.912 17.952 169.874 17.928A2.736 2.736 0 0 0 169.733 17.886A3.297 3.297 0 0 0 169.723 17.886A3.514 3.514 0 0 0 169.666 17.891Q169.625 17.897 169.594 17.914A7.268 7.268 0 0 0 169.552 17.938Q169.533 17.95 169.517 17.962A3.925 3.925 0 0 0 169.506 17.97A2.17 2.17 0 0 0 169.455 18.054Q169.444 18.085 169.44 18.122A3.872 3.872 0 0 0 169.44 18.124A16 16 0 0 0 169.433 18.203Q169.431 18.239 169.43 18.281A34.968 34.968 0 0 0 169.429 18.369L169.429 21.183Q169.429 21.294 169.434 21.378A16.104 16.104 0 0 0 169.44 21.439A2.976 2.976 0 0 0 169.455 21.508A2.094 2.094 0 0 0 169.513 21.596A3.572 3.572 0 0 0 169.615 21.658A3.123 3.123 0 0 0 169.73 21.68Q169.849 21.68 169.947 21.596A2.227 2.227 0 0 0 170.009 21.503A3.192 3.192 0 0 0 170.024 21.439Q170.034 21.366 170.037 21.265A29.244 29.244 0 0 0 170.038 21.183L170.038 20.028A136.267 136.267 0 0 1 170.039 19.891Q170.041 19.696 170.049 19.559Q170.059 19.377 170.08 19.258A13.249 13.249 0 0 1 170.096 19.182Q170.112 19.114 170.133 19.066Q170.164 18.992 170.206 18.922Q170.332 18.691 170.57 18.555Q170.808 18.418 171.074 18.418Q171.263 18.418 171.438 18.506Q171.613 18.593 171.711 18.768A5.723 5.723 0 0 1 171.751 18.856Q171.768 18.902 171.781 18.956A12.31 12.31 0 0 1 171.795 19.027Q171.823 19.188 171.823 19.454L171.823 21.183Q171.823 21.294 171.828 21.378A16.104 16.104 0 0 0 171.834 21.439A2.976 2.976 0 0 0 171.849 21.508A2.094 2.094 0 0 0 171.907 21.596A3.143 3.143 0 0 0 172.114 21.68A4.083 4.083 0 0 0 172.131 21.68Q172.25 21.68 172.348 21.596A2.116 2.116 0 0 0 172.409 21.5A3.049 3.049 0 0 0 172.422 21.439A17.011 17.011 0 0 0 172.428 21.359Q172.432 21.282 172.432 21.183ZM199.648 21.183L199.648 19.279A51.556 51.556 0 0 0 199.648 19.211Q199.647 19.149 199.645 19.073A18.916 18.916 0 0 0 199.625 18.853A21.017 21.017 0 0 0 199.62 18.821Q199.599 18.691 199.55 18.565Q199.501 18.439 199.41 18.334Q199.221 18.117 198.973 18.002A12.033 12.033 0 0 0 198.665 17.908A16.569 16.569 0 0 0 198.388 17.886A16.106 16.106 0 0 0 198.186 17.898Q198.08 17.912 197.989 17.94A9.472 9.472 0 0 0 197.961 17.949Q197.779 18.012 197.643 18.107A14.499 14.499 0 0 0 197.488 18.229A12 12 0 0 0 197.408 18.31Q197.31 18.418 197.24 18.509A59.749 59.749 0 0 0 197.24 18.43Q197.239 18.399 197.238 18.372A28.64 28.64 0 0 0 197.237 18.32Q197.234 18.267 197.232 18.224A56.933 56.933 0 0 0 197.23 18.187Q197.226 18.131 197.212 18.093Q197.198 18.054 197.177 18.019A1.527 1.527 0 0 0 197.151 17.979Q197.128 17.952 197.09 17.928A2.736 2.736 0 0 0 196.949 17.886A3.297 3.297 0 0 0 196.939 17.886A3.514 3.514 0 0 0 196.882 17.891Q196.841 17.897 196.81 17.914A7.268 7.268 0 0 0 196.768 17.938Q196.749 17.95 196.733 17.962A3.925 3.925 0 0 0 196.722 17.97A2.17 2.17 0 0 0 196.671 18.054Q196.66 18.085 196.656 18.122A3.872 3.872 0 0 0 196.656 18.124A16 16 0 0 0 196.649 18.203Q196.647 18.239 196.646 18.281A34.968 34.968 0 0 0 196.645 18.369L196.645 21.183Q196.645 21.294 196.65 21.378A16.104 16.104 0 0 0 196.656 21.439A2.976 2.976 0 0 0 196.671 21.508A2.094 2.094 0 0 0 196.729 21.596A3.572 3.572 0 0 0 196.831 21.658A3.123 3.123 0 0 0 196.946 21.68Q197.065 21.68 197.163 21.596A2.227 2.227 0 0 0 197.225 21.503A3.192 3.192 0 0 0 197.24 21.439Q197.25 21.366 197.253 21.265A29.244 29.244 0 0 0 197.254 21.183L197.254 20.028A136.267 136.267 0 0 1 197.255 19.891Q197.257 19.696 197.265 19.559Q197.275 19.377 197.296 19.258A13.249 13.249 0 0 1 197.312 19.182Q197.328 19.114 197.349 19.066Q197.38 18.992 197.422 18.922Q197.548 18.691 197.786 18.555Q198.024 18.418 198.29 18.418Q198.479 18.418 198.654 18.506Q198.829 18.593 198.927 18.768A5.723 5.723 0 0 1 198.967 18.856Q198.984 18.902 198.997 18.956A12.31 12.31 0 0 1 199.011 19.027Q199.039 19.188 199.039 19.454L199.039 21.183Q199.039 21.294 199.044 21.378A16.104 16.104 0 0 0 199.05 21.439A2.976 2.976 0 0 0 199.065 21.508A2.094 2.094 0 0 0 199.123 21.596A3.143 3.143 0 0 0 199.33 21.68A4.083 4.083 0 0 0 199.347 21.68Q199.466 21.68 199.564 21.596A2.116 2.116 0 0 0 199.625 21.5A3.049 3.049 0 0 0 199.638 21.439A17.011 17.011 0 0 0 199.644 21.359Q199.648 21.282 199.648 21.183ZM176.534 20.532A3.117 3.117 0 0 0 176.522 20.444A2.336 2.336 0 0 0 176.443 20.326A3.647 3.647 0 0 0 176.368 20.278A2.675 2.675 0 0 0 176.254 20.252Q176.195 20.252 176.154 20.273A1.457 1.457 0 0 0 176.132 20.287Q176.086 20.322 176.051 20.364A0.884 0.884 0 0 0 176.043 20.373Q176.031 20.389 176.013 20.424Q175.988 20.469 175.96 20.522A19.281 19.281 0 0 1 175.922 20.59A16.39 16.39 0 0 1 175.904 20.62Q175.877 20.664 175.869 20.685A0.832 0.832 0 0 0 175.869 20.686Q175.729 20.938 175.481 21.071Q175.232 21.204 174.938 21.204A11.312 11.312 0 0 1 174.567 21.146A9.482 9.482 0 0 1 174.123 20.823A12.884 12.884 0 0 1 173.909 20.4Q173.825 20.123 173.825 19.762Q173.825 19.265 174.005 18.929A11.724 11.724 0 0 1 174.133 18.737A9.92 9.92 0 0 1 174.858 18.365A13.208 13.208 0 0 1 174.952 18.362Q175.149 18.362 175.297 18.41A7.63 7.63 0 0 1 175.348 18.429A11.407 11.407 0 0 1 175.489 18.497A8.28 8.28 0 0 1 175.621 18.59Q175.729 18.684 175.796 18.782A95.188 95.188 0 0 1 175.827 18.828Q175.857 18.874 175.879 18.908A25.527 25.527 0 0 1 175.897 18.936Q175.946 19.027 175.988 19.076Q176.018 19.111 176.044 19.133A2.786 2.786 0 0 0 176.065 19.15Q176.093 19.169 176.119 19.175A1.041 1.041 0 0 0 176.132 19.178A5.79 5.79 0 0 0 176.17 19.181A4.806 4.806 0 0 0 176.191 19.181A2.779 2.779 0 0 0 176.373 19.113A3.543 3.543 0 0 0 176.38 19.107A2.405 2.405 0 0 0 176.464 18.932A3.241 3.241 0 0 0 176.464 18.915Q176.464 18.824 176.426 18.737A9.75 9.75 0 0 0 176.371 18.629A8.253 8.253 0 0 0 176.338 18.579A16.685 16.685 0 0 0 176.24 18.444A21.161 21.161 0 0 0 176.149 18.338A11.789 11.789 0 0 0 175.991 18.194A14.908 14.908 0 0 0 175.873 18.114A13.143 13.143 0 0 0 175.68 18.017A17.807 17.807 0 0 0 175.481 17.949A16.11 16.11 0 0 0 175.266 17.906Q175.155 17.891 175.03 17.887A28.494 28.494 0 0 0 174.945 17.886Q174.427 17.886 174.095 18.065A15.968 15.968 0 0 0 173.748 18.312A13.867 13.867 0 0 0 173.566 18.523Q173.37 18.803 173.293 19.139Q173.216 19.475 173.216 19.79A33.884 33.884 0 0 0 173.227 20.07Q173.238 20.204 173.26 20.318A15.789 15.789 0 0 0 173.297 20.466Q173.357 20.666 173.426 20.811A13.31 13.31 0 0 0 173.475 20.903A12.835 12.835 0 0 0 173.544 21.018Q173.583 21.076 173.631 21.136A21.776 21.776 0 0 0 173.647 21.155A11.374 11.374 0 0 0 173.779 21.291A15.635 15.635 0 0 0 173.93 21.407Q174.105 21.526 174.361 21.603A16.697 16.697 0 0 0 174.604 21.656Q174.772 21.68 174.973 21.68Q175.414 21.68 175.712 21.53A20.695 20.695 0 0 0 175.965 21.379A14.971 14.971 0 0 0 176.195 21.183A16.44 16.44 0 0 0 176.327 21.025Q176.39 20.939 176.432 20.854A8.98 8.98 0 0 0 176.457 20.798Q176.53 20.62 176.534 20.541A1.736 1.736 0 0 0 176.534 20.532ZM153.742 20.147L155.975 20.147L156.423 21.253Q156.492 21.426 156.55 21.53A10.295 10.295 0 0 0 156.574 21.572A2.117 2.117 0 0 0 156.693 21.663Q156.745 21.68 156.815 21.68A3.648 3.648 0 0 0 156.926 21.664A2.913 2.913 0 0 0 157.06 21.575Q157.151 21.47 157.151 21.372Q157.151 21.295 157.127 21.218Q157.108 21.159 157.071 21.067A48.599 48.599 0 0 0 157.046 21.008L155.401 17.088Q155.352 16.969 155.293 16.833A12.279 12.279 0 0 0 155.259 16.762Q155.217 16.68 155.177 16.64A3.694 3.694 0 0 0 155.091 16.569A4.791 4.791 0 0 0 155.03 16.539Q154.939 16.5 154.841 16.5A6.137 6.137 0 0 0 154.757 16.506Q154.692 16.515 154.642 16.539A4.007 4.007 0 0 0 154.506 16.645A4.629 4.629 0 0 0 154.502 16.651Q154.448 16.717 154.403 16.814A11.485 11.485 0 0 0 154.393 16.836Q154.344 16.948 154.288 17.095L152.699 21.036A43.035 43.035 0 0 0 152.676 21.093Q152.648 21.163 152.631 21.215A13.482 13.482 0 0 0 152.626 21.232Q152.601 21.309 152.601 21.386Q152.601 21.49 152.69 21.583A4.693 4.693 0 0 0 152.692 21.586A3.044 3.044 0 0 0 152.91 21.68A4.049 4.049 0 0 0 152.923 21.68A4.561 4.561 0 0 0 153.008 21.673Q153.057 21.663 153.093 21.643A1.998 1.998 0 0 0 153.165 21.575A9.744 9.744 0 0 0 153.207 21.5Q153.248 21.42 153.293 21.305A35.447 35.447 0 0 0 153.308 21.267L153.742 20.147ZM167.875 21.085A156.604 156.604 0 0 0 167.919 21.236A174.514 174.514 0 0 0 167.935 21.288A9.866 9.866 0 0 0 167.991 21.434A8.679 8.679 0 0 0 168.015 21.481Q168.064 21.568 168.127 21.624Q168.19 21.68 168.281 21.68Q168.4 21.68 168.488 21.607A2.978 2.978 0 0 0 168.535 21.557Q168.567 21.514 168.573 21.467A1.833 1.833 0 0 0 168.575 21.442A5.283 5.283 0 0 0 168.567 21.354Q168.559 21.307 168.544 21.257A113.074 113.074 0 0 1 168.533 21.221Q168.511 21.15 168.505 21.127A9.687 9.687 0 0 1 168.48 21.059Q168.468 21.022 168.456 20.98A21.964 21.964 0 0 1 168.439 20.91Q168.412 20.799 168.408 20.605A35.786 35.786 0 0 1 168.407 20.525Q168.407 20.467 168.41 20.329A329.739 329.739 0 0 1 168.411 20.305Q168.414 20.147 168.418 19.965Q168.421 19.783 168.425 19.619A290.299 290.299 0 0 0 168.426 19.542Q168.428 19.437 168.428 19.384A50.037 50.037 0 0 0 168.415 19.009A40.849 40.849 0 0 0 168.393 18.796A10.854 10.854 0 0 0 168.312 18.497A9.517 9.517 0 0 0 168.211 18.32Q168.064 18.117 167.767 18.002Q167.472 17.887 166.962 17.886A46.251 46.251 0 0 0 166.951 17.886Q166.608 17.886 166.356 17.946A13.799 13.799 0 0 0 166.15 18.012Q165.917 18.108 165.764 18.227A10.032 10.032 0 0 0 165.677 18.303Q165.509 18.467 165.453 18.632A19.398 19.398 0 0 0 165.429 18.708Q165.407 18.782 165.4 18.833A3.082 3.082 0 0 0 165.397 18.873A2.545 2.545 0 0 0 165.417 18.975A2.432 2.432 0 0 0 165.478 19.059Q165.558 19.132 165.67 19.132Q165.76 19.132 165.815 19.096A1.703 1.703 0 0 0 165.866 19.045Q165.922 18.957 165.971 18.838Q166.027 18.698 166.136 18.6Q166.244 18.502 166.381 18.443A11.745 11.745 0 0 1 166.636 18.365A13.202 13.202 0 0 1 166.675 18.359Q166.832 18.334 166.993 18.334Q167.28 18.334 167.443 18.404A5.36 5.36 0 0 1 167.459 18.411A6.24 6.24 0 0 1 167.586 18.489A4.723 4.723 0 0 1 167.7 18.621A7.268 7.268 0 0 1 167.786 18.86A8.677 8.677 0 0 1 167.795 18.922A52.243 52.243 0 0 1 167.815 19.182A58.488 58.488 0 0 1 167.819 19.272A58.673 58.673 0 0 1 167.762 19.292Q167.682 19.319 167.627 19.335Q167.553 19.356 167.476 19.377Q167.425 19.39 167.299 19.415A131.725 131.725 0 0 1 167.277 19.419Q167.133 19.447 166.972 19.475A202.132 202.132 0 0 0 166.738 19.517A176.919 176.919 0 0 0 166.664 19.531A182.46 182.46 0 0 0 166.596 19.544Q166.511 19.561 166.465 19.571A21.283 21.283 0 0 0 166.454 19.573A87.884 87.884 0 0 0 166.304 19.607Q166.228 19.625 166.144 19.646A150.463 150.463 0 0 0 166.087 19.661Q165.88 19.713 165.698 19.829A9.901 9.901 0 0 0 165.422 20.092A11.635 11.635 0 0 0 165.39 20.14Q165.28 20.312 165.266 20.569A14.069 14.069 0 0 0 165.264 20.644Q165.264 20.833 165.334 21.019Q165.404 21.204 165.551 21.351A10.381 10.381 0 0 0 165.782 21.523A13.004 13.004 0 0 0 165.919 21.589A11.509 11.509 0 0 0 166.167 21.659Q166.282 21.678 166.413 21.68A19.554 19.554 0 0 0 166.44 21.68A22.373 22.373 0 0 0 166.719 21.663A16.841 16.841 0 0 0 166.969 21.614Q167.203 21.547 167.382 21.453A21.631 21.631 0 0 0 167.527 21.369Q167.6 21.322 167.661 21.274A12.71 12.71 0 0 0 167.683 21.257A45.541 45.541 0 0 0 167.754 21.196Q167.825 21.135 167.872 21.088A13.449 13.449 0 0 0 167.875 21.085ZM195.091 21.085A156.604 156.604 0 0 0 195.135 21.236A174.514 174.514 0 0 0 195.151 21.288A9.866 9.866 0 0 0 195.207 21.434A8.679 8.679 0 0 0 195.231 21.481Q195.28 21.568 195.343 21.624Q195.406 21.68 195.497 21.68Q195.616 21.68 195.704 21.607A2.978 2.978 0 0 0 195.751 21.557Q195.783 21.514 195.789 21.467A1.833 1.833 0 0 0 195.791 21.442A5.283 5.283 0 0 0 195.783 21.354Q195.775 21.307 195.76 21.257A113.074 113.074 0 0 1 195.749 21.221Q195.727 21.15 195.721 21.127A9.687 9.687 0 0 1 195.696 21.059Q195.684 21.022 195.672 20.98A21.964 21.964 0 0 1 195.655 20.91Q195.628 20.799 195.624 20.605A35.786 35.786 0 0 1 195.623 20.525Q195.623 20.467 195.626 20.329A329.739 329.739 0 0 1 195.627 20.305Q195.63 20.147 195.634 19.965Q195.637 19.783 195.641 19.619A290.299 290.299 0 0 0 195.642 19.542Q195.644 19.437 195.644 19.384A50.037 50.037 0 0 0 195.631 19.009A40.849 40.849 0 0 0 195.609 18.796A10.854 10.854 0 0 0 195.528 18.497A9.517 9.517 0 0 0 195.427 18.32Q195.28 18.117 194.983 18.002Q194.688 17.887 194.178 17.886A46.251 46.251 0 0 0 194.167 17.886Q193.824 17.886 193.572 17.946A13.799 13.799 0 0 0 193.366 18.012Q193.133 18.108 192.98 18.227A10.032 10.032 0 0 0 192.893 18.303Q192.725 18.467 192.669 18.632A19.398 19.398 0 0 0 192.645 18.708Q192.623 18.782 192.616 18.833A3.082 3.082 0 0 0 192.613 18.873A2.545 2.545 0 0 0 192.633 18.975A2.432 2.432 0 0 0 192.694 19.059Q192.774 19.132 192.886 19.132Q192.976 19.132 193.031 19.096A1.703 1.703 0 0 0 193.082 19.045Q193.138 18.957 193.187 18.838Q193.243 18.698 193.352 18.6Q193.46 18.502 193.597 18.443A11.745 11.745 0 0 1 193.852 18.365A13.202 13.202 0 0 1 193.891 18.359Q194.048 18.334 194.209 18.334Q194.496 18.334 194.659 18.404A5.36 5.36 0 0 1 194.675 18.411A6.24 6.24 0 0 1 194.802 18.489A4.723 4.723 0 0 1 194.916 18.621A7.268 7.268 0 0 1 195.002 18.86A8.677 8.677 0 0 1 195.011 18.922A52.243 52.243 0 0 1 195.031 19.182A58.488 58.488 0 0 1 195.035 19.272A58.673 58.673 0 0 1 194.978 19.292Q194.898 19.319 194.843 19.335Q194.769 19.356 194.692 19.377Q194.641 19.39 194.515 19.415A131.725 131.725 0 0 1 194.493 19.419Q194.349 19.447 194.188 19.475A202.132 202.132 0 0 0 193.954 19.517A176.919 176.919 0 0 0 193.88 19.531A182.46 182.46 0 0 0 193.812 19.544Q193.727 19.561 193.681 19.571A21.283 21.283 0 0 0 193.67 19.573A87.884 87.884 0 0 0 193.52 19.607Q193.444 19.625 193.36 19.646A150.463 150.463 0 0 0 193.303 19.661Q193.096 19.713 192.914 19.829A9.901 9.901 0 0 0 192.638 20.092A11.635 11.635 0 0 0 192.606 20.14Q192.496 20.312 192.482 20.569A14.069 14.069 0 0 0 192.48 20.644Q192.48 20.833 192.55 21.019Q192.62 21.204 192.767 21.351A10.381 10.381 0 0 0 192.998 21.523A13.004 13.004 0 0 0 193.135 21.589A11.509 11.509 0 0 0 193.383 21.659Q193.498 21.678 193.629 21.68A19.554 19.554 0 0 0 193.656 21.68A22.373 22.373 0 0 0 193.935 21.663A16.841 16.841 0 0 0 194.185 21.614Q194.419 21.547 194.598 21.453A21.631 21.631 0 0 0 194.743 21.369Q194.816 21.322 194.877 21.274A12.71 12.71 0 0 0 194.899 21.257A45.541 45.541 0 0 0 194.97 21.196Q195.041 21.135 195.088 21.088A13.449 13.449 0 0 0 195.091 21.085ZM206.424 21.085A156.604 156.604 0 0 0 206.468 21.236A174.514 174.514 0 0 0 206.484 21.288A9.866 9.866 0 0 0 206.54 21.434A8.679 8.679 0 0 0 206.564 21.481Q206.613 21.568 206.676 21.624Q206.739 21.68 206.83 21.68Q206.949 21.68 207.037 21.607A2.978 2.978 0 0 0 207.084 21.557Q207.116 21.514 207.122 21.467A1.833 1.833 0 0 0 207.124 21.442A5.283 5.283 0 0 0 207.116 21.354Q207.108 21.307 207.093 21.257A113.074 113.074 0 0 1 207.082 21.221Q207.06 21.15 207.054 21.127A9.687 9.687 0 0 1 207.029 21.059Q207.017 21.022 207.005 20.98A21.964 21.964 0 0 1 206.988 20.91Q206.961 20.799 206.957 20.605A35.786 35.786 0 0 1 206.956 20.525Q206.956 20.467 206.959 20.329A329.739 329.739 0 0 1 206.96 20.305Q206.963 20.147 206.967 19.965Q206.97 19.783 206.974 19.619A290.299 290.299 0 0 0 206.975 19.542Q206.977 19.437 206.977 19.384A50.037 50.037 0 0 0 206.964 19.009A40.849 40.849 0 0 0 206.942 18.796A10.854 10.854 0 0 0 206.861 18.497A9.517 9.517 0 0 0 206.76 18.32Q206.613 18.117 206.316 18.002Q206.021 17.887 205.511 17.886A46.251 46.251 0 0 0 205.5 17.886Q205.157 17.886 204.905 17.946A13.799 13.799 0 0 0 204.699 18.012Q204.466 18.108 204.313 18.227A10.032 10.032 0 0 0 204.226 18.303Q204.058 18.467 204.002 18.632A19.398 19.398 0 0 0 203.978 18.708Q203.956 18.782 203.949 18.833A3.082 3.082 0 0 0 203.946 18.873A2.545 2.545 0 0 0 203.966 18.975A2.432 2.432 0 0 0 204.027 19.059Q204.107 19.132 204.219 19.132Q204.309 19.132 204.364 19.096A1.703 1.703 0 0 0 204.415 19.045Q204.471 18.957 204.52 18.838Q204.576 18.698 204.685 18.6Q204.793 18.502 204.93 18.443A11.745 11.745 0 0 1 205.185 18.365A13.202 13.202 0 0 1 205.224 18.359Q205.381 18.334 205.542 18.334Q205.829 18.334 205.992 18.404A5.36 5.36 0 0 1 206.008 18.411A6.24 6.24 0 0 1 206.135 18.489A4.723 4.723 0 0 1 206.249 18.621A7.268 7.268 0 0 1 206.335 18.86A8.677 8.677 0 0 1 206.344 18.922A52.243 52.243 0 0 1 206.364 19.182A58.488 58.488 0 0 1 206.368 19.272A58.673 58.673 0 0 1 206.311 19.292Q206.231 19.319 206.176 19.335Q206.102 19.356 206.025 19.377Q205.974 19.39 205.848 19.415A131.725 131.725 0 0 1 205.826 19.419Q205.682 19.447 205.521 19.475A202.132 202.132 0 0 0 205.287 19.517A176.919 176.919 0 0 0 205.213 19.531A182.46 182.46 0 0 0 205.145 19.544Q205.06 19.561 205.014 19.571A21.283 21.283 0 0 0 205.003 19.573A87.884 87.884 0 0 0 204.853 19.607Q204.777 19.625 204.693 19.646A150.463 150.463 0 0 0 204.636 19.661Q204.429 19.713 204.247 19.829A9.901 9.901 0 0 0 203.971 20.092A11.635 11.635 0 0 0 203.939 20.14Q203.829 20.312 203.815 20.569A14.069 14.069 0 0 0 203.813 20.644Q203.813 20.833 203.883 21.019Q203.953 21.204 204.1 21.351A10.381 10.381 0 0 0 204.331 21.523A13.004 13.004 0 0 0 204.468 21.589A11.509 11.509 0 0 0 204.716 21.659Q204.831 21.678 204.962 21.68A19.554 19.554 0 0 0 204.989 21.68A22.373 22.373 0 0 0 205.268 21.663A16.841 16.841 0 0 0 205.518 21.614Q205.752 21.547 205.931 21.453A21.631 21.631 0 0 0 206.076 21.369Q206.149 21.322 206.21 21.274A12.71 12.71 0 0 0 206.232 21.257A45.541 45.541 0 0 0 206.303 21.196Q206.374 21.135 206.421 21.088A13.449 13.449 0 0 0 206.424 21.085ZM177.794 19.902L179.971 19.902Q180.062 19.902 180.157 19.895Q180.251 19.888 180.332 19.853Q180.412 19.818 180.461 19.738Q180.51 19.657 180.51 19.51A8.226 8.226 0 0 0 180.508 19.461Q180.504 19.391 180.489 19.283A16.26 16.26 0 0 0 180.46 19.129Q180.442 19.055 180.416 18.973A26.778 26.778 0 0 0 180.409 18.95A17.318 17.318 0 0 0 180.314 18.72A21.358 21.358 0 0 0 180.237 18.579A13.255 13.255 0 0 0 179.998 18.285A15.344 15.344 0 0 0 179.943 18.236Q179.761 18.082 179.502 17.984A14.303 14.303 0 0 0 179.228 17.912Q179.1 17.891 178.954 17.887A24.995 24.995 0 0 0 178.886 17.886Q178.461 17.886 178.146 18.023A13.781 13.781 0 0 0 178.123 18.033Q177.801 18.18 177.591 18.436A16.765 16.765 0 0 0 177.319 18.911A19.805 19.805 0 0 0 177.276 19.038A24.845 24.845 0 0 0 177.174 19.655A28.502 28.502 0 0 0 177.171 19.776Q177.171 20.175 177.273 20.525Q177.374 20.875 177.588 21.131Q177.801 21.386 178.127 21.533A15.933 15.933 0 0 0 178.507 21.648Q178.679 21.678 178.874 21.68A26.983 26.983 0 0 0 178.9 21.68A24.666 24.666 0 0 0 179.157 21.667Q179.289 21.654 179.401 21.625A13.385 13.385 0 0 0 179.478 21.603A19.788 19.788 0 0 0 179.675 21.529Q179.793 21.477 179.887 21.414Q180.055 21.302 180.157 21.176Q180.234 21.08 180.289 21A17.945 17.945 0 0 0 180.321 20.952A14.683 14.683 0 0 0 180.372 20.859A17.681 17.681 0 0 0 180.402 20.798Q180.44 20.714 180.44 20.63A2.258 2.258 0 0 0 180.378 20.474A2.928 2.928 0 0 0 180.374 20.469A2.17 2.17 0 0 0 180.216 20.399A2.698 2.698 0 0 0 180.209 20.399Q180.097 20.399 180.041 20.466A26.352 26.352 0 0 0 180.002 20.513Q179.987 20.532 179.974 20.549A12.788 12.788 0 0 0 179.95 20.581Q179.873 20.7 179.786 20.819Q179.698 20.938 179.583 21.029A8.961 8.961 0 0 1 179.405 21.137A11.002 11.002 0 0 1 179.31 21.176Q179.152 21.232 178.928 21.232Q178.711 21.232 178.512 21.162A9.41 9.41 0 0 1 178.157 20.937A10.742 10.742 0 0 1 178.155 20.935A10.148 10.148 0 0 1 177.998 20.73A13.99 13.99 0 0 1 177.899 20.522A14.497 14.497 0 0 1 177.829 20.268Q177.806 20.143 177.798 20A26.817 26.817 0 0 1 177.794 19.902ZM160.49 21.05L160.49 21.267A12.437 12.437 0 0 0 160.49 21.29Q160.491 21.321 160.493 21.362A37.885 37.885 0 0 0 160.494 21.376A4.031 4.031 0 0 0 160.51 21.469A4.921 4.921 0 0 0 160.525 21.512Q160.553 21.582 160.613 21.631Q160.66 21.67 160.74 21.678A4.425 4.425 0 0 0 160.784 21.68A3.105 3.105 0 0 0 160.895 21.661A2.79 2.79 0 0 0 160.994 21.596A2.175 2.175 0 0 0 161.062 21.48A2.923 2.923 0 0 0 161.068 21.446A13.958 13.958 0 0 0 161.073 21.381Q161.078 21.305 161.078 21.204A44.546 44.546 0 0 0 161.078 21.197L161.078 17.004A44.226 44.226 0 0 0 161.076 16.874A49.881 49.881 0 0 0 161.075 16.829A5.027 5.027 0 0 0 161.062 16.732A4.139 4.139 0 0 0 161.04 16.665Q161.008 16.591 160.945 16.546Q160.882 16.5 160.77 16.5Q160.694 16.5 160.641 16.521A2.056 2.056 0 0 0 160.595 16.546Q160.532 16.591 160.504 16.665A4.762 4.762 0 0 0 160.478 16.766A5.995 5.995 0 0 0 160.473 16.829Q160.469 16.92 160.469 17.011L160.469 18.516A2.504 2.504 0 0 0 160.457 18.498Q160.428 18.459 160.357 18.38A10.281 10.281 0 0 0 160.279 18.302Q160.234 18.262 160.179 18.22A21.748 21.748 0 0 0 160.105 18.166Q159.944 18.054 159.717 17.97A13.078 13.078 0 0 0 159.455 17.905Q159.329 17.886 159.188 17.886Q158.801 17.886 158.524 18.01A11.161 11.161 0 0 0 158.411 18.068A15.529 15.529 0 0 0 158.032 18.379A14.284 14.284 0 0 0 157.918 18.527Q157.732 18.803 157.659 19.132A31.593 31.593 0 0 0 157.6 19.484A24.8 24.8 0 0 0 157.585 19.748A25.356 25.356 0 0 0 157.6 20.012Q157.616 20.17 157.652 20.347Q157.718 20.679 157.9 20.977Q158.082 21.274 158.394 21.477A11.715 11.715 0 0 0 158.748 21.629Q158.901 21.667 159.08 21.677A22.684 22.684 0 0 0 159.202 21.68A19.893 19.893 0 0 0 159.439 21.667Q159.56 21.652 159.664 21.622A11.619 11.619 0 0 0 159.703 21.61Q159.916 21.54 160.07 21.442Q160.224 21.344 160.326 21.236Q160.425 21.13 160.487 21.054A20.372 20.372 0 0 0 160.49 21.05ZM184.01 21.05L184.01 21.267A12.437 12.437 0 0 0 184.01 21.29Q184.011 21.321 184.013 21.362A37.885 37.885 0 0 0 184.014 21.376A4.031 4.031 0 0 0 184.03 21.469A4.921 4.921 0 0 0 184.045 21.512Q184.073 21.582 184.133 21.631Q184.18 21.67 184.26 21.678A4.425 4.425 0 0 0 184.304 21.68A3.105 3.105 0 0 0 184.415 21.661A2.79 2.79 0 0 0 184.514 21.596A2.175 2.175 0 0 0 184.582 21.48A2.923 2.923 0 0 0 184.588 21.446A13.958 13.958 0 0 0 184.593 21.381Q184.598 21.305 184.598 21.204A44.546 44.546 0 0 0 184.598 21.197L184.598 17.004A44.226 44.226 0 0 0 184.596 16.874A49.881 49.881 0 0 0 184.595 16.829A5.027 5.027 0 0 0 184.582 16.732A4.139 4.139 0 0 0 184.56 16.665Q184.528 16.591 184.465 16.546Q184.402 16.5 184.29 16.5Q184.214 16.5 184.161 16.521A2.056 2.056 0 0 0 184.115 16.546Q184.052 16.591 184.024 16.665A4.762 4.762 0 0 0 183.998 16.766A5.995 5.995 0 0 0 183.993 16.829Q183.989 16.92 183.989 17.011L183.989 18.516A2.504 2.504 0 0 0 183.977 18.498Q183.948 18.459 183.877 18.38A10.281 10.281 0 0 0 183.799 18.302Q183.754 18.262 183.699 18.22A21.748 21.748 0 0 0 183.625 18.166Q183.464 18.054 183.237 17.97A13.078 13.078 0 0 0 182.975 17.905Q182.849 17.886 182.708 17.886Q182.321 17.886 182.044 18.01A11.161 11.161 0 0 0 181.931 18.068A15.529 15.529 0 0 0 181.552 18.379A14.284 14.284 0 0 0 181.438 18.527Q181.252 18.803 181.179 19.132A31.593 31.593 0 0 0 181.12 19.484A24.8 24.8 0 0 0 181.105 19.748A25.356 25.356 0 0 0 181.12 20.012Q181.136 20.17 181.172 20.347Q181.238 20.679 181.42 20.977Q181.602 21.274 181.914 21.477A11.715 11.715 0 0 0 182.268 21.629Q182.421 21.667 182.6 21.677A22.684 22.684 0 0 0 182.722 21.68A19.893 19.893 0 0 0 182.959 21.667Q183.08 21.652 183.184 21.622A11.619 11.619 0 0 0 183.223 21.61Q183.436 21.54 183.59 21.442Q183.744 21.344 183.846 21.236Q183.945 21.13 184.007 21.054A20.372 20.372 0 0 0 184.01 21.05ZM164.312 18.264L163.325 20.903L162.331 18.264Q162.271 18.09 162.211 17.993A6.228 6.228 0 0 0 162.205 17.984A2.038 2.038 0 0 0 162.077 17.895Q162.04 17.886 161.995 17.886Q161.848 17.886 161.771 17.977A4.199 4.199 0 0 0 161.73 18.035Q161.694 18.095 161.694 18.152A4.814 4.814 0 0 0 161.699 18.22A3.684 3.684 0 0 0 161.712 18.278A9.92 9.92 0 0 0 161.723 18.311Q161.738 18.355 161.766 18.427A84.529 84.529 0 0 0 161.785 18.474L162.891 21.232Q162.952 21.378 163.01 21.483A12.632 12.632 0 0 0 163.056 21.558A2.582 2.582 0 0 0 163.21 21.666Q163.255 21.678 163.309 21.68A5.626 5.626 0 0 0 163.325 21.68A4.256 4.256 0 0 0 163.424 21.669A2.598 2.598 0 0 0 163.588 21.558Q163.646 21.469 163.706 21.338A30.263 30.263 0 0 0 163.752 21.232L164.858 18.474A79.208 79.208 0 0 0 164.883 18.411Q164.913 18.334 164.927 18.292A7.545 7.545 0 0 0 164.932 18.278A3.771 3.771 0 0 0 164.946 18.209A4.945 4.945 0 0 0 164.949 18.152Q164.949 18.097 164.909 18.032A4.909 4.909 0 0 0 164.872 17.981A2.49 2.49 0 0 0 164.723 17.893A3.793 3.793 0 0 0 164.648 17.886A3.446 3.446 0 0 0 164.568 17.895Q164.513 17.908 164.475 17.941A2.009 2.009 0 0 0 164.438 17.984A7.867 7.867 0 0 0 164.399 18.054Q164.358 18.133 164.318 18.248A26.244 26.244 0 0 0 164.312 18.264ZM202.861 18.264L201.874 20.903L200.88 18.264Q200.82 18.09 200.76 17.993A6.228 6.228 0 0 0 200.754 17.984A2.038 2.038 0 0 0 200.626 17.895Q200.589 17.886 200.544 17.886Q200.397 17.886 200.32 17.977A4.199 4.199 0 0 0 200.279 18.035Q200.243 18.095 200.243 18.152A4.814 4.814 0 0 0 200.248 18.22A3.684 3.684 0 0 0 200.261 18.278A9.92 9.92 0 0 0 200.272 18.311Q200.287 18.355 200.315 18.427A84.529 84.529 0 0 0 200.334 18.474L201.44 21.232Q201.501 21.378 201.559 21.483A12.632 12.632 0 0 0 201.605 21.558A2.582 2.582 0 0 0 201.759 21.666Q201.804 21.678 201.858 21.68A5.626 5.626 0 0 0 201.874 21.68A4.256 4.256 0 0 0 201.973 21.669A2.598 2.598 0 0 0 202.137 21.558Q202.195 21.469 202.255 21.338A30.263 30.263 0 0 0 202.301 21.232L203.407 18.474A79.208 79.208 0 0 0 203.432 18.411Q203.462 18.334 203.476 18.292A7.545 7.545 0 0 0 203.481 18.278A3.771 3.771 0 0 0 203.495 18.209A4.945 4.945 0 0 0 203.498 18.152Q203.498 18.097 203.458 18.032A4.909 4.909 0 0 0 203.421 17.981A2.49 2.49 0 0 0 203.272 17.893A3.793 3.793 0 0 0 203.197 17.886A3.446 3.446 0 0 0 203.117 17.895Q203.062 17.908 203.024 17.941A2.009 2.009 0 0 0 202.987 17.984A7.867 7.867 0 0 0 202.948 18.054Q202.907 18.133 202.867 18.248A26.244 26.244 0 0 0 202.861 18.264ZM159.076 21.172A9.992 9.992 0 0 0 159.321 21.204Q159.524 21.204 159.731 21.134A9.14 9.14 0 0 0 159.831 21.093A9.773 9.773 0 0 0 160.102 20.9A10.93 10.93 0 0 0 160.26 20.697A14.782 14.782 0 0 0 160.371 20.473Q160.437 20.309 160.461 20.094A24.26 24.26 0 0 0 160.476 19.818Q160.476 19.356 160.343 19.073A18.755 18.755 0 0 0 160.322 19.029Q160.196 18.777 160.025 18.632A12.131 12.131 0 0 0 159.883 18.528A9.354 9.354 0 0 0 159.64 18.418A19.608 19.608 0 0 0 159.535 18.392Q159.402 18.362 159.3 18.362A11.478 11.478 0 0 0 159.207 18.366A9.465 9.465 0 0 0 158.845 18.467Q158.642 18.572 158.499 18.761Q158.355 18.95 158.282 19.206A17.995 17.995 0 0 0 158.242 19.373A20.798 20.798 0 0 0 158.208 19.755A27.923 27.923 0 0 0 158.211 19.894Q158.227 20.21 158.317 20.438Q158.371 20.576 158.438 20.688A11.647 11.647 0 0 0 158.586 20.886Q158.747 21.057 158.943 21.131A12.502 12.502 0 0 0 159.076 21.172ZM182.596 21.172A9.992 9.992 0 0 0 182.841 21.204Q183.044 21.204 183.251 21.134A9.14 9.14 0 0 0 183.351 21.093A9.773 9.773 0 0 0 183.622 20.9A10.93 10.93 0 0 0 183.78 20.697A14.782 14.782 0 0 0 183.891 20.473Q183.957 20.309 183.981 20.094A24.26 24.26 0 0 0 183.996 19.818Q183.996 19.356 183.863 19.073A18.755 18.755 0 0 0 183.842 19.029Q183.716 18.777 183.545 18.632A12.131 12.131 0 0 0 183.403 18.528A9.354 9.354 0 0 0 183.16 18.418A19.608 19.608 0 0 0 183.055 18.392Q182.922 18.362 182.82 18.362A11.478 11.478 0 0 0 182.727 18.366A9.465 9.465 0 0 0 182.365 18.467Q182.162 18.572 182.019 18.761Q181.875 18.95 181.802 19.206A17.995 17.995 0 0 0 181.762 19.373A20.798 20.798 0 0 0 181.728 19.755A27.923 27.923 0 0 0 181.731 19.894Q181.747 20.21 181.837 20.438Q181.891 20.576 181.958 20.688A11.647 11.647 0 0 0 182.106 20.886Q182.267 21.057 182.463 21.131A12.502 12.502 0 0 0 182.596 21.172ZM155.772 19.608L153.931 19.608L154.834 17.263L155.772 19.608ZM147.704 19.422A124.043 124.043 0 0 0 147.736 19.461A187.068 187.068 0 0 0 147.977 19.75A209.521 209.521 0 0 0 148.062 19.85Q148.233 20.049 148.405 20.238A280.942 280.942 0 0 0 148.527 20.372Q148.575 20.424 148.619 20.471A146.266 146.266 0 0 0 148.702 20.56A32.139 32.139 0 0 1 148.675 20.594Q148.644 20.633 148.602 20.683A116.402 116.402 0 0 1 148.562 20.732A12.456 12.456 0 0 1 148.433 20.863A15.356 15.356 0 0 1 148.342 20.938A13.22 13.22 0 0 1 148.163 21.051A16.357 16.357 0 0 1 148.041 21.11Q147.869 21.183 147.652 21.183A9.592 9.592 0 0 1 147.375 21.144A8.638 8.638 0 0 1 147.243 21.092Q147.057 21.001 146.921 20.854Q146.784 20.707 146.711 20.525Q146.637 20.343 146.637 20.154A8.237 8.237 0 0 1 146.655 19.979A6.431 6.431 0 0 1 146.711 19.822A10.984 10.984 0 0 1 146.895 19.564A12.277 12.277 0 0 1 146.903 19.556A14.899 14.899 0 0 1 147.147 19.354A16.679 16.679 0 0 1 147.176 19.335Q147.33 19.237 147.491 19.146Q147.572 19.259 147.704 19.422ZM167.826 19.706Q167.826 20.014 167.802 20.256A11.719 11.719 0 0 1 167.753 20.495A9.411 9.411 0 0 1 167.672 20.679Q167.595 20.819 167.469 20.917Q167.343 21.015 167.193 21.078Q167.042 21.141 166.885 21.173A16.044 16.044 0 0 1 166.654 21.202A14.108 14.108 0 0 1 166.58 21.204A10.041 10.041 0 0 1 166.436 21.194Q166.337 21.18 166.258 21.145A7.637 7.637 0 0 1 166.147 21.084A5.572 5.572 0 0 1 166.045 20.998A5.836 5.836 0 0 1 165.939 20.839A5.49 5.49 0 0 1 165.926 20.805A6.447 6.447 0 0 1 165.894 20.689A5.291 5.291 0 0 1 165.887 20.602Q165.887 20.553 165.905 20.476A4.746 4.746 0 0 1 165.935 20.386A6.234 6.234 0 0 1 165.971 20.319A4.921 4.921 0 0 1 166.039 20.232A6.678 6.678 0 0 1 166.111 20.168A5.299 5.299 0 0 1 166.201 20.113Q166.247 20.091 166.302 20.072A10.661 10.661 0 0 1 166.356 20.056A55.947 55.947 0 0 1 166.613 19.996A71.051 71.051 0 0 1 166.832 19.955A87.518 87.518 0 0 0 167.072 19.909Q167.194 19.884 167.329 19.853A147.944 147.944 0 0 0 167.42 19.832Q167.527 19.805 167.61 19.781A25.521 25.521 0 0 0 167.658 19.766A34.628 34.628 0 0 0 167.728 19.742Q167.762 19.731 167.792 19.719A18.009 18.009 0 0 0 167.826 19.706ZM195.042 19.706Q195.042 20.014 195.018 20.256A11.719 11.719 0 0 1 194.969 20.495A9.411 9.411 0 0 1 194.888 20.679Q194.811 20.819 194.685 20.917Q194.559 21.015 194.409 21.078Q194.258 21.141 194.101 21.173A16.044 16.044 0 0 1 193.87 21.202A14.108 14.108 0 0 1 193.796 21.204A10.041 10.041 0 0 1 193.652 21.194Q193.553 21.18 193.474 21.145A7.637 7.637 0 0 1 193.363 21.084A5.572 5.572 0 0 1 193.261 20.998A5.836 5.836 0 0 1 193.155 20.839A5.49 5.49 0 0 1 193.142 20.805A6.447 6.447 0 0 1 193.11 20.689A5.291 5.291 0 0 1 193.103 20.602Q193.103 20.553 193.121 20.476A4.746 4.746 0 0 1 193.151 20.386A6.234 6.234 0 0 1 193.187 20.319A4.921 4.921 0 0 1 193.255 20.232A6.678 6.678 0 0 1 193.327 20.168A5.299 5.299 0 0 1 193.417 20.113Q193.463 20.091 193.518 20.072A10.661 10.661 0 0 1 193.572 20.056A55.947 55.947 0 0 1 193.829 19.996A71.051 71.051 0 0 1 194.048 19.955A87.518 87.518 0 0 0 194.288 19.909Q194.41 19.884 194.545 19.853A147.944 147.944 0 0 0 194.636 19.832Q194.743 19.805 194.826 19.781A25.521 25.521 0 0 0 194.874 19.766A34.628 34.628 0 0 0 194.944 19.742Q194.978 19.731 195.008 19.719A18.009 18.009 0 0 0 195.042 19.706ZM206.375 19.706Q206.375 20.014 206.351 20.256A11.719 11.719 0 0 1 206.302 20.495A9.411 9.411 0 0 1 206.221 20.679Q206.144 20.819 206.018 20.917Q205.892 21.015 205.742 21.078Q205.591 21.141 205.434 21.173A16.044 16.044 0 0 1 205.203 21.202A14.108 14.108 0 0 1 205.129 21.204A10.041 10.041 0 0 1 204.985 21.194Q204.886 21.18 204.807 21.145A7.637 7.637 0 0 1 204.696 21.084A5.572 5.572 0 0 1 204.594 20.998A5.836 5.836 0 0 1 204.488 20.839A5.49 5.49 0 0 1 204.475 20.805A6.447 6.447 0 0 1 204.443 20.689A5.291 5.291 0 0 1 204.436 20.602Q204.436 20.553 204.454 20.476A4.746 4.746 0 0 1 204.484 20.386A6.234 6.234 0 0 1 204.52 20.319A4.921 4.921 0 0 1 204.588 20.232A6.678 6.678 0 0 1 204.66 20.168A5.299 5.299 0 0 1 204.75 20.113Q204.796 20.091 204.851 20.072A10.661 10.661 0 0 1 204.905 20.056A55.947 55.947 0 0 1 205.162 19.996A71.051 71.051 0 0 1 205.381 19.955A87.518 87.518 0 0 0 205.621 19.909Q205.743 19.884 205.878 19.853A147.944 147.944 0 0 0 205.969 19.832Q206.076 19.805 206.159 19.781A25.521 25.521 0 0 0 206.207 19.766A34.628 34.628 0 0 0 206.277 19.742Q206.311 19.731 206.341 19.719A18.009 18.009 0 0 0 206.375 19.706ZM179.887 19.482L177.801 19.482A28.069 28.069 0 0 1 177.814 19.387Q177.827 19.303 177.847 19.202A10.166 10.166 0 0 1 177.92 18.976A12.334 12.334 0 0 1 177.969 18.88Q178.018 18.789 178.095 18.691A8.296 8.296 0 0 1 178.243 18.546A9.616 9.616 0 0 1 178.284 18.516Q178.396 18.439 178.54 18.387Q178.683 18.334 178.865 18.334Q179.166 18.334 179.376 18.464Q179.586 18.593 179.705 18.796A14.726 14.726 0 0 1 179.78 18.94Q179.813 19.014 179.831 19.082A7.079 7.079 0 0 1 179.849 19.164A57.705 57.705 0 0 1 179.879 19.404A51.717 51.717 0 0 1 179.887 19.482ZM147.722 18.46A5.735 5.735 0 0 0 147.714 18.448Q147.698 18.426 147.666 18.383A159.702 159.702 0 0 1 147.622 18.324A204.664 204.664 0 0 1 147.575 18.261Q147.526 18.194 147.484 18.138A28.341 28.341 0 0 0 147.469 18.119Q147.447 18.089 147.435 18.075A1.535 1.535 0 0 0 147.428 18.068Q147.372 17.991 147.313 17.854A6.976 6.976 0 0 1 147.255 17.63A6.56 6.56 0 0 1 147.253 17.578Q147.253 17.466 147.299 17.357Q147.344 17.249 147.428 17.165A6.428 6.428 0 0 1 147.588 17.049A7.566 7.566 0 0 1 147.631 17.029A6.258 6.258 0 0 1 147.86 16.977A7.29 7.29 0 0 1 147.89 16.976A6.985 6.985 0 0 1 148.099 17.006A5.558 5.558 0 0 1 148.342 17.158Q148.513 17.34 148.513 17.585A5.96 5.96 0 0 1 148.479 17.788A5.572 5.572 0 0 1 148.45 17.854A8.463 8.463 0 0 1 148.321 18.039A9.906 9.906 0 0 1 148.279 18.082A14.839 14.839 0 0 1 148.113 18.22A17.789 17.789 0 0 1 148.027 18.278A67.874 67.874 0 0 1 147.801 18.415A77.011 77.011 0 0 1 147.722 18.46Z"/>';
     return watermarkEl;
   }
 };
@@ -7297,24 +9739,34 @@ var FloatingEdgeCanvasExtension = class extends CanvasExtension {
     return "floatingEdgeFeatureEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:data-loaded:after",
-      (canvas, data, setData) => this.onLoadData(canvas, data)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-moved",
-      (canvas, node) => this.onNodeMoved(canvas, node)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:data-loaded:after",
+        (canvas, data, setData) => this.onLoadData(canvas, data),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-moved",
+        (canvas, node) => this.onNodeMoved(canvas, node),
+      ),
+    );
     if (this.plugin.settings.getSetting("allowFloatingEdgeCreation")) {
-      this.plugin.registerEvent(this.plugin.app.workspace.on(
-        "advanced-canvas:edge-connection-dragging:before",
-        (canvas, edge, event, newEdge, side) => this.onEdgeStartedDragging(canvas, edge, event, newEdge, side)
-      ));
+      this.plugin.registerEvent(
+        this.plugin.app.workspace.on(
+          "advanced-canvas:edge-connection-dragging:before",
+          (canvas, edge, event, newEdge, side) =>
+            this.onEdgeStartedDragging(canvas, edge, event, newEdge, side),
+        ),
+      );
     }
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:edge-connection-dragging:after",
-      (canvas, edge, event, newEdge, side) => this.onEdgeStoppedDragging(canvas, edge, event, newEdge, side)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:edge-connection-dragging:after",
+        (canvas, edge, event, newEdge, side) =>
+          this.onEdgeStoppedDragging(canvas, edge, event, newEdge, side),
+      ),
+    );
   }
   onLoadData(canvas, data) {
     for (const edgeData of data.edges) {
@@ -7325,52 +9777,81 @@ var FloatingEdgeCanvasExtension = class extends CanvasExtension {
   }
   onNodeMoved(canvas, node) {
     const affectedEdges = canvas.getEdgesForNode(node);
-    for (const edge of affectedEdges)
-      this.updateEdgeConnectionSide(edge);
+    for (const edge of affectedEdges) this.updateEdgeConnectionSide(edge);
   }
   updateEdgeConnectionSide(edge) {
     const edgeData = edge.getData();
     if (edgeData.fromFloating) {
-      const fixedNodeConnectionPoint = BBoxHelper.getCenterOfBBoxSide(edge.to.node.getBBox(), edge.to.side);
-      const bestSide = CanvasHelper.getBestSideForFloatingEdge(fixedNodeConnectionPoint, edge.from.node);
+      const fixedNodeConnectionPoint = BBoxHelper.getCenterOfBBoxSide(
+        edge.to.node.getBBox(),
+        edge.to.side,
+      );
+      const bestSide = CanvasHelper.getBestSideForFloatingEdge(
+        fixedNodeConnectionPoint,
+        edge.from.node,
+      );
       if (bestSide !== edge.from.side) {
         edge.setData({
           ...edgeData,
-          fromSide: bestSide
+          fromSide: bestSide,
         });
       }
     }
     if (edgeData.toFloating) {
-      const fixedNodeConnectionPoint = BBoxHelper.getCenterOfBBoxSide(edge.from.node.getBBox(), edge.from.side);
-      const bestSide = CanvasHelper.getBestSideForFloatingEdge(fixedNodeConnectionPoint, edge.to.node);
+      const fixedNodeConnectionPoint = BBoxHelper.getCenterOfBBoxSide(
+        edge.from.node.getBBox(),
+        edge.from.side,
+      );
+      const bestSide = CanvasHelper.getBestSideForFloatingEdge(
+        fixedNodeConnectionPoint,
+        edge.to.node,
+      );
       if (bestSide !== edge.to.side) {
         edge.setData({
           ...edgeData,
-          toSide: bestSide
+          toSide: bestSide,
         });
       }
     }
   }
   onEdgeStartedDragging(canvas, edge, _event, newEdge, _side) {
-    if (newEdge && this.plugin.settings.getSetting("newEdgeFromSideFloating")) edge.setData({
-      ...edge.getData(),
-      fromFloating: true
-      // New edges can only get dragged from the "from" side
-    });
+    if (newEdge && this.plugin.settings.getSetting("newEdgeFromSideFloating"))
+      edge.setData({
+        ...edge.getData(),
+        fromFloating: true,
+        // New edges can only get dragged from the "from" side
+      });
     let cachedViewportNodes = null;
     let hasNaNFloatingEdgeDropZones = false;
     this.onPointerMove = (event) => {
-      if (cachedViewportNodes === null || hasNaNFloatingEdgeDropZones || canvas.viewportChanged) {
+      if (
+        cachedViewportNodes === null ||
+        hasNaNFloatingEdgeDropZones ||
+        canvas.viewportChanged
+      ) {
         hasNaNFloatingEdgeDropZones = false;
         cachedViewportNodes = canvas.getViewportNodes().map((node) => {
-          const nodeFloatingEdgeDropZone = this.getFloatingEdgeDropZoneForNode(node);
-          if (isNaN(nodeFloatingEdgeDropZone.minX) || isNaN(nodeFloatingEdgeDropZone.minY) || isNaN(nodeFloatingEdgeDropZone.maxX) || isNaN(nodeFloatingEdgeDropZone.maxY))
+          const nodeFloatingEdgeDropZone =
+            this.getFloatingEdgeDropZoneForNode(node);
+          if (
+            isNaN(nodeFloatingEdgeDropZone.minX) ||
+            isNaN(nodeFloatingEdgeDropZone.minY) ||
+            isNaN(nodeFloatingEdgeDropZone.maxX) ||
+            isNaN(nodeFloatingEdgeDropZone.maxY)
+          )
             hasNaNFloatingEdgeDropZones = true;
           return [node, nodeFloatingEdgeDropZone];
         });
       }
-      for (const [node, nodeFloatingEdgeDropZoneClientRect] of cachedViewportNodes) {
-        const hovering = BBoxHelper.insideBBox({ x: event.clientX, y: event.clientY }, nodeFloatingEdgeDropZoneClientRect, true);
+      for (const [
+        node,
+        nodeFloatingEdgeDropZoneClientRect,
+      ] of cachedViewportNodes) {
+        const hovering = BBoxHelper.insideBBox(
+          { x: event.clientX, y: event.clientY },
+          nodeFloatingEdgeDropZoneClientRect,
+          true,
+        );
         node.nodeEl.classList.toggle("hovering-floating-edge-zone", hovering);
       }
     };
@@ -7379,28 +9860,67 @@ var FloatingEdgeCanvasExtension = class extends CanvasExtension {
   onEdgeStoppedDragging(_canvas, edge, event, _newEdge, side) {
     activeDocument.removeEventListener("pointermove", this.onPointerMove);
     const dropZoneNode = side === "from" ? edge.from.node : edge.to.node;
-    const floatingEdgeDropZone = this.getFloatingEdgeDropZoneForNode(dropZoneNode);
-    const wasDroppedInFloatingEdgeDropZone = this.plugin.settings.getSetting("allowFloatingEdgeCreation") ? BBoxHelper.insideBBox({ x: event.clientX, y: event.clientY }, floatingEdgeDropZone, true) : false;
+    const floatingEdgeDropZone =
+      this.getFloatingEdgeDropZoneForNode(dropZoneNode);
+    const wasDroppedInFloatingEdgeDropZone = this.plugin.settings.getSetting(
+      "allowFloatingEdgeCreation",
+    )
+      ? BBoxHelper.insideBBox(
+          { x: event.clientX, y: event.clientY },
+          floatingEdgeDropZone,
+          true,
+        )
+      : false;
     const edgeData = edge.getData();
-    if (side === "from" && wasDroppedInFloatingEdgeDropZone == edgeData.fromFloating) return;
-    if (side === "to" && wasDroppedInFloatingEdgeDropZone == edgeData.toFloating) return;
-    if (side === "from") edgeData.fromFloating = wasDroppedInFloatingEdgeDropZone;
+    if (
+      side === "from" &&
+      wasDroppedInFloatingEdgeDropZone == edgeData.fromFloating
+    )
+      return;
+    if (
+      side === "to" &&
+      wasDroppedInFloatingEdgeDropZone == edgeData.toFloating
+    )
+      return;
+    if (side === "from")
+      edgeData.fromFloating = wasDroppedInFloatingEdgeDropZone;
     else edgeData.toFloating = wasDroppedInFloatingEdgeDropZone;
     edge.setData(edgeData);
     this.updateEdgeConnectionSide(edge);
   }
   getFloatingEdgeDropZoneForNode(node) {
     const nodeElClientBoundingRect = node.nodeEl.getBoundingClientRect();
-    const nodeFloatingEdgeDropZoneElStyle = window.getComputedStyle(node.nodeEl, ":after");
+    const nodeFloatingEdgeDropZoneElStyle = window.getComputedStyle(
+      node.nodeEl,
+      ":after",
+    );
     const nodeFloatingEdgeDropZoneSize = {
-      width: parseFloat(nodeFloatingEdgeDropZoneElStyle.getPropertyValue("width")),
-      height: parseFloat(nodeFloatingEdgeDropZoneElStyle.getPropertyValue("height"))
+      width: parseFloat(
+        nodeFloatingEdgeDropZoneElStyle.getPropertyValue("width"),
+      ),
+      height: parseFloat(
+        nodeFloatingEdgeDropZoneElStyle.getPropertyValue("height"),
+      ),
     };
     return {
-      minX: nodeElClientBoundingRect.left + (nodeElClientBoundingRect.width - nodeFloatingEdgeDropZoneSize.width) / 2,
-      minY: nodeElClientBoundingRect.top + (nodeElClientBoundingRect.height - nodeFloatingEdgeDropZoneSize.height) / 2,
-      maxX: nodeElClientBoundingRect.right - (nodeElClientBoundingRect.width - nodeFloatingEdgeDropZoneSize.width) / 2,
-      maxY: nodeElClientBoundingRect.bottom - (nodeElClientBoundingRect.height - nodeFloatingEdgeDropZoneSize.height) / 2
+      minX:
+        nodeElClientBoundingRect.left +
+        (nodeElClientBoundingRect.width - nodeFloatingEdgeDropZoneSize.width) /
+          2,
+      minY:
+        nodeElClientBoundingRect.top +
+        (nodeElClientBoundingRect.height -
+          nodeFloatingEdgeDropZoneSize.height) /
+          2,
+      maxX:
+        nodeElClientBoundingRect.right -
+        (nodeElClientBoundingRect.width - nodeFloatingEdgeDropZoneSize.width) /
+          2,
+      maxY:
+        nodeElClientBoundingRect.bottom -
+        (nodeElClientBoundingRect.height -
+          nodeFloatingEdgeDropZoneSize.height) /
+          2,
     };
   }
 };
@@ -7411,25 +9931,44 @@ var EdgeHighlightCanvasExtension = class extends CanvasExtension {
     return "edgeHighlightEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:selection-changed",
-      (canvas, oldSelection, updateSelection) => this.onSelectionChanged(canvas, oldSelection)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:selection-changed",
+        (canvas, oldSelection, updateSelection) =>
+          this.onSelectionChanged(canvas, oldSelection),
+      ),
+    );
   }
   onSelectionChanged(canvas, oldSelection) {
     var _a, _b, _c, _d, _e;
-    const connectedEdgesToBeHighlighted = new Set(canvas.getSelectionData().nodes.flatMap((nodeData) => {
-      var _a2, _b2;
-      return [
-        ...(_a2 = canvas.edgeFrom.get(canvas.nodes.get(nodeData.id))) != null ? _a2 : [],
-        ...this.plugin.settings.getSetting("highlightIncomingEdges") ? (_b2 = canvas.edgeTo.get(canvas.nodes.get(nodeData.id))) != null ? _b2 : [] : []
-      ];
-    }));
+    const connectedEdgesToBeHighlighted = new Set(
+      canvas.getSelectionData().nodes.flatMap((nodeData) => {
+        var _a2, _b2;
+        return [
+          ...((_a2 = canvas.edgeFrom.get(canvas.nodes.get(nodeData.id))) != null
+            ? _a2
+            : []),
+          ...(this.plugin.settings.getSetting("highlightIncomingEdges")
+            ? (_b2 = canvas.edgeTo.get(canvas.nodes.get(nodeData.id))) != null
+              ? _b2
+              : []
+            : []),
+        ];
+      }),
+    );
     for (const edge of canvas.edges.values()) {
-      const isFocused = canvas.selection.has(edge) || connectedEdgesToBeHighlighted.has(edge);
+      const isFocused =
+        canvas.selection.has(edge) || connectedEdgesToBeHighlighted.has(edge);
       edge.lineGroupEl.classList.toggle("is-focused", isFocused);
-      (_b = (_a = edge.lineEndGroupEl) == null ? void 0 : _a.classList) == null ? void 0 : _b.toggle("is-focused", isFocused);
-      (_e = (_d = (_c = edge.labelElement) == null ? void 0 : _c.textareaEl) == null ? void 0 : _d.classList) == null ? void 0 : _e.toggle("is-focused", isFocused);
+      (_b = (_a = edge.lineEndGroupEl) == null ? void 0 : _a.classList) == null
+        ? void 0
+        : _b.toggle("is-focused", isFocused);
+      (_e =
+        (_d = (_c = edge.labelElement) == null ? void 0 : _c.textareaEl) == null
+          ? void 0
+          : _d.classList) == null
+        ? void 0
+        : _e.toggle("is-focused", isFocused);
     }
   }
 };
@@ -7440,27 +9979,40 @@ var ReadingModeFixCanvasExtension = class extends CanvasExtension {
     return "readingModeFixEnabled";
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-rendered",
-      (_canvas, node) => this.updateNodeRenderer(node)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-editing-state-changed",
-      (_canvas, node, isEditing) => {
-        if (isEditing) return;
-        this.updateNodeRenderer(node);
-      }
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-rendered",
+        (_canvas, node) => this.updateNodeRenderer(node),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-editing-state-changed",
+        (_canvas, node, isEditing) => {
+          if (isEditing) return;
+          this.updateNodeRenderer(node);
+        },
+      ),
+    );
   }
   updateNodeRenderer(node) {
     var _a, _b;
-    const renderer = (_b = (_a = node.child) == null ? void 0 : _a.previewMode) == null ? void 0 : _b.renderer;
+    const renderer =
+      (_b = (_a = node.child) == null ? void 0 : _a.previewMode) == null
+        ? void 0
+        : _b.renderer;
     if (!renderer) return;
     renderer.onRendered(() => {
       var _a2;
       let text = (_a2 = renderer.text) != null ? _a2 : "";
-      text = text.replaceAll('<span class="vertical-space">&nbsp;</span>\n', "\n");
-      text = text.replaceAll("\n", '<span class="vertical-space">&nbsp;</span>\n');
+      text = text.replaceAll(
+        '<span class="vertical-space">&nbsp;</span>\n',
+        "\n",
+      );
+      text = text.replaceAll(
+        "\n",
+        '<span class="vertical-space">&nbsp;</span>\n',
+      );
       renderer.set(text);
     });
   }
@@ -7472,14 +10024,17 @@ var CanvasMetadataExposerExtension = class extends CanvasExtension {
     return true;
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-metadata-changed",
-      (canvas) => this.updateExposedSettings(canvas)
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => this.updateExposedSettings(canvas)
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:canvas-metadata-changed",
+        (canvas) => this.updateExposedSettings(canvas),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:canvas-changed", (canvas) =>
+        this.updateExposedSettings(canvas),
+      ),
+    );
   }
   updateExposedSettings(canvas) {
     const startNodeId = canvas.metadata["startNode"];
@@ -7497,37 +10052,39 @@ var EXPOSED_SETTINGS = [
   "readingModeFixEnabled",
   "collapsibleGroupsFeatureEnabled",
   "collapsedGroupPreviewOnDrag",
-  "allowFloatingEdgeCreation"
+  "allowFloatingEdgeCreation",
 ];
 var CanvasWrapperExposerExtension = class _CanvasWrapperExposerExtension extends CanvasExtension {
   isEnabled() {
     return true;
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:settings-changed",
-      () => {
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:settings-changed", () => {
         var _a;
         return _CanvasWrapperExposerExtension.updateCanvasExposedSettings(
           this.plugin,
-          (_a = this.plugin.getCurrentCanvas()) == null ? void 0 : _a.wrapperEl
+          (_a = this.plugin.getCurrentCanvas()) == null ? void 0 : _a.wrapperEl,
         );
-      }
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:canvas-changed",
-      (canvas) => _CanvasWrapperExposerExtension.updateCanvasExposedSettings(
-        this.plugin,
-        canvas.wrapperEl
-      )
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:dragging-state-changed",
-      (canvas, dragging) => {
-        if (dragging) canvas.wrapperEl.dataset.isDragging = "true";
-        else delete canvas.wrapperEl.dataset.isDragging;
-      }
-    ));
+      }),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on("advanced-canvas:canvas-changed", (canvas) =>
+        _CanvasWrapperExposerExtension.updateCanvasExposedSettings(
+          this.plugin,
+          canvas.wrapperEl,
+        ),
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:dragging-state-changed",
+        (canvas, dragging) => {
+          if (dragging) canvas.wrapperEl.dataset.isDragging = "true";
+          else delete canvas.wrapperEl.dataset.isDragging;
+        },
+      ),
+    );
   }
   static updateCanvasExposedSettings(plugin, element) {
     if (!element) return;
@@ -7542,9 +10099,12 @@ var CanvasWrapperExposerExtension = class _CanvasWrapperExposerExtension extends
 var CANVAS_NODE_IFRAME_BODY_CLASS = "canvas-node-iframe-body";
 function getExposedNodeData(settings) {
   const exposedData = [];
-  if (settings.getSetting("nodeStylingFeatureEnabled")) exposedData.push("styleAttributes");
-  if (settings.getSetting("collapsibleGroupsFeatureEnabled")) exposedData.push("collapsed");
-  if (settings.getSetting("portalsFeatureEnabled")) exposedData.push("isPortalLoaded");
+  if (settings.getSetting("nodeStylingFeatureEnabled"))
+    exposedData.push("styleAttributes");
+  if (settings.getSetting("collapsibleGroupsFeatureEnabled"))
+    exposedData.push("collapsed");
+  if (settings.getSetting("portalsFeatureEnabled"))
+    exposedData.push("isPortalLoaded");
   return exposedData;
 }
 var NodeExposerExtension = class extends CanvasExtension {
@@ -7552,36 +10112,60 @@ var NodeExposerExtension = class extends CanvasExtension {
     return true;
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-changed",
-      (_canvas, node) => {
-        var _a, _b;
-        const nodeData = node == null ? void 0 : node.getData();
-        if (!nodeData) return;
-        this.setDataAttributes(node.nodeEl, nodeData);
-        const iframe = (_b = (_a = node.nodeEl.querySelector("iframe")) == null ? void 0 : _a.contentDocument) == null ? void 0 : _b.body;
-        if (iframe) this.setDataAttributes(iframe, nodeData);
-      }
-    ));
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-editing-state-changed",
-      (_canvas, node, editing) => {
-        var _a, _b;
-        if (!editing) return;
-        const nodeData = node.getData();
-        if (!nodeData) return;
-        const iframe = (_b = (_a = node.nodeEl.querySelector("iframe")) == null ? void 0 : _a.contentDocument) == null ? void 0 : _b.body;
-        if (!iframe) return;
-        iframe.classList.add(CANVAS_NODE_IFRAME_BODY_CLASS);
-        new MutationObserver(() => iframe.classList.toggle(CANVAS_NODE_IFRAME_BODY_CLASS, true)).observe(iframe, { attributes: true, attributeFilter: ["class"] });
-        this.setDataAttributes(iframe, nodeData);
-        CanvasWrapperExposerExtension.updateCanvasExposedSettings(this.plugin, iframe);
-      }
-    ));
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-changed",
+        (_canvas, node) => {
+          var _a, _b;
+          const nodeData = node == null ? void 0 : node.getData();
+          if (!nodeData) return;
+          this.setDataAttributes(node.nodeEl, nodeData);
+          const iframe =
+            (_b =
+              (_a = node.nodeEl.querySelector("iframe")) == null
+                ? void 0
+                : _a.contentDocument) == null
+              ? void 0
+              : _b.body;
+          if (iframe) this.setDataAttributes(iframe, nodeData);
+        },
+      ),
+    );
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-editing-state-changed",
+        (_canvas, node, editing) => {
+          var _a, _b;
+          if (!editing) return;
+          const nodeData = node.getData();
+          if (!nodeData) return;
+          const iframe =
+            (_b =
+              (_a = node.nodeEl.querySelector("iframe")) == null
+                ? void 0
+                : _a.contentDocument) == null
+              ? void 0
+              : _b.body;
+          if (!iframe) return;
+          iframe.classList.add(CANVAS_NODE_IFRAME_BODY_CLASS);
+          new MutationObserver(() =>
+            iframe.classList.toggle(CANVAS_NODE_IFRAME_BODY_CLASS, true),
+          ).observe(iframe, { attributes: true, attributeFilter: ["class"] });
+          this.setDataAttributes(iframe, nodeData);
+          CanvasWrapperExposerExtension.updateCanvasExposedSettings(
+            this.plugin,
+            iframe,
+          );
+        },
+      ),
+    );
   }
   setDataAttributes(element, nodeData) {
     for (const exposedDataKey of getExposedNodeData(this.plugin.settings)) {
-      const datasetPairs = nodeData[exposedDataKey] && typeof nodeData[exposedDataKey] === "object" ? Object.entries(nodeData[exposedDataKey]) : [[exposedDataKey, nodeData[exposedDataKey]]];
+      const datasetPairs =
+        nodeData[exposedDataKey] && typeof nodeData[exposedDataKey] === "object"
+          ? Object.entries(nodeData[exposedDataKey])
+          : [[exposedDataKey, nodeData[exposedDataKey]]];
       for (const [key, value] of datasetPairs) {
         if (!value) delete element.dataset[key];
         else element.dataset[key] = value;
@@ -7597,32 +10181,44 @@ var NodeInteractionExposerExtension = class extends CanvasExtension {
     return true;
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:node-interaction",
-      (canvas, node) => {
-        const nodeData = node == null ? void 0 : node.getData();
-        if (!nodeData) return;
-        const interactionEl = canvas.nodeInteractionLayer.interactionEl;
-        if (!interactionEl) return;
-        for (const exposedDataKey of getExposedNodeData(this.plugin.settings)) {
-          const datasetPairs = nodeData[exposedDataKey] instanceof Object ? Object.entries(nodeData[exposedDataKey]) : [[exposedDataKey, nodeData[exposedDataKey]]];
-          for (const [key, value] of datasetPairs) {
-            const modifiedKey = TARGET_NODE_DATASET_PREFIX + key.toString().charAt(0).toUpperCase() + key.toString().slice(1);
-            if (!value) delete interactionEl.dataset[modifiedKey];
-            else interactionEl.dataset[modifiedKey] = value;
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:node-interaction",
+        (canvas, node) => {
+          const nodeData = node == null ? void 0 : node.getData();
+          if (!nodeData) return;
+          const interactionEl = canvas.nodeInteractionLayer.interactionEl;
+          if (!interactionEl) return;
+          for (const exposedDataKey of getExposedNodeData(
+            this.plugin.settings,
+          )) {
+            const datasetPairs =
+              nodeData[exposedDataKey] instanceof Object
+                ? Object.entries(nodeData[exposedDataKey])
+                : [[exposedDataKey, nodeData[exposedDataKey]]];
+            for (const [key, value] of datasetPairs) {
+              const modifiedKey =
+                TARGET_NODE_DATASET_PREFIX +
+                key.toString().charAt(0).toUpperCase() +
+                key.toString().slice(1);
+              if (!value) delete interactionEl.dataset[modifiedKey];
+              else interactionEl.dataset[modifiedKey] = value;
+            }
           }
-        }
-        if (PortalsCanvasExtension.isPortalElement(node.id)) interactionEl.dataset.isFromPortal = "true";
-        else delete interactionEl.dataset.isFromPortal;
-      }
-    ));
+          if (PortalsCanvasExtension.isPortalElement(node.id))
+            interactionEl.dataset.isFromPortal = "true";
+          else delete interactionEl.dataset.isFromPortal;
+        },
+      ),
+    );
   }
 };
 
 // src/canvas-extensions/dataset-exposers/edge-exposer.ts
 function getExposedEdgeData(settings) {
   const exposedData = [];
-  if (settings.getSetting("edgesStylingFeatureEnabled")) exposedData.push("styleAttributes");
+  if (settings.getSetting("edgesStylingFeatureEnabled"))
+    exposedData.push("styleAttributes");
   return exposedData;
 }
 var EdgeExposerExtension = class extends CanvasExtension {
@@ -7630,89 +10226,119 @@ var EdgeExposerExtension = class extends CanvasExtension {
     return true;
   }
   init() {
-    this.plugin.registerEvent(this.plugin.app.workspace.on(
-      "advanced-canvas:edge-changed",
-      (_canvas, edge) => {
-        var _a, _b, _c, _d;
-        const edgeData = edge == null ? void 0 : edge.getData();
-        if (!edgeData) return;
-        for (const exposedDataKey of getExposedEdgeData(this.plugin.settings)) {
-          const datasetPairs = edgeData[exposedDataKey] && typeof edgeData[exposedDataKey] === "object" ? Object.entries(edgeData[exposedDataKey]) : [[exposedDataKey, edgeData[exposedDataKey]]];
-          for (const [key, value] of datasetPairs) {
-            if (!value) {
-              delete edge.path.display.dataset[key];
-              if ((_a = edge.fromLineEnd) == null ? void 0 : _a.el) delete edge.fromLineEnd.el.dataset[key];
-              if ((_b = edge.toLineEnd) == null ? void 0 : _b.el) delete edge.toLineEnd.el.dataset[key];
-            } else {
-              edge.path.display.dataset[key] = value;
-              if ((_c = edge.fromLineEnd) == null ? void 0 : _c.el) edge.fromLineEnd.el.dataset[key] = value;
-              if ((_d = edge.toLineEnd) == null ? void 0 : _d.el) edge.toLineEnd.el.dataset[key] = value;
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on(
+        "advanced-canvas:edge-changed",
+        (_canvas, edge) => {
+          var _a, _b, _c, _d;
+          const edgeData = edge == null ? void 0 : edge.getData();
+          if (!edgeData) return;
+          for (const exposedDataKey of getExposedEdgeData(
+            this.plugin.settings,
+          )) {
+            const datasetPairs =
+              edgeData[exposedDataKey] &&
+              typeof edgeData[exposedDataKey] === "object"
+                ? Object.entries(edgeData[exposedDataKey])
+                : [[exposedDataKey, edgeData[exposedDataKey]]];
+            for (const [key, value] of datasetPairs) {
+              if (!value) {
+                delete edge.path.display.dataset[key];
+                if ((_a = edge.fromLineEnd) == null ? void 0 : _a.el)
+                  delete edge.fromLineEnd.el.dataset[key];
+                if ((_b = edge.toLineEnd) == null ? void 0 : _b.el)
+                  delete edge.toLineEnd.el.dataset[key];
+              } else {
+                edge.path.display.dataset[key] = value;
+                if ((_c = edge.fromLineEnd) == null ? void 0 : _c.el)
+                  edge.fromLineEnd.el.dataset[key] = value;
+                if ((_d = edge.toLineEnd) == null ? void 0 : _d.el)
+                  edge.toLineEnd.el.dataset[key] = value;
+              }
             }
           }
-        }
-      }
-    ));
+        },
+      ),
+    );
   }
 };
 
 // src/patchers/bases-table-view-patcher.ts
 var BasesTableViewPatcher = class extends Patcher {
   async patch() {
-    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled")) return;
+    if (!this.plugin.settings.getSetting("canvasMetadataCompatibilityEnabled"))
+      return;
     const bases = this.plugin.app.internalPlugins.getEnabledPluginById("bases");
     if (!bases) return;
     void this.patchViewFactory(bases);
   }
   async patchViewFactory(bases) {
     const that = this;
-    await Patcher.patchOnce(this.plugin, bases.registrations.table, (resolve) => ({
-      factory: Patcher.OverrideExisting((next) => function(...args) {
-        const view = next.call(this, ...args);
-        void that.patchTableView(view);
-        resolve(view);
-        return view;
-      })
-    }));
+    await Patcher.patchOnce(
+      this.plugin,
+      bases.registrations.table,
+      (resolve) => ({
+        factory: Patcher.OverrideExisting(
+          (next) =>
+            function (...args) {
+              const view = next.call(this, ...args);
+              void that.patchTableView(view);
+              resolve(view);
+              return view;
+            },
+        ),
+      }),
+    );
   }
   async patchTableView(basesView) {
     const that = this;
     await Patcher.patchOnce(this.plugin, basesView, (resolve) => ({
-      updateVirtualDisplay: Patcher.OverrideExisting((next) => function(...args) {
-        const result = next.call(this, ...args);
-        if (this.rows.length > 0) {
-          const row = this.rows.first();
-          void that.patchTableRow(row);
-          resolve(row);
-        }
-        return result;
-      })
+      updateVirtualDisplay: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            const result = next.call(this, ...args);
+            if (this.rows.length > 0) {
+              const row = this.rows.first();
+              void that.patchTableRow(row);
+              resolve(row);
+            }
+            return result;
+          },
+      ),
     }));
   }
   async patchTableRow(row) {
     const that = this;
     await Patcher.patchOnce(this.plugin, row, (resolve) => ({
-      render: Patcher.OverrideExisting((next) => function(...args) {
-        let result = next.call(this, ...args);
-        if (this.cells.length > 0) {
-          const cell = this.cells.first();
-          void that.patchTableCell(cell);
-          resolve(cell);
-          result = next.call(this, ...args);
-        }
-        return result;
-      })
+      render: Patcher.OverrideExisting(
+        (next) =>
+          function (...args) {
+            let result = next.call(this, ...args);
+            if (this.cells.length > 0) {
+              const cell = this.cells.first();
+              void that.patchTableCell(cell);
+              resolve(cell);
+              result = next.call(this, ...args);
+            }
+            return result;
+          },
+      ),
     }));
   }
   async patchTableCell(cell) {
     Patcher.patchPrototype(this.plugin, cell, {
-      render: Patcher.OverrideExisting((next) => function(ctx) {
-        var _a;
-        const isCanvas = ((_a = ctx.file) == null ? void 0 : _a.extension) === "canvas";
-        if (isCanvas) ctx.file.extension = "md";
-        const result = next.call(this, ctx);
-        if (isCanvas) ctx.file.extension = "canvas";
-        return result;
-      })
+      render: Patcher.OverrideExisting(
+        (next) =>
+          function (ctx) {
+            var _a;
+            const isCanvas =
+              ((_a = ctx.file) == null ? void 0 : _a.extension) === "canvas";
+            if (isCanvas) ctx.file.extension = "md";
+            const result = next.call(this, ctx);
+            if (isCanvas) ctx.file.extension = "canvas";
+            return result;
+          },
+      ),
     });
   }
 };
@@ -7733,7 +10359,7 @@ var PATCHERS = [
   (0, import_obsidian21.requireApiVersion)("1.9.0") && BasesTableViewPatcher,
   LinkSuggestionsPatcher,
   EmbedPatcher,
-  SearchPatcher
+  SearchPatcher,
 ];
 var CANVAS_EXTENSIONS = [
   // Advanced JSON Canvas Extensions
@@ -7769,7 +10395,7 @@ var CANVAS_EXTENSIONS = [
   FocusModeCanvasExtension,
   EncapsulateCanvasExtension,
   EdgeSelectionCanvasExtension,
-  CopyNodeReferenceCanvasExtension
+  CopyNodeReferenceCanvasExtension,
 ];
 var AdvancedCanvasPlugin = class extends import_obsidian21.Plugin {
   async onload() {
@@ -7794,26 +10420,36 @@ var AdvancedCanvasPlugin = class extends import_obsidian21.Plugin {
       }
     });
   }
-  onunload() {
-  }
+  onunload() {}
   getCanvases() {
-    return this.app.workspace.getLeavesOfType("canvas").map((leaf) => {
-      var _a;
-      return (_a = leaf.view) == null ? void 0 : _a.canvas;
-    }).filter((canvas) => canvas);
+    return this.app.workspace
+      .getLeavesOfType("canvas")
+      .map((leaf) => {
+        var _a;
+        return (_a = leaf.view) == null ? void 0 : _a.canvas;
+      })
+      .filter((canvas) => canvas);
   }
   getCurrentCanvasView() {
-    const canvasView = this.app.workspace.getActiveViewOfType(import_obsidian21.ItemView);
-    if ((canvasView == null ? void 0 : canvasView.getViewType()) !== "canvas") return null;
+    const canvasView = this.app.workspace.getActiveViewOfType(
+      import_obsidian21.ItemView,
+    );
+    if ((canvasView == null ? void 0 : canvasView.getViewType()) !== "canvas")
+      return null;
     return canvasView;
   }
   getCurrentCanvas() {
     var _a;
-    return ((_a = this.getCurrentCanvasView()) == null ? void 0 : _a.canvas) || null;
+    return (
+      ((_a = this.getCurrentCanvasView()) == null ? void 0 : _a.canvas) || null
+    );
   }
   createFileSnapshot(path, content) {
     var _a;
-    const fileRecoveryPlugin = (_a = this.app.internalPlugins.plugins["file-recovery"]) == null ? void 0 : _a.instance;
+    const fileRecoveryPlugin =
+      (_a = this.app.internalPlugins.plugins["file-recovery"]) == null
+        ? void 0
+        : _a.instance;
     if (!fileRecoveryPlugin) return;
     fileRecoveryPlugin.forceAdd(path, content);
   }

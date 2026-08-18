@@ -59,7 +59,7 @@ export const addOne = asyncHandler(async (req, res, next) => {
   ) {
     return next(new Error("Book is exist"));
   }
-  
+
   const book = await dbService.create({
     model: bookModel,
     data: { ...bookData },
@@ -191,7 +191,6 @@ export const getAll = asyncHandler(async (req, res, next) => {
           $regex: search,
           $options: "i",
         },
-        
       },
       select: "_id",
     });
