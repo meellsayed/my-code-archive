@@ -17,7 +17,7 @@
   - [ ] roles
     - [ ] admin Role
       - [ ] dashboard
-        - [ ] invoice
+        - [ ] order
         - [ ] customers
         - [ ] staff
       - [ ] add - delete - update (all)
@@ -59,7 +59,7 @@
     - [ ] add book
     - [ ] find by name
     - [ ] get all books
-  - [ ] ├── invoice/
+  - [ ] ├── order/
     - [?] cart
       - [x] add book and remove it
     - [x] create invos

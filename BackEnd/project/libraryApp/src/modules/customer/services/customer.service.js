@@ -7,7 +7,7 @@ import {
   customerModel,
   customerTypes,
 } from "../../../DB/models/Customer.model.js";
-import { invoiceModel } from "../../../DB/models/Invoice.model.js";
+import { orderModel } from "../../../DB/models/Order.model.js";
 
 export const addOne = asyncHandler(async (req, res, next) => {
   const { username, phone, address, gender, type } = req.body;
@@ -49,7 +49,7 @@ export const getOne = asyncHandler(async (req, res, next) => {
   if (!customer) {
     return next(new Error("customer not found", { cause: 404 }));
   }
-  return successResponse({ res, data: {customer} });
+  return successResponse({ res, data: { customer } });
 });
 
 export const getAll = asyncHandler(async (req, res, next) => {
@@ -104,12 +104,12 @@ export const getAll = asyncHandler(async (req, res, next) => {
 });
 
 //!==============================================================================
-export const getCustomerInvoice = asyncHandler(async (req, res, next) => {
+export const getCustomerOrder = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const {} = req.query;
 
-  const invoice = await dbService.find({
-    model: invoiceModel,
+  const order = await dbService.find({
+    model: orderModel,
     filter: { $or: [{ customer: id }] },
     populate: [
       { path: "customer", select: "name phone" },
@@ -118,5 +118,5 @@ export const getCustomerInvoice = asyncHandler(async (req, res, next) => {
     ],
   });
 
-  return successResponse({ res, data: { invoice } });
+  return successResponse({ res, data: { order } });
 });

@@ -1,8 +1,17 @@
 import mongoose, { model, Schema, Types } from "mongoose";
 
-const invoiceSchema = new Schema(
+const orderSchema = new Schema(
   {
-    customer: { type: Types.ObjectId, ref: "Customer" },
+    customerType: {
+      type: String,
+      enum: ["User", "Customer"],
+      required: true,
+    },
+    customer: {
+      type: Types.ObjectId,
+      refPath: "customerType",
+      required: true,
+    },
     seller: { type: Types.ObjectId, ref: "User" },
     items: { type: Types.ObjectId, ref: "Cart" },
 
@@ -13,12 +22,9 @@ const invoiceSchema = new Schema(
     total: { type: Number },
     paymentMethod: { type: String },
     status: { type: String, enum: ["new", "canceled", "delivered", "done"] },
-
-    createdBy: { type: Types.ObjectId, ref: "User" },
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
 
-export const invoiceModel =
-  mongoose.models.Invoice || model("Invoice", invoiceSchema);
+export const orderModel = mongoose.models.Order || model("Order", orderSchema);

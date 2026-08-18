@@ -32,7 +32,7 @@ A genuinely promising early-stage MVP. The core structure (layered architecture,
 
 ## Things Done Well
 
-- Module-per-domain folders (`auth`, `book`, `author`, `invoice`) with controller/service split — the right pattern.
+- Module-per-domain folders (`auth`, `book`, `author`, `order`) with controller/service split — the right pattern.
 - `book.controller.js` populates `categories` and `author` with `select` to limit field leakage — good API hygiene.
 - Login response deliberately picks only `{username, email}` rather than dumping the user doc — good habit (though `forgetPassword` breaks it).
 - Signup validation enforces password/confirmation equality via Joi `ref`.
@@ -66,7 +66,7 @@ A genuinely promising early-stage MVP. The core structure (layered architecture,
 7. **`forgetPassword` returns the full user document to the client — Medium/High (info leak)** (`src/modules/auth/services/login.service.js:108`)
    `data: { user }` sends the entire Mongoose doc, including the **bcrypt password hash**. The login response was sanitized; this one wasn't.
 
-8. **The "remove" endpoint adds to the cart — Medium/High (misleading feature)** (`src/modules/invoice/invoice.controller.js:13-17` + `cart.service.js`)
+8. **The "remove" endpoint adds to the cart — Medium/High (misleading feature)** (`src/modules/order/order.controller.js:13-17` + `cart.service.js`)
    Both `/cart/add-item/:id` and `/cart/remove-item/:id` call the same `addItemAndRemove` handler. No removal logic exists. The route contract lies.
 
 ### Consider Soon
@@ -86,7 +86,7 @@ A genuinely promising early-stage MVP. The core structure (layered architecture,
 
 15. **`pre("save")` never calls `next`** (`User.model.js:36-42`) — `return next;` / `next;` are bare references. Works only because the hook is `async`. Fragile and pointless (generateHash is sync).
 
-16. **`buyCart` is not atomic** (`invoice.service.js:8-58`) — stock decrements run in an un-awaited `async forEach`, no transaction. Concurrent purchases can oversell; failures leave partial stock. Also: **no ownership check** (anyone can buy any `cartId`), can crash if `order.book` is null, doesn't clear the cart, doesn't record tax/discount.
+16. **`buyCart` is not atomic** (`order.service.js:8-58`) — stock decrements run in an un-awaited `async forEach`, no transaction. Concurrent purchases can oversell; failures leave partial stock. Also: **no ownership check** (anyone can buy any `cartId`), can crash if `order.book` is null, doesn't clear the cart, doesn't record tax/discount.
 
 17. **Error handler leaks internals** (`error.response.js:19-25`) — returns full `error` + `stack` to every client. Must be gated by env in prod.
 
@@ -94,7 +94,7 @@ A genuinely promising early-stage MVP. The core structure (layered architecture,
 
 19. **Check-then-create race** (`book.service.js:54-61`, `author.service.js:22-29`) — duplicate-key `E11000` from the unique index arrives as a raw ugly 400.
 
-20. **Unused/dead imports** — `runAsyncWorkFinishedHook` from `graphql/execution/hooks.js` in `book.controller.js:4` and `invoice.controller.js:5` (exists in installed graphql v17 but internal + unused — fragile); circular-ish `import userRouter from "../user.controller.js"` in `user.service.js:1`.
+20. **Unused/dead imports** — `runAsyncWorkFinishedHook` from `graphql/execution/hooks.js` in `book.controller.js:4` and `order.controller.js:5` (exists in installed graphql v17 but internal + unused — fragile); circular-ish `import userRouter from "../user.controller.js"` in `user.service.js:1`.
 
 ### Not Important Now
 
@@ -102,7 +102,7 @@ A genuinely promising early-stage MVP. The core structure (layered architecture,
 - **Naming inconsistencies**: `process.env.MOOD` (typo for "MODE") everywhere, `==` vs `===` inconsistency; `/users`, `/auth` plural vs `/book`, `/author` singular; `updateBook` returns `201` for an update.
 - **No tests, no lint, no CI, no root README, no npm scripts** for tooling.
 - **Email templates** reuse the same branded template (verify ≈ forget), hardcoded `localhost:4200`, leftover "Social Media App"/"YourCompany"/cloudinary imagery.
-- **Stub/incomplete modules**: `category` empty and **not mounted** in `app.controller.js`; `user` is a stub; `Review` model has no controller/routes; `invoice.status/discount/tax` unused.
+- **Stub/incomplete modules**: `category` empty and **not mounted** in `app.controller.js`; `user` is a stub; `Review` model has no controller/routes; `order.status/discount/tax` unused.
 - **Broken references**: `User.activeOrder` refs `"Order"` (model is `Cart`); `User.role` refs `"Role"` (no model); `authorization` compares an ObjectId role against strings — unusable.
 - **`connectDB`** (`connection.js:12`): `\/n` is literal, not newline; no `process.exit`/retry on failure; `connectDB()` not awaited.
 - **`generateHash` salt param is dead** (`hash.js:7`) — `genSaltSync()` overrides it.
@@ -118,7 +118,7 @@ A genuinely promising early-stage MVP. The core structure (layered architecture,
   - `db.service.find` has a hidden **`limit: 1000`** default — list endpoints will silently cap. Add explicit pagination.
   - Every list endpoint populates 2–3 levels deep — fine now, slow later without `select`/pagination.
   - A new nodemailer **transporter is created per email** (`send.email.js:17`) — hoist to module scope.
-  - `buyCart`'s parallel `await order.book.save()` calls (`invoice.service.js:36-40`) — unbounded parallel saves; use a transaction/bulkWrite at scale.
+  - `buyCart`'s parallel `await order.book.save()` calls (`order.service.js:36-40`) — unbounded parallel saves; use a transaction/bulkWrite at scale.
   - `generateOTP` uses `Math.random()` — a _security_ issue, not perf.
 
 ---
@@ -137,7 +137,7 @@ A genuinely promising early-stage MVP. The core structure (layered architecture,
 
 - **Stateless auth (no refresh rotation, no blacklist)** is the biggest future redesign point.
 - The **`$exists: true` filter** and **array-vs-ObjectId query bugs** will silently corrupt data as it grows.
-- **No pagination/aggregation** — the reports feature (best sellers, daily/monthly invoice, profit) will need aggregation pipelines.
+- **No pagination/aggregation** — the reports feature (best sellers, daily/monthly order, profit) will need aggregation pipelines.
 - **Model references drifting**: `Order` vs `Cart`, missing `Role`, `Publisher` stubbed — do a schema decision pass before building further.
 - Folder structure scales fine; module-per-domain layout is future-proof.
 
@@ -171,7 +171,7 @@ Do these later, roughly in order of payoff:
 4. **Unify the error contract** — one shape, one mapper for Mongoose errors (`E11000`, `CastError`, `ValidationError`).
 5. **Pagination + filtering** on list endpoints (`page`, `limit`, `sort`).
 6. **Inventory feature** (from spec): low-stock alerts, stock movement log, transaction-safe checkout.
-7. **Reports** via aggregation pipelines (best sellers, daily/monthly invoice, profit).
+7. **Reports** via aggregation pipelines (best sellers, daily/monthly order, profit).
 8. **Roles/permissions** — implement `Role` model and make `authorization` work.
 9. **Categories module** — model exists; wire the controller and mount it.
 10. **2FA / Google login** (in `modules.md` TODO) — only after OTP is made secure.

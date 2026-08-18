@@ -15,13 +15,17 @@ const $ = (id) => document.getElementById(id);
 
 // ================= helpers =================
 const escapeHTML = (str = "") =>
-  String(str).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-  }[c]));
+  String(str).replace(
+    /[&<>"']/g,
+    (c) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[c],
+  );
 
 const showToast = (message, type = "success") => {
   const el = document.createElement("div");
@@ -33,10 +37,14 @@ const showToast = (message, type = "success") => {
 
 const formatPrice = (value) => {
   const n = Number(value) || 0;
-  return (n % 1 === 0 ? n.toLocaleString() : n.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })) + " EGP";
+  return (
+    (n % 1 === 0
+      ? n.toLocaleString()
+      : n.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })) + " EGP"
+  );
 };
 
 const coverImg = (url, cls = "book-cover") =>
@@ -89,15 +97,15 @@ const tryRefreshToken = async () => {
     if (!res.ok || !json?.data?.accessToken) return false;
     state.token = json.data.accessToken;
     localStorage.setItem("accessToken", json.data.accessToken);
-    if (json.data.username) state.user = { ...(state.user || {}), username: json.data.username };
+    if (json.data.username)
+      state.user = { ...(state.user || {}), username: json.data.username };
     return true;
   } catch (e) {
     return false;
   }
 };
 
-const apiGet = (path, useAuth = false) =>
-  api(path, { method: "GET" }, useAuth);
+const apiGet = (path, useAuth = false) => api(path, { method: "GET" }, useAuth);
 const apiPost = (path, body = {}, useAuth = false) =>
   api(path, { method: "POST", body: JSON.stringify(body) }, useAuth);
 const apiPatch = (path, body = {}, useAuth = false) =>
@@ -120,11 +128,13 @@ const loadCart = async () => {
 };
 
 const showView = (view) => {
-  document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
+  document
+    .querySelectorAll(".view")
+    .forEach((v) => v.classList.remove("active"));
   $("view-" + view).classList.add("active");
-  document.querySelectorAll("#main-nav .nav-link[data-view]").forEach((n) =>
-    n.classList.toggle("active", n.dataset.view === view),
-  );
+  document
+    .querySelectorAll("#main-nav .nav-link[data-view]")
+    .forEach((n) => n.classList.toggle("active", n.dataset.view === view));
   if (view === "cart") {
     renderCart();
     loadCart();
@@ -177,6 +187,7 @@ const renderBooks = (books) => {
         <div class="card-actions">
           <p class="price">${formatPrice(b.price)}</p>
           ${stockBadge(b.quantity)}
+          ${b.availableToBorrow ? `<span class="stock borrow">● Borrowable</span>` : ""}
         </div>
         <button class="btn primary small add-to-cart-btn"
           data-id="${b._id}" data-title="${escapeHTML(b.title)}" ${b.quantity > 0 ? "" : "disabled"}>
@@ -194,6 +205,8 @@ const loadBooks = async (search = "") => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (state.activeCategory) params.set("category", state.activeCategory);
+    const sort = $("sort-select")?.value || "";
+    if (sort) params.set("sort", sort);
     const qs = params.toString();
     const { data } = await apiGet("/book" + (qs ? `?${qs}` : ""));
     renderBooks(data?.books || []);
@@ -217,12 +230,14 @@ const openBook = async (id, focusBtn = null) => {
     currentBook = book;
     qty = 1;
     updateQtyValue();
-    const coverWrap = $("book-modal-cover-wrap") || (() => {
-      const wrap = document.createElement("div");
-      wrap.id = "book-modal-cover-wrap";
-      $("book-modal-author").insertAdjacentElement("beforebegin", wrap);
-      return wrap;
-    })();
+    const coverWrap =
+      $("book-modal-cover-wrap") ||
+      (() => {
+        const wrap = document.createElement("div");
+        wrap.id = "book-modal-cover-wrap";
+        $("book-modal-author").insertAdjacentElement("beforebegin", wrap);
+        return wrap;
+      })();
     coverWrap.innerHTML = coverImg(book.cover, "modal-cover");
     $("book-modal-title").textContent = book.title;
     $("book-modal-author").textContent =
@@ -230,7 +245,9 @@ const openBook = async (id, focusBtn = null) => {
     $("book-modal-price").textContent = formatPrice(book.price);
     $("book-modal-stock").innerHTML =
       stockBadge(book.quantity) +
-      (book.availableToBorrow ? `<span class="stock borrow">● Borrowable</span>` : "");
+      (book.availableToBorrow
+        ? `<span class="stock borrow">● Borrowable</span>`
+        : "");
     $("book-modal-desc").textContent = book.description || "No description.";
     $("book-modal-msg").textContent = "";
     const addBtn = $("book-modal-add");
@@ -304,7 +321,8 @@ const renderCart = () => {
   const wrap = $("cart-items");
   const items = (state.cart?.order || []).filter((i) => (i.quantity ?? 0) > 0);
   if (!items.length) {
-    wrap.innerHTML = '<div class="empty-state"><p class="msg">Your cart is empty.</p></div>';
+    wrap.innerHTML =
+      '<div class="empty-state"><p class="msg">Your cart is empty.</p></div>';
     $("cart-summary").classList.add("hidden");
     updateCartBadge();
     return;
@@ -329,15 +347,23 @@ const renderCart = () => {
       </div>`,
     )
     .join("");
-  wrap.querySelectorAll("[data-remove-book]").forEach((btn) =>
-    btn.addEventListener("click", () => removeCartItem(btn.dataset.removeBook)),
-  );
-  wrap.querySelectorAll("[data-qty-minus]").forEach((b) =>
-    b.addEventListener("click", () => changeCartQty(b.dataset.qtyMinus, -1)),
-  );
-  wrap.querySelectorAll("[data-qty-plus]").forEach((b) =>
-    b.addEventListener("click", () => changeCartQty(b.dataset.qtyPlus, 1)),
-  );
+  wrap
+    .querySelectorAll("[data-remove-book]")
+    .forEach((btn) =>
+      btn.addEventListener("click", () =>
+        removeCartItem(btn.dataset.removeBook),
+      ),
+    );
+  wrap
+    .querySelectorAll("[data-qty-minus]")
+    .forEach((b) =>
+      b.addEventListener("click", () => changeCartQty(b.dataset.qtyMinus, -1)),
+    );
+  wrap
+    .querySelectorAll("[data-qty-plus]")
+    .forEach((b) =>
+      b.addEventListener("click", () => changeCartQty(b.dataset.qtyPlus, 1)),
+    );
   const total = items.reduce(
     (s, i) => s + (i.book?.price ?? 0) * i.quantity,
     0,
@@ -358,10 +384,10 @@ const buyCart = async () => {
     const note = $("checkout-note").value.trim();
     let body = { address, note };
 
-    let path = `/order/buy/cart/${state.cart._id}`;
+    let path = `/order/online/buy/${state.cart._id}`;
     if (isStaff()) {
-      // staff sale: attach customer object for the invoice service
-      path = `/order/staff/buy/cart/${state.cart._id}`;
+      // branch sale: attach customer object for the order service
+      path = `/order/branch/buy/${state.cart._id}`;
       body.customer = {
         username: $("cust-name").value.trim(),
         phone: $("cust-phone").value.trim(),
@@ -399,12 +425,12 @@ const buyCart = async () => {
 // ================= dashboard =================
 const setDashTab = (tab) => {
   state.dashTab = tab;
-  document.querySelectorAll("#dash-nav .auth-tab").forEach((t) =>
-    t.classList.toggle("active", t.dataset.dash === tab),
-  );
-  document.querySelectorAll(".dash-pane").forEach((p) =>
-    p.classList.toggle("active", p.id === "dash-" + tab),
-  );
+  document
+    .querySelectorAll("#dash-nav .auth-tab")
+    .forEach((t) => t.classList.toggle("active", t.dataset.dash === tab));
+  document
+    .querySelectorAll(".dash-pane")
+    .forEach((p) => p.classList.toggle("active", p.id === "dash-" + tab));
   renderDashboardPane();
 };
 
@@ -449,8 +475,11 @@ const loadDashBooks = async (search = "") => {
               (b) => `
         <div class="dash-row">
           <div class="info">
-            <h4>${escapeHTML(b.title)}</h4>
-            <span>${escapeHTML(b.author?.name || "Unknown")} · Qty: ${b.quantity} · $${b.price}</span>
+            ${coverImg(b.cover, "dash-cover")}
+            <div>
+              <h4>${escapeHTML(b.title)}</h4>
+              <span>${escapeHTML(b.author?.name || "Unknown")} · ${formatPrice(b.price)} · ${stockBadge(b.quantity)}</span>
+            </div>
           </div>
           <div class="actions">
             <button class="btn ghost small" data-edit-book="${b._id}">Edit</button>
@@ -459,12 +488,16 @@ const loadDashBooks = async (search = "") => {
         </div>`,
             )
             .join("");
-    wrap.querySelectorAll("[data-edit-book]").forEach((btn) =>
-      btn.addEventListener("click", () => openBookForm(btn.dataset.editBook)),
-    );
-    wrap.querySelectorAll("[data-del-book]").forEach((btn) =>
-      btn.addEventListener("click", () => delBook(btn.dataset.delBook)),
-    );
+    wrap
+      .querySelectorAll("[data-edit-book]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => openBookForm(btn.dataset.editBook)),
+      );
+    wrap
+      .querySelectorAll("[data-del-book]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => delBook(btn.dataset.delBook)),
+      );
   } catch (err) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
   }
@@ -508,19 +541,27 @@ const loadDashAuthors = async (search = "") => {
         </div>`,
             )
             .join("");
-    wrap.querySelectorAll("[data-author-books]").forEach((btn) =>
-      btn.addEventListener("click", () =>
-        openAuthorBooks(btn.dataset.authorBooks),
-      ),
-    );
-    wrap.querySelectorAll("[data-edit-author]").forEach((btn) =>
-      btn.addEventListener("click", () =>
-        openEntityForm("author", btn.dataset.editAuthor),
-      ),
-    );
-    wrap.querySelectorAll("[data-del-author]").forEach((btn) =>
-      btn.addEventListener("click", () => delEntity("author", btn.dataset.delAuthor)),
-    );
+    wrap
+      .querySelectorAll("[data-author-books]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          openAuthorBooks(btn.dataset.authorBooks),
+        ),
+      );
+    wrap
+      .querySelectorAll("[data-edit-author]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          openEntityForm("author", btn.dataset.editAuthor),
+        ),
+      );
+    wrap
+      .querySelectorAll("[data-del-author]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          delEntity("author", btn.dataset.delAuthor),
+        ),
+      );
   } catch (err) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
   }
@@ -553,21 +594,27 @@ const loadDashCategories = async (search = "") => {
         </div>`,
             )
             .join("");
-    wrap.querySelectorAll("[data-cat-books]").forEach((btn) =>
-      btn.addEventListener("click", () =>
-        openCategoryBooks(btn.dataset.catBooks),
-      ),
-    );
-    wrap.querySelectorAll("[data-edit-category]").forEach((btn) =>
-      btn.addEventListener("click", () =>
-        openEntityForm("category", btn.dataset.editCategory),
-      ),
-    );
-    wrap.querySelectorAll("[data-del-category]").forEach((btn) =>
-      btn.addEventListener("click", () =>
-        delEntity("category", btn.dataset.delCategory),
-      ),
-    );
+    wrap
+      .querySelectorAll("[data-cat-books]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          openCategoryBooks(btn.dataset.catBooks),
+        ),
+      );
+    wrap
+      .querySelectorAll("[data-edit-category]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          openEntityForm("category", btn.dataset.editCategory),
+        ),
+      );
+    wrap
+      .querySelectorAll("[data-del-category]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          delEntity("category", btn.dataset.delCategory),
+        ),
+      );
   } catch (err) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
   }
@@ -578,8 +625,14 @@ const loadDashCustomers = async (search = "") => {
   const wrap = $("dash-customers-list");
   wrap.innerHTML = '<p class="msg">Loading...</p>';
   try {
-    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
-    const { data } = await apiGet("/customer" + qs, true);
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    const gender = $("dash-customer-gender")?.value;
+    const type = $("dash-customer-type")?.value;
+    if (gender) params.set("gender", gender);
+    if (type) params.set("type", type);
+    const qs = params.toString();
+    const { data } = await apiGet("/customer" + (qs ? `?${qs}` : ""), true);
     const customers = data?.customers || [];
     wrap.innerHTML =
       customers.length === 0
@@ -593,20 +646,26 @@ const loadDashCustomers = async (search = "") => {
             <span>${escapeHTML(c.phone || "")} · ${escapeHTML(c.type || "")} · Orders: ${c.activeOrder ? "1" : "0"}</span>
           </div>
           <div class="actions">
-            <button class="btn ghost small" data-cust-invoice="${c._id}">Invoices</button>
+            <button class="btn ghost small" data-cust-order="${c._id}">Orders</button>
             ${isAdmin() ? `<button class="btn danger small" data-del-customer="${c._id}">Delete</button>` : ""}
           </div>
         </div>`,
             )
             .join("");
-    wrap.querySelectorAll("[data-cust-invoice]").forEach((btn) =>
-      btn.addEventListener("click", () =>
-        openCustomerInvoices(btn.dataset.custInvoice),
-      ),
-    );
-    wrap.querySelectorAll("[data-del-customer]").forEach((btn) =>
-      btn.addEventListener("click", () => delCustomer(btn.dataset.delCustomer)),
-    );
+    wrap
+      .querySelectorAll("[data-cust-order]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          openCustomerOrders(btn.dataset.custOrder),
+        ),
+      );
+    wrap
+      .querySelectorAll("[data-del-customer]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          delCustomer(btn.dataset.delCustomer),
+        ),
+      );
   } catch (err) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
   }
@@ -628,8 +687,10 @@ const delEntity = async (type, id) => {
   try {
     await apiDelete(`/${type}/${id}`, true);
     showToast(`${capitalize(type)} deleted`);
-    if (type === "author") loadDashAuthors($("dash-author-search").value.trim());
-    if (type === "category") loadDashCategories($("dash-category-search").value.trim());
+    if (type === "author")
+      loadDashAuthors($("dash-author-search").value.trim());
+    if (type === "category")
+      loadDashCategories($("dash-category-search").value.trim());
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -637,7 +698,7 @@ const delEntity = async (type, id) => {
 
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-// ================= info modal (books / invoices listing) =================
+// ================= info modal (books / orders listing) =================
 const showInfoModal = (title, html) => {
   $("info-modal-heading").textContent = title;
   $("info-modal-body").innerHTML = html;
@@ -651,8 +712,11 @@ const bookListHtml = (books) =>
           (b) => `
       <div class="dash-row">
         <div class="info">
-          <h4>${escapeHTML(b.title)}</h4>
-          <span>${escapeHTML(b.author?.name || "Unknown")} · Qty: ${b.quantity} · $${b.price ?? "—"}</span>
+          ${coverImg(b.cover, "dash-cover")}
+          <div>
+            <h4>${escapeHTML(b.title)}</h4>
+            <span>${escapeHTML(b.author?.name || "Unknown")} · ${formatPrice(b.price ?? 0)} · ${stockBadge(b.quantity)}</span>
+          </div>
         </div>
       </div>`,
         )
@@ -677,26 +741,26 @@ const openCategoryBooks = async (id) => {
   }
 };
 
-const openCustomerInvoices = async (id) => {
+const openCustomerOrders = async (id) => {
   try {
-    const { data } = await apiGet(`/customer/invoice/${id}`, true);
-    const invoices = data?.invoice || [];
-    const html = invoices.length
-      ? invoices
+    const { data } = await apiGet(`/customer/order/${id}`, true);
+    const orders = data?.order || [];
+    const html = orders.length
+      ? orders
           .map(
             (inv) => `
       <div class="dash-row">
         <div class="info">
-          <h4>Invoice ${escapeHTML(inv._id)}</h4>
-          <span>Total: $${inv.total ?? 0} · Status: ${escapeHTML(inv.status || "—")} · ${new Date(inv.createdAt).toLocaleString()}</span>
+          <h4>Order ${escapeHTML(inv._id)}</h4>
+          <span>Total: ${formatPrice(inv.total ?? 0)} · Status: ${escapeHTML(inv.status || "—")} · ${new Date(inv.createdAt).toLocaleString()}</span>
           ${inv.address ? `<span>${escapeHTML(inv.address)}</span>` : ""}
           ${inv.note ? `<span>${escapeHTML(inv.note)}</span>` : ""}
         </div>
       </div>`,
           )
           .join("")
-      : '<p class="msg">No invoices for this customer.</p>';
-    showInfoModal("Customer Invoices", html);
+      : '<p class="msg">No orders for this customer.</p>';
+    showInfoModal("Customer Orders", html);
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -725,12 +789,15 @@ const openBookForm = async (id = null) => {
     book = data?.book || {};
   }
   const bookAuthorId = String(book.author?._id || book.author || "");
-  const bookCategoryIds = (book.categories || []).map((c) => String(c._id || c));
+  const bookCategoryIds = (book.categories || []).map((c) =>
+    String(c._id || c),
+  );
 
   const form = document.createElement("form");
   form.id = "book-entity-form";
   form.className = "entity-form";
-  form.style.cssText = "width:100%;display:flex;flex-direction:column;gap:.6rem;";
+  form.style.cssText =
+    "width:100%;display:flex;flex-direction:column;gap:.6rem;";
   const field = (label, name, type = "text", value = "", placeholder = "") =>
     `<label>${label}
        <input name="${name}" type="${type}" value="${escapeHTML(String(value ?? ""))}" placeholder="${escapeHTML(placeholder)}" />
@@ -788,7 +855,8 @@ const openBookForm = async (id = null) => {
     data.price = Number(data.price || 0);
     data.pages = data.pages !== "" ? Number(data.pages) : undefined;
     data.costPrice = data.costPrice !== "" ? Number(data.costPrice) : undefined;
-    data.minQuantity = data.minQuantity !== "" ? Number(data.minQuantity) : undefined;
+    data.minQuantity =
+      data.minQuantity !== "" ? Number(data.minQuantity) : undefined;
     data.subtitle = data.subtitle || undefined;
     data.cover = data.cover || undefined;
     data.description = data.description || undefined;
@@ -814,8 +882,23 @@ const openBookForm = async (id = null) => {
 
 const openEntityForm = async (type, id = null) => {
   const meta = {
-    author: { title: "Author", fields: [["name", "Name"], ["bio", "Bio"]] },
-    category: { title: "Category", fields: [["name", "Name"], ["description", "Description"]] },
+    author: {
+      title: "Author",
+      fields: [
+        ["name", "Name"],
+        ["image", "Image URL"],
+        ["bio", "Bio"],
+        ["birthDate", "Birth date (YYYY-MM-DD)"],
+        ["deathDate", "Death date (YYYY-MM-DD)"],
+      ],
+    },
+    category: {
+      title: "Category",
+      fields: [
+        ["name", "Name"],
+        ["description", "Description"],
+      ],
+    },
   }[type];
   let existing = null;
   if (id) {
@@ -824,21 +907,29 @@ const openEntityForm = async (type, id = null) => {
   }
   const form = document.createElement("form");
   form.id = "entity-form-inner";
-  form.style.cssText = "width:100%;display:flex;flex-direction:column;gap:.6rem;";
+  form.style.cssText =
+    "width:100%;display:flex;flex-direction:column;gap:.6rem;";
   const field = (name, label) =>
     `<label>${label}
        <input name="${name}" value="${escapeHTML(String(existing?.[name] ?? ""))}" />
      </label>`;
-  form.innerHTML = meta.fields.map(([name, label]) => field(name, label)).join("");
+  form.innerHTML = meta.fields
+    .map(([name, label]) => field(name, label))
+    .join("");
   form.innerHTML += `<button type="submit" class="btn primary">${id ? "Save Changes" : "Create " + meta.title}</button>`;
 
   $("entity-form").innerHTML = "";
   $("entity-form").appendChild(form);
-  $("entity-modal-heading").textContent = `${id ? "Edit" : "New"} ${meta.title}`;
+  $("entity-modal-heading").textContent =
+    `${id ? "Edit" : "New"} ${meta.title}`;
   $("entity-modal").classList.remove("hidden");
   form.onsubmit = async (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form));
+    for (const k of ["birthDate", "deathDate"]) {
+      if (data[k]) data[k] = new Date(data[k]).toISOString();
+      else delete data[k];
+    }
     try {
       if (id) {
         await apiPatch(`/${type}/${id}`, data, true);
@@ -848,8 +939,10 @@ const openEntityForm = async (type, id = null) => {
         showToast(`${meta.title} created`);
       }
       $("entity-modal").classList.add("hidden");
-      if (type === "author") loadDashAuthors($("dash-author-search").value.trim());
-      if (type === "category") loadDashCategories($("dash-category-search").value.trim());
+      if (type === "author")
+        loadDashAuthors($("dash-author-search").value.trim());
+      if (type === "category")
+        loadDashCategories($("dash-category-search").value.trim());
     } catch (err) {
       showToast(err.message, "error");
     }
@@ -859,7 +952,8 @@ const openEntityForm = async (type, id = null) => {
 const openCustomerForm = async () => {
   const form = document.createElement("form");
   form.id = "customer-entity-form";
-  form.style.cssText = "width:100%;display:flex;flex-direction:column;gap:.6rem;";
+  form.style.cssText =
+    "width:100%;display:flex;flex-direction:column;gap:.6rem;";
   const field = (label, name, placeholder) =>
     `<label>${label}<input name="${name}" placeholder="${placeholder}" /></label>`;
   const select = (label, name, options) =>
@@ -868,10 +962,16 @@ const openCustomerForm = async () => {
     field("Name", "username", "Customer name") +
     field("Phone", "phone", "010xxxxxxx") +
     field("Address", "address", "Address") +
-    select("Gender", "gender",
-      `<option value="male">Male</option><option value="female">Female</option>`) +
-    select("Type", "type",
-      `<option value="branch">Branch</option><option value="online">Online</option><option value="onlineAndBranch">Online & Branch</option>`) +
+    select(
+      "Gender",
+      "gender",
+      `<option value="male">Male</option><option value="female">Female</option>`,
+    ) +
+    select(
+      "Type",
+      "type",
+      `<option value="branch">Branch</option><option value="online">Online</option><option value="onlineAndBranch">Online & Branch</option>`,
+    ) +
     `<button type="submit" class="btn primary">Create Customer</button>`;
 
   $("entity-form").innerHTML = "";
@@ -988,9 +1088,12 @@ const posCheckout = async () => {
 
 const renderPosFromCart = () => {
   const wrap = $("pos-cart");
-  const items = (state.posCart?.order || []).filter((i) => (i.quantity ?? 0) > 0);
+  const items = (state.posCart?.order || []).filter(
+    (i) => (i.quantity ?? 0) > 0,
+  );
   if (!items.length) {
-    wrap.innerHTML = '<div class="empty-state"><p class="msg">No items yet. Search & add books.</p></div>';
+    wrap.innerHTML =
+      '<div class="empty-state"><p class="msg">No items yet. Search & add books.</p></div>';
     $("pos-total").textContent = formatPrice(0);
     $("pos-msg").className = "msg";
     $("pos-msg").textContent = "";
@@ -1016,15 +1119,21 @@ const renderPosFromCart = () => {
       </div>`,
     )
     .join("");
-  wrap.querySelectorAll("[data-pos-remove]").forEach((btn) =>
-    btn.addEventListener("click", () => posRemove(btn.dataset.posRemove, 0)),
-  );
-  wrap.querySelectorAll("[data-pos-minus]").forEach((b) =>
-    b.addEventListener("click", () => posChangeQty(b.dataset.posMinus, -1)),
-  );
-  wrap.querySelectorAll("[data-pos-plus]").forEach((b) =>
-    b.addEventListener("click", () => posChangeQty(b.dataset.posPlus, 1)),
-  );
+  wrap
+    .querySelectorAll("[data-pos-remove]")
+    .forEach((btn) =>
+      btn.addEventListener("click", () => posRemove(btn.dataset.posRemove, 0)),
+    );
+  wrap
+    .querySelectorAll("[data-pos-minus]")
+    .forEach((b) =>
+      b.addEventListener("click", () => posChangeQty(b.dataset.posMinus, -1)),
+    );
+  wrap
+    .querySelectorAll("[data-pos-plus]")
+    .forEach((b) =>
+      b.addEventListener("click", () => posChangeQty(b.dataset.posPlus, 1)),
+    );
   const total = items.reduce(
     (s, i) => s + (i.book?.price ?? 0) * i.quantity,
     0,
@@ -1162,7 +1271,8 @@ const handleForgot = async (e) => {
       confirmationNewPassword: newPassword,
     });
     msg.className = "msg success";
-    msg.textContent = "Reset OTP sent to your email. Check your inbox (also spam).";
+    msg.textContent =
+      "Reset OTP sent to your email. Check your inbox (also spam).";
     e.target.reset();
   } catch (err) {
     msg.textContent = err.message;
@@ -1184,9 +1294,9 @@ const loadSession = async () => {
 };
 
 // ================= events =================
-document.querySelectorAll("#main-nav .nav-link[data-view]").forEach((n) =>
-  n.addEventListener("click", () => showView(n.dataset.view)),
-);
+document
+  .querySelectorAll("#main-nav .nav-link[data-view]")
+  .forEach((n) => n.addEventListener("click", () => showView(n.dataset.view)));
 $("btn-logout").addEventListener("click", () =>
   state.token ? handleLogout() : showView("auth"),
 );
@@ -1269,13 +1379,17 @@ $("tab-login").addEventListener("click", () => setAuthTab("login"));
 $("tab-signup").addEventListener("click", () => setAuthTab("signup"));
 
 // dashboard nav
-document.querySelectorAll("#dash-nav .auth-tab").forEach((t) =>
-  t.addEventListener("click", () => setDashTab(t.dataset.dash)),
-);
+document
+  .querySelectorAll("#dash-nav .auth-tab")
+  .forEach((t) =>
+    t.addEventListener("click", () => setDashTab(t.dataset.dash)),
+  );
 
 $("btn-new-book").addEventListener("click", () => openBookForm());
 $("btn-new-author").addEventListener("click", () => openEntityForm("author"));
-$("btn-new-category").addEventListener("click", () => openEntityForm("category"));
+$("btn-new-category").addEventListener("click", () =>
+  openEntityForm("category"),
+);
 $("btn-new-customer").addEventListener("click", openCustomerForm);
 
 $("dash-book-search").addEventListener("input", (e) =>
@@ -1289,6 +1403,15 @@ $("dash-category-search").addEventListener("input", (e) =>
 );
 $("dash-customer-search").addEventListener("input", (e) =>
   debounce(() => loadDashCustomers(e.target.value.trim()), 400, "customers"),
+);
+$("dash-customer-gender").addEventListener("change", () =>
+  loadDashCustomers($("dash-customer-search").value.trim()),
+);
+$("dash-customer-type").addEventListener("change", () =>
+  loadDashCustomers($("dash-customer-search").value.trim()),
+);
+$("sort-select").addEventListener("change", () =>
+  loadBooks($("search-input").value.trim()),
 );
 
 $("entity-modal-close").addEventListener("click", () =>
@@ -1306,7 +1429,9 @@ $("info-modal").addEventListener("click", (e) => {
 });
 
 // POS
-$("pos-search-btn").addEventListener("click", () => posSearch($("pos-search").value.trim()));
+$("pos-search-btn").addEventListener("click", () =>
+  posSearch($("pos-search").value.trim()),
+);
 $("pos-search").addEventListener("keydown", (e) => {
   if (e.key === "Enter") posSearch(e.target.value.trim());
 });

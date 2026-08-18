@@ -39,6 +39,6 @@ router.get(
   customerServices.getOne,
 );
 
-router.get("/invoice/:id", customerServices.getCustomerInvoice);
+router.get("/order/:id", customerServices.getCustomerOrder);
 
 export default router;

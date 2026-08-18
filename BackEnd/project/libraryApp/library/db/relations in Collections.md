@@ -14,7 +14,7 @@
 [[Customer]]
 │
 ▼
-[[invoice]]
+[[order]]
 │
 ├────────► Books ──► [[Book]] array
 │

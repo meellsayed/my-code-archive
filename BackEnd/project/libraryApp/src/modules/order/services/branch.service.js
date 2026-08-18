@@ -2,7 +2,7 @@ import { asyncHandler } from "../../../utils/response/error.response.js";
 import { successResponse } from "../../../utils/response/success.response.js";
 import * as dbService from "../../../DB/db.service.js";
 import { cartModel } from "../../../DB/models/Cart.model.js";
-import { invoiceModel } from "../../../DB/models/Invoice.model.js";
+import { orderModel } from "../../../DB/models/Order.model.js";
 import { filterObject } from "../../../utils/utils.js";
 import { customerModel } from "../../../DB/models/Customer.model.js";
 
@@ -76,21 +76,20 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     status: "done",
   });
 
-  const invoice = await dbService.create({ model: invoiceModel, data });
+  const order = await dbService.create({ model: orderModel, data });
 
-  await invoice.populate([
+  await order.populate([
     { path: "customer" },
     { path: "seller" },
     // { path: "items" },
     { path: "items.order.book" },
-
   ]);
   cart.order = [];
   await cart.save();
- 
+
   return successResponse({
     res,
-    data: { invoice, cart },
+    data: { order, cart },
     statusCode: 200,
   });
 });

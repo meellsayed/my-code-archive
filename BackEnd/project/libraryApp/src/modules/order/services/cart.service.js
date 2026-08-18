@@ -5,7 +5,7 @@ import { bookModel } from "../../../DB/models/Book.model.js";
 import { cartModel } from "../../../DB/models/Cart.model.js";
 import { roleTypes } from "../../../DB/models/User.model.js";
 
-//* author invoice
+//* author order
 
 // { id } = req.params; //? book id
 // { quantity } = req.body;
@@ -77,3 +77,6 @@ export const addItemAndRemove = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, statusCode: 201, data: { cart } });
 });
+
+// get cart by id
+// get order online done

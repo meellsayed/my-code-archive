@@ -29,6 +29,11 @@
           <div class="search-bar">
             <input id="search-input" type="text" placeholder="Search by title or author..." />
             <button id="search-btn" class="btn primary">Search</button>
+            <select id="sort-select" title="Sort by price">
+              <option value="">Sort: Default</option>
+              <option value="price">Price: High to Low</option>
+              <option value="-price">Price: Low to High</option>
+            </select>
           </div>
           <div id="category-filters" class="chips"></div>
         </div>
@@ -105,6 +110,17 @@
         <div id="dash-customers" class="dash-pane">
           <div class="pane-toolbar">
             <input id="dash-customer-search" type="text" placeholder="Search customers..." />
+            <select id="dash-customer-gender">
+              <option value="">Gender: All</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+            <select id="dash-customer-type">
+              <option value="">Type: All</option>
+              <option value="branch">Branch</option>
+              <option value="online">Online</option>
+              <option value="onlineAndBranch">Online & Branch</option>
+            </select>
             <button id="btn-new-customer" class="btn primary">+ New Customer</button>
           </div>
           <div id="dash-customers-list" class="dash-list"></div>

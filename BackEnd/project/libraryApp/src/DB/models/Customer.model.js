@@ -22,7 +22,6 @@ const customerSchema = new Schema(
     },
     // user: { type: Types.ObjectId, ref: "User" },
     isDeleted: { type: Boolean, default: false },
-    activeOrder: { type: Types.ObjectId, ref: "Cart" },
     type: {
       type: String,
       enum: Object.values(customerTypes),

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as cartServices from "./services/cart.service.js";
-import * as invoiceServices from "./services/invoice.service.js";
-import * as orderServices from "./services/order.service.js";
+import * as branchServices from "./services/branch.service.js";
+import * as onlineServices from "./services/online.service.js";
 import {
   authentication,
   authorization,
@@ -9,24 +9,30 @@ import {
 import { roleTypes } from "../../DB/models/User.model.js";
 const router = Router();
 
+//========================= global ============================
 router.post(
   "/cart/add-item/:id",
   authentication(),
   cartServices.addItemAndRemove,
 );
+
 router.post(
   "/cart/remove-item/:id",
   authentication(),
   cartServices.addItemAndRemove,
 );
 
-router.post(
-  "/staff/buy/cart/:cartId",
+
+//========================= online ===========================
+router.get("/online/:id", authentication(), onlineServices.getOne);
+router.post("/online/buy/:cartId", authentication(), onlineServices.buyCart);
+router.get("/online",authentication(),onlineServices.getAll)
+
+//========================= branch ===========================
+router.post("/branch/buy/:cartId",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
-  invoiceServices.buyCart,
+  branchServices.buyCart,
 );
-
-router.post("/buy/cart/:cartId", authentication(), orderServices.buyCart);
 
 export default router;

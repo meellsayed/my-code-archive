@@ -22,7 +22,7 @@ Generated from `report2.md`. Check off tasks as they are completed.
   - Add `import { Types } from "mongoose"` (or similar) so `isValidObjectId` doesn't throw `ReferenceError`.
 - [ ] **Sanitize `forgetPassword` response** — `src/modules/auth/services/login.service.js:108`
   - Do not return the full user doc (includes bcrypt password hash); pick only safe fields.
-- [ ] **Implement real cart removal** — `src/modules/invoice/invoice.controller.js:13-17` + `src/modules/invoice/services/cart.service.js`
+- [ ] **Implement real cart removal** — `src/modules/order/order.controller.js:13-17` + `src/modules/order/services/cart.service.js`
   - `/cart/remove-item/:id` currently calls the same `addItemAndRemove` handler. Add actual decrement/removal logic (and route it to a separate handler).
 
 ---
@@ -45,7 +45,7 @@ Generated from `report2.md`. Check off tasks as they are completed.
   - Register handlers with `sendEmailEventType.sendLoginConfirmationOTP` / `sendEmailEventType.sendEnable2faOTP` (currently dead).
 - [ ] **Fix `pre("save")` hook** — `src/DB/models/User.model.js:36-42`
   - Actually call `next()` (or simplify — the hook is redundant since `generateHash` is sync).
-- [ ] **Make `buyCart` atomic + ownership-checked** — `src/modules/invoice/services/invoice.service.js:8-58`
+- [ ] **Make `buyCart` atomic + ownership-checked** — `src/modules/order/services/order.service.js:8-58`
   - Use a transaction/session, await stock updates, verify `cart.user === req.user._id`, guard `order.book` null, clear cart after purchase, apply discount/tax.
 - [ ] **Gate error details by env** — `src/utils/response/error.response.js:19-25`
   - Return `error`/`stack` only in DEV; hide in production.
@@ -53,7 +53,7 @@ Generated from `report2.md`. Check off tasks as they are completed.
   - Honor `options.expiresIn` (currently always overridden by the default `1800`), so the confirm-email token is 5 min, not 30.
 - [ ] **Map Mongoose errors to friendly messages** — `book.service.js:54-61`, `author.service.js:22-29`
   - Catch `E11000` duplicate-key and return a clear 400 instead of the raw error.
-- [ ] **Remove unused imports** — `book.controller.js:4`, `invoice.controller.js:5`, `user.service.js:1`
+- [ ] **Remove unused imports** — `book.controller.js:4`, `order.controller.js:5`, `user.service.js:1`
   - Delete `runAsyncWorkFinishedHook` (graphql internal, unused) and the circular `userRouter` import.
 
 ---
@@ -88,7 +88,7 @@ Generated from `report2.md`. Check off tasks as they are completed.
 
 - [ ] **Pagination + filtering** on list endpoints (`page`, `limit`, `sort`)
 - [ ] **Inventory feature** — low-stock alerts, stock movement log, transaction-safe checkout
-- [ ] **Reports** via aggregation pipelines (best sellers, daily/monthly invoice, profit)
+- [ ] **Reports** via aggregation pipelines (best sellers, daily/monthly order, profit)
 - [ ] **Roles/permissions** — implement `Role` model; make `authorization` functional
 - [ ] **Categories module** — controller (add/update/delete) + mount in `app.controller.js`
 - [ ] **2FA / Google login** — after OTP is made secure
