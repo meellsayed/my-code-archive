@@ -453,6 +453,9 @@ const renderDashboardPane = () => {
     case "customers":
       loadDashCustomers("");
       break;
+    case "orders":
+      loadDashOrders("");
+      break;
     case "pos":
       renderPosFromCart();
       break;
@@ -677,6 +680,70 @@ const delCustomer = async (id) => {
     await apiDelete("/customer/" + id, true);
     showToast("Customer deleted");
     loadDashCustomers($("dash-customer-search").value.trim());
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+};
+
+// ---- orders (dashboard) ----
+const loadDashOrders = async (search = "") => {
+  const wrap = $("dash-orders-list");
+  wrap.innerHTML = '<p class="msg">Loading...</p>';
+  try {
+    const params = new URLSearchParams();
+    if (search) params.set("customer", search);
+    const status = $("dash-order-status")?.value;
+    if (status) params.set("status", status);
+    const qs = params.toString();
+    const { data } = await apiGet("/order/online" + (qs ? `?${qs}` : ""), true);
+    const orders = data?.orders || [];
+    wrap.innerHTML =
+      orders.length === 0
+        ? '<p class="msg">No orders.</p>'
+        : orders
+            .map(
+              (o) => `
+        <div class="dash-row">
+          <div class="info">
+            <h4>Order ${escapeHTML(o._id)}</h4>
+            <span>Customer: ${escapeHTML(o.customer?.username || "—")} · ${formatPrice(o.total ?? 0)} · Status: ${escapeHTML(o.status || "—")}</span>
+            ${o.address ? `<span>${escapeHTML(o.address)}</span>` : ""}
+            <span>${new Date(o.createdAt).toLocaleString()}</span>
+          </div>
+          <div class="actions">
+            <button class="btn ghost small" data-order-detail="${o._id}">View</button>
+          </div>
+        </div>`,
+            )
+            .join("");
+    wrap
+      .querySelectorAll("[data-order-detail]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          openOrderDetail(btn.dataset.orderDetail),
+        ),
+      );
+  } catch (err) {
+    wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
+  }
+};
+
+const openOrderDetail = async (id) => {
+  try {
+    const { data } = await apiGet(`/order/online/${id}`, true);
+    const o = data?.order;
+    if (!o) throw new Error("Order not found");
+    const items = (o.items?.order || []).map(
+      (it) =>
+        `<div class="dash-row"><div class="info"><span>${escapeHTML(it.book?.title || "—")} × ${it.quantity ?? 0}</span></div></div>`,
+    );
+    const html = `
+      <p><strong>Total:</strong> ${formatPrice(o.total ?? 0)}</p>
+      <p><strong>Status:</strong> ${escapeHTML(o.status || "—")} · ${new Date(o.createdAt).toLocaleString()}</p>
+      ${o.address ? `<p><strong>Address:</strong> ${escapeHTML(o.address)}</p>` : ""}
+      ${o.note ? `<p><strong>Note:</strong> ${escapeHTML(o.note)}</p>` : ""}
+      ${items.length ? `<h4>Items</h4>${items.join("")}` : ""}`;
+    showInfoModal("Order Details", html);
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -1053,7 +1120,7 @@ const posCheckout = async () => {
     }
     const address = $("pos-cust-address").value.trim();
     await apiPost(
-      `/order/staff/buy/cart/${state.posCart._id}`,
+      `/order/branch/buy/${state.posCart._id}`,
       {
         address,
         note: $("pos-note").value.trim(),
@@ -1409,6 +1476,12 @@ $("dash-customer-gender").addEventListener("change", () =>
 );
 $("dash-customer-type").addEventListener("change", () =>
   loadDashCustomers($("dash-customer-search").value.trim()),
+);
+$("dash-order-search").addEventListener("input", (e) =>
+  debounce(() => loadDashOrders(e.target.value.trim()), 400, "orders"),
+);
+$("dash-order-status").addEventListener("change", () =>
+  loadDashOrders($("dash-order-search").value.trim()),
 );
 $("sort-select").addEventListener("change", () =>
   loadBooks($("search-input").value.trim()),

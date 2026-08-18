@@ -76,6 +76,7 @@
           <button class="auth-tab" data-dash="authors">Authors</button>
           <button class="auth-tab" data-dash="categories">Categories</button>
           <button class="auth-tab" data-dash="customers">Customers</button>
+          <button class="auth-tab" data-dash="orders">Orders</button>
           <button class="auth-tab" data-dash="pos">New Sale</button>
         </div>
 
@@ -124,6 +125,21 @@
             <button id="btn-new-customer" class="btn primary">+ New Customer</button>
           </div>
           <div id="dash-customers-list" class="dash-list"></div>
+        </div>
+
+        <!-- Orders -->
+        <div id="dash-orders" class="dash-pane">
+          <div class="pane-toolbar">
+            <input id="dash-order-search" type="text" placeholder="Search by customer or seller..." />
+            <select id="dash-order-status">
+              <option value="">Status: All</option>
+              <option value="new">New</option>
+              <option value="canceled">Canceled</option>
+              <option value="delivered">Delivered</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div id="dash-orders-list" class="dash-list"></div>
         </div>
 
         <!-- POS (new sale) -->

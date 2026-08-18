@@ -67,6 +67,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
 
   const data = filterObject({
     customer: customer._id,
+    customerType: "Customer",
     items: cartId,
     note,
     address,

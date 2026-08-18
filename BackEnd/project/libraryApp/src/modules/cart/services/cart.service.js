@@ -9,12 +9,13 @@ import { roleTypes } from "../../../DB/models/User.model.js";
 
 // { id } = req.params; //? book id
 // { quantity } = req.body;
-export const addItemAndRemove = asyncHandler(async (req, res, next) => {
+export const addItem = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { quantity } = req.body;
   const userId = req.user._id;
   const isStaff = req.user.role == roleTypes.customer ? false : true;
   const book = await dbService.findById({ model: bookModel, id });
+
   if (quantity > book.quantity) {
     return next(new Error(`Quantity in stock:${book.quantity}`));
   }
@@ -45,6 +46,11 @@ export const addItemAndRemove = asyncHandler(async (req, res, next) => {
       }
 
       oldBook.quantity += quantity;
+      if (oldBook.quantity <= 0) {
+        cart.order = cart.order.filter(
+          (o) => String(o._id) != String(oldBook._id),
+        );
+      }
     } else {
       if (quantity > book.quantity) {
         return next(new Error(`Quantity in stock: ${book.quantity}`));
@@ -77,6 +83,39 @@ export const addItemAndRemove = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, statusCode: 201, data: { cart } });
 });
+export const removeItem = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const { quantity } = req.body;
+  const userId = req.user._id;
+  const cart = await dbService.findOneAndUpdate({
+    model: cartModel,
+    filter: { user: userId, done: false },
+    data: {
+      $pull: {
+        order: {
+          book: id,
+        },
+      },
+    },
+  });
+  return successResponse({ res, statusCode: 200, data: { cart } });
+});
 
 // get cart by id
+export const getOne = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const cart = await dbService.findOne({
+    model: cartModel,
+    filter: { _id: id, isDeleted: false },
+  });
+  if (req.user.role != roleTypes.admin || req.user.role != roleTypes.staff) {
+    if (req.user._id != cart.user) {
+      return next(new Error("that is not your cart", { cause: 403 }));
+    }
+  }
+
+  return successResponse({ res, data: { cart } });
+});
+
 // get order online done

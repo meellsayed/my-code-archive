@@ -4,7 +4,8 @@ import * as dbService from "../../../DB/db.service.js";
 import { cartModel } from "../../../DB/models/Cart.model.js";
 import { orderModel } from "../../../DB/models/Order.model.js";
 import { filterObject } from "../../../utils/utils.js";
-import { roleTypes } from "../../../DB/models/User.model.js";
+import { roleTypes, userModel } from "../../../DB/models/User.model.js";
+import { customerModel } from "../../../DB/models/Customer.model.js";
 // import { startSession } from "mongoose";
 
 const orderPopulate = [
@@ -30,7 +31,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
       },
     ],
   });
-  if (cart.user != userId) {
+  if (cart.user.toString() != userId.toString()) {
     return next(new Error("that is not your cart", { cause: 403 }));
   }
 
@@ -57,6 +58,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
 
   const data = filterObject({
     customer: userId,
+    customerType: "User",
     items: cartId,
     note,
     address,
@@ -83,16 +85,23 @@ export const getAll = asyncHandler(async (req, res, next) => {
   let query = {};
 
   if (customer) {
-    const customersId = await dbService.find({
-      model: customerModel,
-      filter: { username: { $regex: customer, $options: "i" } },
-      select: "_id",
-    });
-    query.customer = customersId;
+    const [usersId, customersId] = await Promise.all([
+      dbService.find({
+        model: userModel,
+        filter: { username: { $regex: customer, $options: "i" } },
+        select: "_id",
+      }),
+      dbService.find({
+        model: customerModel,
+        filter: { username: { $regex: customer, $options: "i" } },
+        select: "_id",
+      }),
+    ]);
+    query.customer = { $in: [...usersId, ...customersId] };
   }
   if (seller) {
     const sellersId = await dbService.find({
-      model: sellerModel,
+      model: userModel,
       filter: { username: { $regex: seller, $options: "i" } },
       select: "_id",
     });
@@ -131,9 +140,12 @@ export const getOne = asyncHandler(async (req, res, next) => {
     filter: { _id: id, isDeleted: false, customerType: "User" },
     populate: orderPopulate,
   });
+  if (!order) {
+    return next(new Error("order not found", { cause: 404 }));
+  }
   if (req.user.role != roleTypes.admin || req.user.role != roleTypes.staff) {
     if (req.user._id != order.customer) {
-      return next(new Error("that is not your cart", { cause: 403 }));
+      return next(new Error("that is not your order", { cause: 403 }));
     }
   }
 
