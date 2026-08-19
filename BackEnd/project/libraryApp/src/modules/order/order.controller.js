@@ -16,7 +16,12 @@ router.get(
   authorization([roleTypes.admin, roleTypes.staff]),
   globalServices.getAll,
 );
-
+router.get(
+  "/customer/:id",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  globalServices.getCustomerOrders,
+);
 //========================= online ===========================
 router.post("/online/buy/:id", authentication(), onlineServices.buyCart); // cart id
 router.get("/online", authentication(), onlineServices.getOrders);
@@ -27,6 +32,13 @@ router.post(
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
   branchServices.buyCart,
+);
+//================================================================================
+router.get(
+  "/:id",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  globalServices.getOne,
 );
 
 export default router;
