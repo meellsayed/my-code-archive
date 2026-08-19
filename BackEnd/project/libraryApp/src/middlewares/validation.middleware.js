@@ -1,10 +1,11 @@
 import joi from "joi";
+import { Types } from "mongoose";
 import { asyncHandler } from "../utils/response/error.response.js";
 
 export const isValidObjectId = (value, helper) => {
   return Types.ObjectId.isValid(value)
     ? true
-    : helper.message("In-valid object Id");
+    : helper.message("Invalid object id");
 };
 
 export const generalFields = {

@@ -79,7 +79,9 @@ const statusLabel = (status = "") =>
     delivered: "Delivered",
     canceled: "Canceled",
     done: "Done", // legacy orders
-  }[status] || status || "—");
+  })[status] ||
+  status ||
+  "—";
 const statusBadge = (status = "") =>
   `<span class="status status-${escapeHTML(status || "none")}">${escapeHTML(statusLabel(status))}</span>`;
 
@@ -765,7 +767,10 @@ const openCustomerOrders = async (customerId) => {
     const { data } = await apiGet(`/order/customer/${customerId}`, true);
     const orders = data?.orders || [];
     if (!orders.length) {
-      showInfoModal("Customer Orders", '<p class="msg">No orders for this customer.</p>');
+      showInfoModal(
+        "Customer Orders",
+        '<p class="msg">No orders for this customer.</p>',
+      );
       return;
     }
     const html = orders
@@ -836,16 +841,14 @@ const loadDashOrders = async (search = "") => {
           advanceOrderStatus(btn.dataset.orderStatus),
         ),
       );
-    wrap
-      .querySelectorAll("[data-order-detail]")
-      .forEach((btn) =>
-        btn.addEventListener("click", () => {
-          const ord = orders.find(
-            (o) => String(o._id) === String(btn.dataset.orderDetail),
-          );
-          openOrderDetail(btn.dataset.orderDetail, ord);
-        }),
-      );
+    wrap.querySelectorAll("[data-order-detail]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        const ord = orders.find(
+          (o) => String(o._id) === String(btn.dataset.orderDetail),
+        );
+        openOrderDetail(btn.dataset.orderDetail, ord);
+      }),
+    );
   } catch (err) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
   }
@@ -947,7 +950,8 @@ const openOrderDetail = async (id, order = null) => {
     const items = cartItems.map((it) => {
       const book = map.get(String(it.book?._id || it.book)) || {};
       return {
-        title: book.title || `Book (${String(it.book?._id || it.book).slice(-6)})`,
+        title:
+          book.title || `Book (${String(it.book?._id || it.book).slice(-6)})`,
         price: book.price ?? 0,
         qty: it.quantity ?? 0,
       };

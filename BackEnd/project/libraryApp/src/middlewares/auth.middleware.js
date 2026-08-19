@@ -11,10 +11,9 @@ export const authentication = (tokenType = "access") => {
     req.user = await decodedToken({
       authorization,
       tokenType: tokenType == "access" ? tokenTypes.access : tokenTypes.refresh,
-      next,
     });
     if (req.user == undefined) {
-      return next(new Error("unauthenticated", { cause: 401 }));
+      return next(new Error("Unauthenticated", { cause: 401 }));
     }
     return next();
   });
@@ -27,7 +26,9 @@ export const authentication = (tokenType = "access") => {
 export const authorization = (accessRoles = []) => {
   return asyncHandler(async (req, res, next) => {
     if (!accessRoles.includes(req.user.role)) {
-      return next(new Error("In-valid Access Role", { cause: 403 }));
+      return next(
+        new Error("Access denied: insufficient permissions", { cause: 403 }),
+      );
     }
     return next();
   });

@@ -37,7 +37,7 @@ export const signup = asyncHandler(async (req, res, next) => {
       filter: { $or: [{ email }, { phone }] },
     })
   ) {
-    return next(new Error("Email exist", { cause: 400 }));
+    return next(new Error("Email or phone already exists", { cause: 400 }));
   }
   const data = filterObject({
     username,
@@ -57,22 +57,32 @@ export const signup = asyncHandler(async (req, res, next) => {
       otp: generateHash({ plainText: otp }),
     },
   });
-  // const customer = await dbService.findOneAndUpdate({
-  //   model: customerModel,
-  //   filter: { phone },
-  //   data: { type: customerTypes.onlineAndBranch, ...data, user: user._id },
-  // });
-  // let message = "";
-  // if (customer) {
-  //   message = "Welcome back branch friend";
-  // }
-  // if (!customer) {
-  //   customer = await dbService.create({
-  //     model: customerModel,
-  //     data: { type: customerTypes.online, ...data, user: user._id },
-  //   });
-  //   message = "Welcome";
-  // }
+
+  /*  // Link the new account to a Customer record (reuse by phone if exists)
+  let customer = await dbService.findOne({
+    model: customerModel,
+    filter: { phone },
+  });
+  if (customer) {
+    customer.username = username;
+    customer.address = address || customer.address;
+    customer.gender = gender || customer.gender;
+    customer.type = customerTypes.onlineAndBranch;
+    customer.isDeleted = false;
+    await customer.save();
+  } else {
+    customer = await dbService.create({
+      model: customerModel,
+      data: {
+        username,
+        phone,
+        address,
+        gender,
+        type: customerTypes.online,
+        createdBy: user._id,
+      },
+    });
+  }*/
 
   sendEmailEvent.emit(sendEmailEventType.confirmEmail, {
     _id: user._id,
@@ -100,14 +110,18 @@ export const confirmEmail = asyncHandler(async (req, res, next) => {
   }
 
   if (user.confirmEmail == true) {
-    return next(new Error("Email confirm already"));
+    return next(new Error("Email is already confirmed", { cause: 400 }));
   }
   if (!compareHash({ plainText: decoded.otp, hashValue: user.otp })) {
-    return next(new Error("Otp not matched"));
+    return next(new Error("Invalid OTP", { cause: 400 }));
   }
 
   user.confirmEmail = true;
   user.otp = undefined;
   await user.save();
-  return successResponse({ res, data: {}, message: "Email confirmation done" });
+  return successResponse({
+    res,
+    data: {},
+    message: "Email confirmed successfully",
+  });
 });

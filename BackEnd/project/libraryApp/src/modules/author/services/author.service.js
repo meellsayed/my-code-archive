@@ -23,7 +23,7 @@ export const addOne = asyncHandler(async (req, res, next) => {
       filter: { name, isDeleted: false },
     })) != null
   ) {
-    return next(new Error(`Author is exist`));
+    return next(new Error("Author already exists", { cause: 400 }));
   }
 
   const author = await dbService.create({
@@ -55,7 +55,7 @@ export const updateOne = asyncHandler(async (req, res, next) => {
   });
 
   if (author == null) {
-    return next(new Error("Author is not exist please add your author"));
+    return next(new Error("Author not found", { cause: 404 }));
   }
 
   return successResponse({ res, statusCode: 200, data: { author } });
@@ -72,10 +72,14 @@ export const deleteOne = asyncHandler(async (req, res, next) => {
   });
 
   if (author == null) {
-    return next(new Error("Author is not exist"));
+    return next(new Error("Author not found", { cause: 404 }));
   }
 
-  return successResponse({ res, statusCode: 200, message: "Delete Done" });
+  return successResponse({
+    res,
+    statusCode: 200,
+    message: "Author deleted successfully",
+  });
 });
 // { id } = req.params;
 export const getOne = asyncHandler(async (req, res, next) => {
@@ -86,7 +90,7 @@ export const getOne = asyncHandler(async (req, res, next) => {
     id,
   });
   if (!author) {
-    return next(new Error("author id not found", { cause: 404 }));
+    return next(new Error("Author not found", { cause: 404 }));
   }
 
   return successResponse({ res, data: { author } });

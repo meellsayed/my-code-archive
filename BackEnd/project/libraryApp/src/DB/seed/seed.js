@@ -7,6 +7,7 @@ import { categoryModel } from "../models/Category.model.js";
 import { authorModel } from "../models/Author.model.js";
 import { bookModel } from "../models/Book.model.js";
 import { customerModel } from "../models/Customer.model.js";
+import { generateHash } from "../../utils/security/hash.js";
 import {
   seedUsers,
   seedCategories,
@@ -36,7 +37,12 @@ const seed = async () => {
     await clear();
     console.log("Cleared existing data");
 
-    const users = await userModel.insertMany(seedUsers);
+    const users = await userModel.insertMany(
+      seedUsers.map((u) => ({
+        ...u,
+        password: generateHash({ plainText: "1234" }),
+      })),
+    );
     const admin = users.find((u) => u.role === "admin");
     const staff = users.find((u) => u.role === "staff");
 

@@ -27,6 +27,6 @@ router.delete(
 );
 
 router.get("", bookServices.getAll);
-router.get("/:id", bookServices.getOne); //? done
+router.get("/:id", bookServices.getOne);
 
 export default router;

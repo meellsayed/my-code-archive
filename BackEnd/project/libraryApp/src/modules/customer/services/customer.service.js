@@ -39,7 +39,7 @@ export const deleteOne = asyncHandler(async (req, res, next) => {
   return successResponse({
     res,
     statusCode: 200,
-    message: "Customer deleted Done",
+    message: "Customer deleted successfully",
   });
 });
 
@@ -47,7 +47,7 @@ export const getOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const customer = await dbService.findById({ model: customerModel, id });
   if (!customer) {
-    return next(new Error("customer not found", { cause: 404 }));
+    return next(new Error("Customer not found", { cause: 404 }));
   }
   return successResponse({ res, data: { customer } });
 });

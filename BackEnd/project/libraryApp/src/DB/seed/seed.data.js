@@ -3,7 +3,7 @@ export const seedUsers = [
     username: "Admin",
     email: "admin@test.com",
     phone: "p011",
-    password: "$2b$10$wYOk291CJXy70oLb1z2p5.K37v8BRqhZBKe7JlcaB3bjgGuaNshI2",
+    password: "", // hashed automatically by seed.js (1234)
     address: "Cairo, Egypt",
     gender: "male",
     confirmEmail: true,
@@ -13,7 +13,7 @@ export const seedUsers = [
     username: "Staff",
     email: "staff@test.com",
     phone: "p012",
-    password: "$2b$10$wYOk291CJXy70oLb1z2p5.K37v8BRqhZBKe7JlcaB3bjgGuaNshI2",
+    password: "", // hashed automatically by seed.js (1234)
     address: "Giza, Egypt",
     gender: "female",
     confirmEmail: true,
@@ -23,7 +23,7 @@ export const seedUsers = [
     username: "Customer",
     email: "customer@test.com",
     phone: "p013",
-    password: "$2b$10$wYOk291CJXy70oLb1z2p5.K37v8BRqhZBKe7JlcaB3bjgGuaNshI2",
+    password: "", // hashed automatically by seed.js (1234)
     address: "Alexandria, Egypt",
     gender: "male",
     confirmEmail: true,
@@ -33,7 +33,7 @@ export const seedUsers = [
     username: "Sara Ahmed",
     email: "sara@test.com",
     phone: "p014",
-    password: "$2b$10$wYOk291CJXy70oLb1z2p5.K37v8BRqhZBKe7JlcaB3bjgGuaNshI2",
+    password: "", // hashed automatically by seed.js (1234)
     address: "Mansoura, Egypt",
     gender: "female",
     confirmEmail: true,

@@ -46,11 +46,10 @@ export const generateAccessToken = (user = {}) => {
 export const decodedToken = async ({
   authorization = "",
   tokenType = tokenTypes.access,
-  next = {},
 } = {}) => {
   const [bearer, token] = authorization?.split(" ") || [];
   if (!bearer || !token) {
-    return next(new Error("Missing token", { cause: 400 }));
+    throw new Error("Missing token", { cause: 400 });
   }
 
   let refresh_signature = "";
@@ -75,17 +74,17 @@ export const decodedToken = async ({
       tokenType == tokenTypes.access ? access_signature : refresh_signature,
   });
   if (!decoded?.id) {
-    return next(new Error("In-valid token payload", { cause: 401 }));
+    throw new Error("Invalid token payload", { cause: 401 });
   }
   const user = await dbService.findOne({
     model: userModel,
     filter: { _id: decoded.id },
   });
   if (!user) {
-    return next(new Error("User not found", { cause: 404 }));
+    throw new Error("User not found", { cause: 404 });
   }
   if (user.changeCredentialsTime?.getTime() >= decoded.iat * 1000) {
-    return next(new Error("In-valid login Credentials", { cause: 400 }));
+    throw new Error("Invalid login credentials", { cause: 400 });
   }
 
   return user;

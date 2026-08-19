@@ -17,7 +17,6 @@ export const addOne = asyncHandler(async (req, res, next) => {
     description,
     quantity,
     minQuantity,
-    status,
     pages,
     availableToBorrow,
     author,
@@ -32,7 +31,6 @@ export const addOne = asyncHandler(async (req, res, next) => {
     description,
     quantity,
     minQuantity,
-    status,
     pages,
     availableToBorrow,
     author,
@@ -57,7 +55,7 @@ export const addOne = asyncHandler(async (req, res, next) => {
       filter: { title },
     })) != null
   ) {
-    return next(new Error("Book is exist"));
+    return next(new Error("Book already exists", { cause: 400 }));
   }
 
   const book = await dbService.create({
@@ -80,7 +78,6 @@ export const updateOne = asyncHandler(async (req, res, next) => {
     description,
     quantity,
     minQuantity,
-    status,
     pages,
     availableToBorrow,
     author,
@@ -95,7 +92,6 @@ export const updateOne = asyncHandler(async (req, res, next) => {
     description,
     quantity,
     minQuantity,
-    status,
     pages,
     availableToBorrow,
     author,
@@ -122,7 +118,7 @@ export const updateOne = asyncHandler(async (req, res, next) => {
   });
 
   if (book == null) {
-    return next(new Error("Book is not exist please add your book"));
+    return next(new Error("Book not found", { cause: 404 }));
   }
 
   return successResponse({ res, statusCode: 201, data: { book: book } });
@@ -140,10 +136,14 @@ export const deleteOne = asyncHandler(async (req, res, next) => {
   });
 
   if (book == null) {
-    return next(new Error("Book is not exist"));
+    return next(new Error("Book not found", { cause: 404 }));
   }
 
-  return successResponse({ res, statusCode: 200, message: "Delete Done" });
+  return successResponse({
+    res,
+    statusCode: 200,
+    message: "Book deleted successfully",
+  });
 });
 
 // { id } = req.params;

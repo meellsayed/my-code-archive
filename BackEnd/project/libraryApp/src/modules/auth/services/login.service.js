@@ -23,7 +23,8 @@ import { compareHash, generateHash } from "../../../utils/security/hash.js";
 export const login = asyncHandler(async (req, res, next) => {
   const { email, phone, password } = req.body;
 
-  if (!email && !phone) return next(new Error("Enter email or password !!"));
+  if (!email && !phone)
+    return next(new Error("Enter email or phone", { cause: 400 }));
 
   let user = undefined;
   if (email) {
@@ -39,10 +40,10 @@ export const login = asyncHandler(async (req, res, next) => {
   }
 
   if (user == undefined)
-    return next(new Error("In-valid email or phone", { cause: 404 }));
+    return next(new Error("Invalid email or phone", { cause: 404 }));
 
   if (!compareHash({ plainText: password, hashValue: user.password }))
-    return next(new Error("In-valid password"));
+    return next(new Error("Invalid password", { cause: 401 }));
 
   const refreshToken = generateRefreshToken(user);
   const accessToken = generateAccessToken(user);
@@ -61,7 +62,9 @@ export const forgetPasswordSendOtp = asyncHandler(async (req, res, next) => {
   const { email, newPassword, confirmationNewPassword } = req.body;
 
   if (newPassword != confirmationNewPassword)
-    return next(new Error("Password not matched"));
+    return next(
+      new Error("Password confirmation does not match", { cause: 400 }),
+    );
 
   const user = await dbService.findOne({
     model: userModel,
@@ -80,7 +83,7 @@ export const forgetPasswordSendOtp = asyncHandler(async (req, res, next) => {
     otp,
     newPassword,
   });
-  return successResponse({ res, message: "Done" });
+  return successResponse({ res, message: "Recovery OTP sent to your email" });
 });
 
 export const forgetPassword = asyncHandler(async (req, res, next) => {
@@ -95,23 +98,27 @@ export const forgetPassword = asyncHandler(async (req, res, next) => {
     data.otp == undefined ||
     data.newPassword == undefined
   ) {
-    return next(new Error("In-valid"));
+    return next(new Error("Invalid recovery link", { cause: 400 }));
   }
 
   const user = await dbService.findOne({
     model: userModel,
     filter: { email: data.email },
   });
-  if (!user) return next(new Error("In-valid"));
+  if (!user) return next(new Error("Invalid recovery link", { cause: 400 }));
 
   if (!compareHash({ plainText: data.otp, hashValue: user.otp }))
-    return next(new Error("In-valid otp"));
+    return next(new Error("Invalid OTP", { cause: 400 }));
 
   user.password = data.newPassword;
   user.otp = undefined;
   user.changeCredentialsTime = Date.now();
   await user.save();
-  return successResponse({ res, data: { user }, message: "Done" });
+  return successResponse({
+    res,
+    data: { user },
+    message: "Password updated successfully",
+  });
 });
 
 export const refreshToken = asyncHandler(async (req, res, next) => {

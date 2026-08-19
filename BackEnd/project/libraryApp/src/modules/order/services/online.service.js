@@ -4,9 +4,6 @@ import * as dbService from "../../../DB/db.service.js";
 import { cartModel } from "../../../DB/models/Cart.model.js";
 import { orderModel } from "../../../DB/models/Order.model.js";
 import { filterObject } from "../../../utils/utils.js";
-import { roleTypes, userModel } from "../../../DB/models/User.model.js";
-import { customerModel } from "../../../DB/models/Customer.model.js";
-// import { startSession } from "mongoose";
 
 const orderPopulate = [
   { path: "customer", select: "username phone address type gender" },
@@ -20,31 +17,23 @@ export const buyCart = asyncHandler(async (req, res, next) => {
   const userId = req.user._id;
   // ,discount,tax
 
-  let total = 0; // to calc total price and discount and tax
+  let total = 0;
 
-  const cart = await dbService.findOneAndUpdate({
+  const cart = await dbService.findOne({
     model: cartModel,
     filter: { _id: id, done: false },
-    populate: [
-      {
-        path: "order.book",
-        select: "price title quantity", // book data not order data
-      },
-    ],
-    data: { done: true },
-    options: { new: false },
+    populate: [{ path: "order.book", select: "price title quantity" }],
   });
   if (!cart) {
     return next(new Error("Cart not found", { cause: 404 }));
   }
 
-  if (cart.user.toString() != userId.toString()) {
-    return next(new Error("that is not your cart", { cause: 403 }));
+  if (String(cart.user) != String(userId)) {
+    return next(new Error("That is not your cart", { cause: 403 }));
   }
 
   let ifError = undefined;
 
-  // Check stock
   for (const order of cart.order) {
     if (order.quantity > order.book.quantity || order.book.quantity === 0) {
       ifError = `Quantity (${order.book.title}) in stock: ${order.book.quantity}`;
@@ -55,12 +44,10 @@ export const buyCart = asyncHandler(async (req, res, next) => {
   if (ifError) {
     return next(new Error(ifError));
   }
-  // let items = [];
-  // Calculate total + update stock
+
   for (const order of cart.order) {
     total += order.book.price * order.quantity;
     order.book.quantity -= order.quantity;
-    //  await items.push(order.book._id);
     await order.book.save();
   }
 
@@ -79,6 +66,12 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     populate: orderPopulate,
   });
 
+  await dbService.findOneAndUpdate({
+    model: cartModel,
+    filter: { _id: id },
+    data: { done: true },
+  });
+
   return successResponse({
     res,
     data: { order, cart },
@@ -94,11 +87,11 @@ export const getOrder = asyncHandler(async (req, res, next) => {
     populate: orderPopulate,
   });
   if (!order) {
-    return next(new Error("order not found", { cause: 404 }));
+    return next(new Error("Order not found", { cause: 404 }));
   }
 
-  if (req.user._id.toString() != order.customer._id.toString()) {
-    return next(new Error("that is not your order", { cause: 403 }));
+  if (String(req.user._id) != String(order.customer._id)) {
+    return next(new Error("That is not your order", { cause: 403 }));
   }
 
   return successResponse({ res, data: { order } });
@@ -112,23 +105,29 @@ export const getOrders = asyncHandler(async (req, res, next) => {
   return successResponse({ res, data: { orders } });
 });
 export const cancelOrder = asyncHandler(async (req, res, next) => {
-  const { id } = req.params; // order id
+  const { id } = req.params;
 
   const order = await dbService.findOne({
     model: orderModel,
     filter: { _id: id, customerType: "User" },
     populate: orderPopulate,
   });
-  const status = order.status;
+  if (!order) {
+    return next(new Error("Order not found", { cause: 404 }));
+  }
 
-  if (order.customer._id.toString() != req.user._id.toString())
+  if (String(order.customer._id) != String(req.user._id))
     return next(new Error("That is not your order", { cause: 403 }));
 
-  if (status === "delivered" || status === "canceled" || status === "shipped")
+  if (
+    order.status === "delivered" ||
+    order.status === "canceled" ||
+    order.status === "shipped"
+  )
     return next(new Error("Order cannot be canceled", { cause: 400 }));
 
   order.status = "canceled";
   await order.save();
 
-  return successResponse({ res, message: "Order canceled" });
+  return successResponse({ res, message: "Order canceled successfully" });
 });

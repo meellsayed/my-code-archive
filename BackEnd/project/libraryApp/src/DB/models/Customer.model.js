@@ -20,7 +20,6 @@ const customerSchema = new Schema(
       enum: ["male", "female"],
       default: "male",
     },
-    // user: { type: Types.ObjectId, ref: "User" },
     isDeleted: { type: Boolean, default: false },
     type: {
       type: String,

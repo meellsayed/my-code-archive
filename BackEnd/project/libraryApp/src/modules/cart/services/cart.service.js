@@ -5,21 +5,19 @@ import { bookModel } from "../../../DB/models/Book.model.js";
 import { cartModel } from "../../../DB/models/Cart.model.js";
 import { roleTypes } from "../../../DB/models/User.model.js";
 
-//* author order
-
-// { id } = req.params; //? book id
-// { quantity } = req.body;
+// { id } = req.params // book id
+// { quantity } = req.body
 export const addItem = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { quantity } = req.body;
   const userId = req.user._id;
-  const isStaff = req.user.role === roleTypes.customer;
+  const isStaffCart = req.user.role !== roleTypes.customer;
   const book = await dbService.findById({ model: bookModel, id });
   if (!book) {
-    return next(new Error("book not found", { cause: 404 }));
+    return next(new Error("Book not found", { cause: 404 }));
   }
   if (quantity > book.quantity) {
-    return next(new Error(`Quantity in stock:${book.quantity}`));
+    return next(new Error(`Quantity in stock: ${book.quantity}`));
   }
 
   let cart = await dbService.findOne({
@@ -64,8 +62,6 @@ export const addItem = asyncHandler(async (req, res, next) => {
       });
     }
 
-    cart.updatedBy = userId;
-
     await cart.save();
 
     return successResponse({
@@ -78,7 +74,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
     user: userId,
     createdBy: userId,
     order: [{ book: id, quantity }],
-    isStaff,
+    isStaff: isStaffCart,
   };
 
   cart = await dbService.create({ model: cartModel, data });
@@ -94,21 +90,32 @@ export const addItem = asyncHandler(async (req, res, next) => {
   ]);
   return successResponse({ res, statusCode: 201, data: { cart } });
 });
+
 export const removeItem = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { quantity } = req.body;
+  const { quantity = 1 } = req.body;
   const userId = req.user._id;
-  const cart = await dbService.findOneAndUpdate({
+  const cart = await dbService.findOne({
     model: cartModel,
     filter: { user: userId, done: false },
-    data: {
-      $pull: {
-        order: {
-          book: id,
-        },
-      },
-    },
+    populate: [{ path: "order.book", select: "title price quantity" }],
   });
+  if (!cart) {
+    return next(new Error("Cart not found", { cause: 404 }));
+  }
+
+  const item = cart.order.find((o) => String(o.book._id) === String(id));
+  if (!item) {
+    return next(new Error("Book not found in cart", { cause: 404 }));
+  }
+
+  if (quantity <= 0 || item.quantity - quantity <= 0) {
+    cart.order = cart.order.filter((o) => String(o.book._id) !== String(id));
+  } else {
+    item.quantity -= quantity;
+  }
+
+  await cart.save();
   return successResponse({ res, statusCode: 200, data: { cart } });
 });
 
@@ -119,13 +126,14 @@ export const getOne = asyncHandler(async (req, res, next) => {
     model: cartModel,
     filter: { _id: id },
   });
+  if (!cart) {
+    return next(new Error("Cart not found", { cause: 404 }));
+  }
   if (req.user.role === roleTypes.customer) {
-    if (req.user._id != cart.user) {
-      return next(new Error("that is not your cart", { cause: 403 }));
+    if (String(req.user._id) != String(cart.user)) {
+      return next(new Error("That is not your cart", { cause: 403 }));
     }
   }
 
   return successResponse({ res, data: { cart } });
 });
-
-// get order online done

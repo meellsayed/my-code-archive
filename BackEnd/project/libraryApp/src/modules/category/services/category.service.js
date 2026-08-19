@@ -20,7 +20,7 @@ export const addOne = asyncHandler(async (req, res, next) => {
       filter: { name, isDeleted: false },
     })) != null
   ) {
-    return next(new Error(`Category is exist`));
+    return next(new Error("Category already exists", { cause: 400 }));
   }
 
   const category = await dbService.create({
@@ -45,11 +45,7 @@ export const updateOne = asyncHandler(async (req, res, next) => {
   });
 
   if (category == null) {
-    return next(
-      new Error("Category is not exist please add your category first", {
-        cause: 404,
-      }),
-    );
+    return next(new Error("Category not found", { cause: 404 }));
   }
 
   return successResponse({ res, statusCode: 200, data: { category } });
@@ -66,10 +62,14 @@ export const deleteOne = asyncHandler(async (req, res, next) => {
   });
 
   if (category == null) {
-    return next(new Error("Category is not exist"));
+    return next(new Error("Category not found", { cause: 404 }));
   }
 
-  return successResponse({ res, statusCode: 200, message: "Delete Done" });
+  return successResponse({
+    res,
+    statusCode: 200,
+    message: "Category deleted successfully",
+  });
 });
 // { id } = req.params;
 export const getOne = asyncHandler(async (req, res, next) => {
@@ -80,7 +80,7 @@ export const getOne = asyncHandler(async (req, res, next) => {
     id,
   });
   if (!category) {
-    return next(new Error("Category id not found", { cause: 404 }));
+    return next(new Error("Category not found", { cause: 404 }));
   }
   if (category.isDeleted == true) {
     return next(new Error("Category is deleted", { cause: 404 }));

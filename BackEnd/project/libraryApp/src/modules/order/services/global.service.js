@@ -1,12 +1,10 @@
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { successResponse } from "../../../utils/response/success.response.js";
 import * as dbService from "../../../DB/db.service.js";
-import { cartModel } from "../../../DB/models/Cart.model.js";
 import { orderModel } from "../../../DB/models/Order.model.js";
-import { filterObject } from "../../../utils/utils.js";
-import { roleTypes, userModel } from "../../../DB/models/User.model.js";
+import { userModel } from "../../../DB/models/User.model.js";
 import { customerModel } from "../../../DB/models/Customer.model.js";
-// import { startSession } from "mongoose";
+
 const orderPopulate = [
   { path: "customer", select: "username phone address type gender" },
   { path: "cart" },
@@ -14,7 +12,6 @@ const orderPopulate = [
 
 export const getAll = asyncHandler(async (req, res, next) => {
   const { search, seller, status, type } = req.query;
-  // search customer and users orders
 
   let query = {};
 
@@ -58,9 +55,9 @@ export const getAll = asyncHandler(async (req, res, next) => {
       model: userModel,
       filter: {
         $or: [
-          { username: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-          { phone: { $regex: search, $options: "i" } },
+          { username: { $regex: seller, $options: "i" } },
+          { email: { $regex: seller, $options: "i" } },
+          { phone: { $regex: seller, $options: "i" } },
         ],
       },
       select: "_id",
@@ -77,9 +74,6 @@ export const getAll = asyncHandler(async (req, res, next) => {
     case "delivered":
       query.status = "delivered";
       break;
-    case "done":
-      query.status = "done";
-      break;
 
     default:
       break;
@@ -94,17 +88,22 @@ export const getAll = asyncHandler(async (req, res, next) => {
 });
 
 export const getOne = asyncHandler(async (req, res, next) => {
-  const { id } = req.params; // id order
-  const orders = await dbService.find({
+  const { id } = req.params;
+
+  const order = await dbService.findById({
     model: orderModel,
-    filter: { isDeleted: false },
+    id,
     populate: orderPopulate,
   });
-  return successResponse({ res, data: { orders } });
+  if (!order) {
+    return next(new Error("Order not found", { cause: 404 }));
+  }
+
+  return successResponse({ res, data: { order } });
 });
 
 export const getCustomerOrders = asyncHandler(async (req, res, next) => {
-  const { id } = req.params; //customer id
+  const { id } = req.params; // customer id
 
   const orders = await dbService.find({
     model: orderModel,
@@ -116,9 +115,13 @@ export const getCustomerOrders = asyncHandler(async (req, res, next) => {
 });
 
 export const updateStatus = asyncHandler(async (req, res, next) => {
-  const { id } = req.params; // id order
+  const { id } = req.params;
 
   const order = await dbService.findById({ model: orderModel, id });
+  if (!order) {
+    return next(new Error("Order not found", { cause: 404 }));
+  }
+
   let status = order.status;
   switch (status) {
     case "new":
@@ -134,18 +137,19 @@ export const updateStatus = asyncHandler(async (req, res, next) => {
       order.status = "delivered";
       break;
     case "delivered":
-      order.status = "canceled";
-      break;
     case "canceled":
-      order.status = "new";
-      break;
+      return next(
+        new Error("Order is already finished, no further status change", {
+          cause: 400,
+        }),
+      );
 
     default:
       break;
   }
-
   await order.save();
-
-  return successResponse({ res, message: `Now ${order.status}` });
+  return successResponse({
+    res,
+    message: `Order status updated to ${order.status}`,
+  });
 });
-
