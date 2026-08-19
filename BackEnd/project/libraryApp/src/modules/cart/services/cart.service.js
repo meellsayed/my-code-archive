@@ -101,7 +101,6 @@ export const removeItem = asyncHandler(async (req, res, next) => {
   return successResponse({ res, statusCode: 200, data: { cart } });
 });
 
-// get cart by id
 export const getOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 

@@ -6,6 +6,11 @@ import { orderModel } from "../../../DB/models/Order.model.js";
 import { filterObject } from "../../../utils/utils.js";
 import { customerModel } from "../../../DB/models/Customer.model.js";
 
+const orderPopulate = [
+  { path: "customer", select: "username phone address type gender" },
+  { path: "items" },
+];
+
 export const buyCart = asyncHandler(async (req, res, next) => {
   // customer as object { username, phone, address, gender, type }
   const { cartId } = req.params;
@@ -93,4 +98,20 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     data: { order, cart },
     statusCode: 200,
   });
+});
+export const getCustomerOrder = asyncHandler(async (req, res, next) => {
+  const { customerId } = req.params;
+  const {} = req.query;
+
+  const order = await dbService.find({
+    model: orderModel,
+    filter: { $or: [{ customer: id }] },
+    populate: [
+      { path: "customer", select: "name phone" },
+      { path: "seller" },
+      { path: "items" },
+    ],
+  });
+
+  return successResponse({ res, data: { order } });
 });

@@ -102,21 +102,3 @@ export const getAll = asyncHandler(async (req, res, next) => {
   //   });
   return successResponse({ res, data: { customerCount, customers } });
 });
-
-//!==============================================================================
-export const getCustomerOrder = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const {} = req.query;
-
-  const order = await dbService.find({
-    model: orderModel,
-    filter: { $or: [{ customer: id }] },
-    populate: [
-      { path: "customer", select: "name phone" },
-      { path: "seller" },
-      { path: "items" },
-    ],
-  });
-
-  return successResponse({ res, data: { order } });
-});

@@ -39,6 +39,4 @@ router.get(
   customerServices.getOne,
 );
 
-router.get("/order/:id", customerServices.getCustomerOrder);
-
 export default router;

@@ -13,7 +13,7 @@ const orderSchema = new Schema(
       required: true,
     },
     seller: { type: Types.ObjectId, ref: "User" },
-    items: { type: Types.ObjectId, ref: "Cart" },
+    cart: { type: Types.ObjectId, ref: "Cart" },
 
     note: { type: String },
     discount: { type: Number, min: 0 },
