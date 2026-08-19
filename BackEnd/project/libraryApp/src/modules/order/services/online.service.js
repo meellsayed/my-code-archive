@@ -96,11 +96,11 @@ export const getOrder = asyncHandler(async (req, res, next) => {
   if (!order) {
     return next(new Error("order not found", { cause: 404 }));
   }
-  if (req.user.role != roleTypes.admin || req.user.role != roleTypes.staff) {
-    if (req.user._id != order.customer) {
+  
+    if (req.user._id.toString() != order.customer._id.toString()) {
       return next(new Error("that is not your order", { cause: 403 }));
     }
-  }
+
 
   return successResponse({ res, data: { order } });
 });
