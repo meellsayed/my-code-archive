@@ -114,3 +114,37 @@ export const getCustomerOrders = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, data: { orders } });
 });
+
+export const updateStatus = asyncHandler(async (req, res, next) => {
+  const { id } = req.params; // id order
+
+  const order = await dbService.findById({ model: orderModel, id });
+  let status = order.status;
+  switch (status) {
+    case "new":
+      order.status = "in_processing";
+      break;
+    case "in_processing":
+      order.status = "ready_to_Ship";
+      break;
+    case "ready_to_ship":
+      order.status = "shipped";
+      break;
+    case "shipped":
+      order.status = "delivered";
+      break;
+    case "delivered":
+      order.status = "canceled";
+      break;
+    case "canceled":
+      order.status = "new";
+      break;
+
+    default:
+      break;
+  }
+
+  await order.save();
+
+  return successResponse({ res, message: `Now ${order.status}` });
+});

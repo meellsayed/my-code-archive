@@ -21,7 +21,17 @@ const orderSchema = new Schema(
     address: String,
     total: { type: Number },
     paymentMethod: { type: String },
-    status: { type: String, enum: ["new", "canceled", "delivered", "done"] },
+    status: {
+      type: String,
+      enum: [
+        "new",
+        "in_processing",
+        "ready_to_ship",
+        "shipped",
+        "delivered",
+        "canceled",
+      ],
+    },
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },

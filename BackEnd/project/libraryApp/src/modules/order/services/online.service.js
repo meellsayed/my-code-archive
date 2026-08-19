@@ -111,5 +111,3 @@ export const getOrders = asyncHandler(async (req, res, next) => {
   });
   return successResponse({ res, data: { orders } });
 });
-
-//update and delete

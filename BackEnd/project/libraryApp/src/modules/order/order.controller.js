@@ -22,6 +22,13 @@ router.get(
   authorization([roleTypes.admin, roleTypes.staff]),
   globalServices.getCustomerOrders,
 );
+router.patch(
+  "/status/:id",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  globalServices.updateStatus,
+);
+
 //========================= online ===========================
 router.post("/online/buy/:id", authentication(), onlineServices.buyCart); // cart id
 router.get("/online", authentication(), onlineServices.getOrders);

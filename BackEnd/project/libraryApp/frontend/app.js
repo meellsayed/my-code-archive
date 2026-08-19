@@ -52,10 +52,12 @@ const coverImg = (url, cls = "book-cover") =>
     ? `<img class="${cls}" src="${escapeHTML(url)}" alt="" onerror="this.classList.add('placeholder');this.src=''" loading="lazy" />`
     : `<div class="${cls} placeholder"></div>`;
 
-const stockBadge = (qty) =>
-  qty > 0
-    ? `<span class="stock in">● In stock (${qty})</span>`
-    : `<span class="stock out">● Out of stock</span>`;
+const stockBadge = (qty, minQty) => {
+  if (qty <= 0) return `<span class="stock out">● Out of stock</span>`;
+  if (minQty && qty <= minQty)
+    return `<span class="stock low">● Low stock (${qty})</span>`;
+  return `<span class="stock in">● In stock (${qty})</span>`;
+};
 
 const isStaff = () => ["admin", "staff"].includes(state.user?.role);
 const isAdmin = () => state.user?.role === "admin";
@@ -186,6 +188,7 @@ const renderBooks = (books) => {
         <h3>${escapeHTML(b.title)}</h3>
         <p class="author">${escapeHTML(b.author?.name || "Unknown author")}</p>
         ${b.subtitle ? `<p class="subtitle">${escapeHTML(b.subtitle)}</p>` : ""}
+        ${b.publisher ? `<p class="publisher">${escapeHTML(b.publisher)}</p>` : ""}
         <div class="card-actions">
           <p class="price">${formatPrice(b.price)}</p>
           ${stockBadge(b.quantity)}
@@ -209,6 +212,8 @@ const loadBooks = async (search = "") => {
     if (state.activeCategory) params.set("category", state.activeCategory);
     const sort = $("sort-select")?.value || "";
     if (sort) params.set("sort", sort);
+    const publisher = $("publisher-filter")?.value?.trim();
+    if (publisher) params.set("publisher", publisher);
     const qs = params.toString();
     const { data } = await apiGet("/book" + (qs ? `?${qs}` : ""));
     renderBooks(data?.books || []);
@@ -243,7 +248,7 @@ const openBook = async (id, focusBtn = null) => {
     coverWrap.innerHTML = coverImg(book.cover, "modal-cover");
     $("book-modal-title").textContent = book.title;
     $("book-modal-author").textContent =
-      `${book.author?.name || "Unknown author"}${book.pages ? ` · ${book.pages} pages` : ""}`;
+      `${book.author?.name || "Unknown author"}${book.pages ? ` · ${book.pages} pages` : ""}${book.publisher ? ` · ${book.publisher}` : ""}`;
     $("book-modal-price").textContent = formatPrice(book.price);
     $("book-modal-stock").innerHTML =
       stockBadge(book.quantity) +
@@ -483,6 +488,7 @@ const loadDashBooks = async (search = "") => {
             <div>
               <h4>${escapeHTML(b.title)}</h4>
               <span>${escapeHTML(b.author?.name || "Unknown")} · ${formatPrice(b.price)} · ${stockBadge(b.quantity)}</span>
+              ${b.publisher ? `<span class="publisher">${escapeHTML(b.publisher)}</span>` : ""}
             </div>
           </div>
           <div class="actions">
@@ -832,17 +838,25 @@ const openOrderDetail = async (id) => {
     const { data } = await apiGet(`/order/online/${id}`, true);
     const o = data?.order;
     if (!o) throw new Error("Order not found");
+    const map = await getBookMap();
     const cartItems = o.cart?.order || [];
-    const items = await Promise.all(
-      cartItems.map(async (it) => ({
-        title: await getBookTitle(it.book),
+    const items = cartItems.map((it) => {
+      const book = map.get(String(it.book?._id || it.book)) || {};
+      return {
+        title: book.title || `Book (${String(it.book?._id || it.book).slice(-6)})`,
+        price: book.price ?? 0,
         qty: it.quantity ?? 0,
-      })),
-    );
+      };
+    });
     const itemsHtml = items
       .map(
-        (it) =>
-          `<div class="dash-row"><div class="info"><h4>${escapeHTML(it.title)}</h4><span>Qty: ${it.qty}</span></div></div>`,
+        (it) => `
+          <div class="dash-row">
+            <div class="info">
+              <h4>${escapeHTML(it.title)}</h4>
+              <span>${formatPrice(it.price ?? 0)} × ${it.qty} = ${formatPrice((it.price ?? 0) * it.qty)}</span>
+            </div>
+          </div>`,
       )
       .join("");
     const html = `
@@ -962,6 +976,7 @@ const openBookForm = async (id = null) => {
     field("Qty in stock", "quantity", "number", book.quantity ?? 1, "1") +
     field("Min qty", "minQuantity", "number", book.minQuantity, "") +
     field("Pages", "pages", "number", book.pages, "") +
+    field("Publisher", "publisher", "text", book.publisher, "e.g. Nile Books") +
     field("Cover URL", "cover", "text", book.cover, "https://...") +
     `<label>Description
         <textarea name="description">${escapeHTML(book.description || "")}</textarea>
@@ -1009,6 +1024,7 @@ const openBookForm = async (id = null) => {
     data.minQuantity =
       data.minQuantity !== "" ? Number(data.minQuantity) : undefined;
     data.subtitle = data.subtitle || undefined;
+    data.publisher = data.publisher || undefined;
     data.cover = data.cover || undefined;
     data.description = data.description || undefined;
     if (!data.title) return showToast("Title is required", "error");
@@ -1583,6 +1599,9 @@ $("my-order-status").addEventListener("change", () =>
 );
 $("sort-select").addEventListener("change", () =>
   loadBooks($("search-input").value.trim()),
+);
+$("publisher-filter").addEventListener("input", (e) =>
+  debounce(() => loadBooks($("search-input").value.trim()), 400, "publisher"),
 );
 
 $("entity-modal-close").addEventListener("click", () =>

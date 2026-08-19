@@ -283,6 +283,22 @@ body {
   font-style: italic;
 }
 
+.book-card .publisher,
+.dash-row .publisher {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.publisher-filter {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
 .book-cover {
   width: 100%;
   height: 190px;
