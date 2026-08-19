@@ -132,9 +132,33 @@
               "icon": "lucide-file",
               "title": "تاسكات مشروع"
             }
+          },
+          {
+            "id": "ea9873f1b63cab1b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "افكار.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "افكار"
+            }
           }
         ],
-        "currentTab": 2
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -334,10 +358,12 @@
       "templater-obsidian:Templater": false
     }
   },
-  "active": "897c386f4bbb68f9",
+  "active": "ea9873f1b63cab1b",
   "lastOpenFiles": [
-    "db/models/Publisher  ====.md",
+    "db/relations in Collections.md",
+    "افكار.md",
     "تاسكات مشروع.md",
+    "db/models/Publisher  ====.md",
     "db/models/Customer.md",
     "db/models/Role.md",
     "db/models/Category.md",
@@ -345,9 +371,7 @@
     "Pasted image 20260808202821.png",
     "2026-08-08.md",
     "car.md",
-    "db/relations in Collections.md",
     "db/models/Book.md",
-    "modules.md",
     "db/models/User.md",
     "By Ai/report.md",
     "By Ai/report2.md",

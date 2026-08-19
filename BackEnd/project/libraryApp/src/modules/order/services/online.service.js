@@ -116,10 +116,15 @@ export const cancelOrder = asyncHandler(async (req, res, next) => {
 
   const order = await dbService.findOne({
     model: orderModel,
-    filter: { _id: id },
+    filter: { _id: id, customerType: "User" },
+    populate: orderPopulate,
   });
-  const status = order.status
-  if (status === "delivered" || status === "canceled")
+  const status = order.status;
+
+  if (order.customer._id.toString() != req.user._id.toString())
+    return next(new Error("That is not your order", { cause: 403 }));
+
+  if (status === "delivered" || status === "canceled" || status === "shipped")
     return next(new Error("Order cannot be canceled", { cause: 400 }));
 
   order.status = "canceled";
