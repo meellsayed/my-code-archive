@@ -7,9 +7,14 @@ import { filterObject } from "../../../utils/utils.js";
 import { roleTypes, userModel } from "../../../DB/models/User.model.js";
 import { customerModel } from "../../../DB/models/Customer.model.js";
 // import { startSession } from "mongoose";
+const orderPopulate = [
+  { path: "customer", select: "username phone address type gender" },
+  { path: "cart" },
+];
 
 export const getAll = asyncHandler(async (req, res, next) => {
   const { search, seller, status, type } = req.query;
+  // search customer and users orders
 
   let query = {};
 
@@ -17,21 +22,47 @@ export const getAll = asyncHandler(async (req, res, next) => {
     const [usersId, customersId] = await Promise.all([
       dbService.find({
         model: userModel,
-        filter: { username: { $regex: search, $options: "i" } },
+        filter: {
+          $or: [
+            { username: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { phone: { $regex: search, $options: "i" } },
+          ],
+        },
         select: "_id",
       }),
       dbService.find({
         model: customerModel,
-        filter: { username: { $regex: search, $options: "i" } },
+        filter: {
+          $or: [
+            { username: { $regex: search, $options: "i" } },
+            { phone: { $regex: search, $options: "i" } },
+          ],
+        },
         select: "_id",
       }),
     ]);
-    query.customer = { $in: [...usersId, ...customersId] };
+
+    if (type == "online") {
+      query.customer = { $in: [...usersId] };
+      query.customerType = "User";
+    } else if (type == "branch") {
+      query.customer = { $in: [...customersId] };
+      query.customerType = "Customer";
+    } else {
+      query.customer = { $in: [...usersId, ...customersId] };
+    }
   }
   if (seller) {
     const sellersId = await dbService.find({
       model: userModel,
-      filter: { username: { $regex: seller, $options: "i" } },
+      filter: {
+        $or: [
+          { username: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
+        ],
+      },
       select: "_id",
     });
     query.seller = { $in: [...sellersId] };
@@ -53,30 +84,33 @@ export const getAll = asyncHandler(async (req, res, next) => {
     default:
       break;
   }
-  switch (type) {
-    case "branch":
-      query.customerType = "Customer";
-      break;
-    case "online":
-      query.customerType = "User";
-      break;
-    default:
-      break;
-  }
 
   const orders = await dbService.find({
     model: orderModel,
-    filter: { ...query, isDeleted: false },
+    filter: { ...query },
     populate: orderPopulate,
   });
   return successResponse({ res, data: { orders } });
 });
 
 export const getOne = asyncHandler(async (req, res, next) => {
+  const { id } = req.params; // id order
   const orders = await dbService.find({
     model: orderModel,
     filter: { isDeleted: false },
     populate: orderPopulate,
   });
+  return successResponse({ res, data: { orders } });
+});
+
+export const getCustomerOrders = asyncHandler(async (req, res, next) => {
+  const { id } = req.params; //customer id
+
+  const orders = await dbService.find({
+    model: orderModel,
+    filter: { customer: id },
+    populate: orderPopulate,
+  });
+
   return successResponse({ res, data: { orders } });
 });

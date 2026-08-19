@@ -5,15 +5,16 @@ import { cartModel } from "../../../DB/models/Cart.model.js";
 import { orderModel } from "../../../DB/models/Order.model.js";
 import { filterObject } from "../../../utils/utils.js";
 import { customerModel } from "../../../DB/models/Customer.model.js";
+import { userModel } from "../../../DB/models/User.model.js";
 
 const orderPopulate = [
   { path: "customer", select: "username phone address type gender" },
-  { path: "items" },
+  { path: "cart" },
 ];
 
 export const buyCart = asyncHandler(async (req, res, next) => {
   // customer as object { username, phone, address, gender, type }
-  const { cartId } = req.params;
+  const { id } = req.params; // cart id
   let { note, address, customer } = req.body;
   const sellerId = req.user._id;
 
@@ -35,9 +36,9 @@ export const buyCart = asyncHandler(async (req, res, next) => {
   }
   customer = customerData;
 
-  const cart = await dbService.findById({
+  const cart = await dbService.findOne({
     model: cartModel,
-    id: cartId,
+    filter: { _id: id, done: false },
     populate: [
       {
         path: "order.book",
@@ -73,7 +74,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
   const data = filterObject({
     customer: customer._id,
     customerType: "Customer",
-    items: cartId,
+    cart: id,
     note,
     address,
     total,
@@ -84,33 +85,81 @@ export const buyCart = asyncHandler(async (req, res, next) => {
 
   const order = await dbService.create({ model: orderModel, data });
 
-  await order.populate([
-    { path: "customer" },
-    { path: "seller" },
-    // { path: "items" },
-    { path: "items.order.book" },
-  ]);
-  cart.order = [];
-  await cart.save();
+  await order.populate(orderPopulate);
+  // cart.order = [];
+  // await cart.save();
 
   return successResponse({
     res,
     data: { order, cart },
-    statusCode: 200,
+    statusCode: 201,
   });
 });
-export const getCustomerOrder = asyncHandler(async (req, res, next) => {
-  const { customerId } = req.params;
+// by id
+export const getCustomerOrders = asyncHandler(async (req, res, next) => {
+  const { id } = req.params; // customer id
   const {} = req.query;
 
   const order = await dbService.find({
     model: orderModel,
-    filter: { $or: [{ customer: id }] },
-    populate: [
-      { path: "customer", select: "name phone" },
-      { path: "seller" },
-      { path: "items" },
-    ],
+    filter: { customer: id },
+    populate: orderPopulate,
+  });
+
+  return successResponse({ res, data: { order } });
+});
+
+export const getOrders = asyncHandler(async (req, res, next) => {
+  const { search, sort, filter } = req.params;
+  let query = {};
+  let orderFilter = {};
+  switch (filter) {
+    case "User":
+      orderFilter.customerType = "User";
+      break;
+    case "Customer":
+      orderFilter.customerType = "Customer";
+      break;
+
+    default:
+      break;
+  }
+
+  if (search) {
+    const customers = dbService.find({
+      model: customerModel,
+      filter: {
+        $or: [
+          { username: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
+        ],
+      },
+      select: "_id",
+    });
+    const sellers = dbService.find({
+      model: userModel,
+      filter: {
+        $or: [
+          { username: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
+        ],
+      },
+      select: "_id",
+    });
+    query.$or = [
+      {
+        customer: { $in: customers },
+        seller: { $in: sellers },
+      },
+      {},
+    ];
+  }
+
+  const order = await dbService.find({
+    model: orderModel,
+    filter: { customer: id },
+    populate: orderPopulate,
   });
 
   return successResponse({ res, data: { order } });

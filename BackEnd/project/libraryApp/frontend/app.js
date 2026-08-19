@@ -141,11 +141,13 @@ const showView = (view) => {
   }
   if (view === "dashboard") renderDashboard();
   if (view === "store") loadBooks();
+  if (view === "orders") loadMyOrders("");
 };
 
 const updateAuthUI = () => {
   const logged = !!state.token;
   $("nav-dashboard").classList.toggle("hidden", !isStaff());
+  $("nav-my-orders").classList.toggle("hidden", !logged);
   const chip = $("user-chip");
   if (logged) {
     chip.textContent = "";
@@ -267,14 +269,15 @@ const addToCart = async (bookId, qty, target = "cart") => {
   }
   try {
     const { data } = await apiPost(
-      `/order/cart/add-item/${bookId}`,
+      `/cart/add-item/${bookId}`,
       { quantity: qty },
       true,
     );
+    const cart = await enrichCart(data?.cart || state.cart);
     if (target === "pos") {
-      state.posCart = data?.cart || state.posCart;
+      state.posCart = cart;
     } else {
-      state.cart = data?.cart || state.cart;
+      state.cart = cart;
     }
     return true;
   } catch (err) {
@@ -286,17 +289,14 @@ const addToCart = async (bookId, qty, target = "cart") => {
 // ================= cart =================
 const removeCartItem = async (bookId) => {
   if (!state.token) return;
-  const item = (state.cart?.order || []).find(
-    (i) => String(i.book?._id || i.book) === String(bookId),
-  );
-  const qty = (item?.quantity ?? 0) || 1;
+  const bookKey = String(bookId);
   try {
-    const { data } = await apiPost(
-      `/order/cart/remove-item/${bookId}`,
-      { quantity: -Number(qty) },
-      true,
-    );
-    state.cart = data?.cart || state.cart;
+    await apiPost(`/cart/remove-item/${bookId}`, { quantity: -1 }, true);
+    if (state.cart?.order) {
+      state.cart.order = state.cart.order.filter(
+        (i) => String(i.book?._id || i.book) !== bookKey,
+      );
+    }
     loadCart();
   } catch (err) {
     showToast(err.message, "error");
@@ -306,11 +306,11 @@ const removeCartItem = async (bookId) => {
 const changeCartQty = async (bookId, delta) => {
   try {
     const { data } = await apiPost(
-      `/order/cart/add-item/${bookId}`,
+      `/cart/add-item/${bookId}`,
       { quantity: delta },
       true,
     );
-    state.cart = data?.cart || state.cart;
+    state.cart = await enrichCart(data?.cart || state.cart);
     loadCart();
   } catch (err) {
     showToast(err.message, "error");
@@ -403,6 +403,7 @@ const buyCart = async () => {
     await apiPost(path, body, true);
     $("cart-msg").className = "msg success";
     $("cart-msg").textContent = "Purchase complete!";
+    if (isStaff() && state.cart) clearCartOnBackend(state.cart);
     state.cart = null;
     state.posCart = null;
     $("checkout-address").value = "";
@@ -624,6 +625,23 @@ const loadDashCategories = async (search = "") => {
 };
 
 // ---- customers (dashboard) ----
+let orderCountCache = null;
+const getCustomerOrderCounts = async () => {
+  if (orderCountCache) return orderCountCache;
+  const map = new Map();
+  try {
+    const global = await apiGet("/order", true);
+    for (const o of global?.data?.orders || []) {
+      const id = String(o.customer?._id || o.customer || "");
+      if (!id) continue;
+      map.set(id, (map.get(id) || 0) + 1);
+    }
+  } catch (e) {
+    /* fall back to zero counts */
+  }
+  orderCountCache = map;
+  return map;
+};
 const loadDashCustomers = async (search = "") => {
   const wrap = $("dash-customers-list");
   wrap.innerHTML = '<p class="msg">Loading...</p>';
@@ -637,6 +655,7 @@ const loadDashCustomers = async (search = "") => {
     const qs = params.toString();
     const { data } = await apiGet("/customer" + (qs ? `?${qs}` : ""), true);
     const customers = data?.customers || [];
+    const orderCount = await getCustomerOrderCounts();
     wrap.innerHTML =
       customers.length === 0
         ? '<p class="msg">No customers.</p>'
@@ -646,22 +665,14 @@ const loadDashCustomers = async (search = "") => {
         <div class="dash-row">
           <div class="info">
             <h4>${escapeHTML(c.username || "—")}</h4>
-            <span>${escapeHTML(c.phone || "")} · ${escapeHTML(c.type || "")} · Orders: ${c.activeOrder ? "1" : "0"}</span>
+            <span>${escapeHTML(c.phone || "")} · ${escapeHTML(c.type || "")} · Orders: ${orderCount.get(String(c._id)) || 0}</span>
           </div>
           <div class="actions">
-            <button class="btn ghost small" data-cust-order="${c._id}">Orders</button>
             ${isAdmin() ? `<button class="btn danger small" data-del-customer="${c._id}">Delete</button>` : ""}
           </div>
         </div>`,
             )
             .join("");
-    wrap
-      .querySelectorAll("[data-cust-order]")
-      .forEach((btn) =>
-        btn.addEventListener("click", () =>
-          openCustomerOrders(btn.dataset.custOrder),
-        ),
-      );
     wrap
       .querySelectorAll("[data-del-customer]")
       .forEach((btn) =>
@@ -690,17 +701,29 @@ const loadDashOrders = async (search = "") => {
   const wrap = $("dash-orders-list");
   wrap.innerHTML = '<p class="msg">Loading...</p>';
   try {
-    const params = new URLSearchParams();
-    if (search) params.set("customer", search);
     const status = $("dash-order-status")?.value;
-    if (status) params.set("status", status);
-    const qs = params.toString();
-    const { data } = await apiGet("/order/online" + (qs ? `?${qs}` : ""), true);
-    const orders = data?.orders || [];
+    let orders = [];
+    try {
+      const global = await apiGet("/order", true);
+      orders = global?.data?.orders || [];
+    } catch (e) {
+      const own = await apiGet("/order/online", true);
+      orders = own?.data?.orders || [];
+    }
+    const term = search.trim().toLowerCase();
+    const filtered = orders.filter(
+      (o) =>
+        (!status || o.status === status) &&
+        (!term ||
+          String(o._id).toLowerCase().includes(term) ||
+          String(o.customer?.username || "")
+            .toLowerCase()
+            .includes(term)),
+    );
     wrap.innerHTML =
-      orders.length === 0
+      filtered.length === 0
         ? '<p class="msg">No orders.</p>'
-        : orders
+        : filtered
             .map(
               (o) => `
         <div class="dash-row">
@@ -728,21 +751,107 @@ const loadDashOrders = async (search = "") => {
   }
 };
 
+// ---- my orders (customer's own online orders) ----
+const loadMyOrders = async (search = "") => {
+  const wrap = $("my-orders-list");
+  wrap.innerHTML = '<p class="msg">Loading...</p>';
+  try {
+    const status = $("my-order-status")?.value;
+    const { data } = await apiGet("/order/online", true);
+    const all = data?.orders || [];
+    const term = search.trim().toLowerCase();
+    const orders = all.filter(
+      (o) =>
+        (!status || o.status === status) &&
+        (!term ||
+          String(o._id).toLowerCase().includes(term) ||
+          String(o.customer?.username || "")
+            .toLowerCase()
+            .includes(term)),
+    );
+    wrap.innerHTML =
+      orders.length === 0
+        ? '<p class="msg">No orders yet.</p>'
+        : orders
+            .map(
+              (o) => `
+        <div class="dash-row">
+          <div class="info">
+            <h4>Order ${escapeHTML(o._id)}</h4>
+            <span>${formatPrice(o.total ?? 0)} · Status: ${escapeHTML(o.status || "—")} · ${new Date(o.createdAt).toLocaleString()}</span>
+            ${o.address ? `<span>${escapeHTML(o.address)}</span>` : ""}
+          </div>
+          <div class="actions">
+            <button class="btn ghost small" data-my-order-detail="${o._id}">View</button>
+          </div>
+        </div>`,
+            )
+            .join("");
+    wrap
+      .querySelectorAll("[data-my-order-detail]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          openOrderDetail(btn.dataset.myOrderDetail),
+        ),
+      );
+  } catch (err) {
+    wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
+  }
+};
+
+let bookCache = null;
+const getBookMap = async () => {
+  if (!bookCache) {
+    try {
+      const { data } = await apiGet("/book?limit=1000");
+      bookCache = new Map((data?.books || []).map((b) => [String(b._id), b]));
+    } catch (e) {
+      bookCache = new Map();
+    }
+  }
+  return bookCache;
+};
+const getBookTitle = async (id) => {
+  const book = (await getBookMap()).get(String(id));
+  return book?.title || `Book (${String(id).slice(-6)})`;
+};
+const enrichCart = async (cart) => {
+  if (!cart?.order?.length) return cart;
+  const map = await getBookMap();
+  cart.order = cart.order.map((it) => {
+    if (it.book && typeof it.book === "object" && it.book.title) return it;
+    const book = map.get(String(it.book?._id || it.book));
+    if (book) it.book = book;
+    return it;
+  });
+  return cart;
+};
+
 const openOrderDetail = async (id) => {
   try {
     const { data } = await apiGet(`/order/online/${id}`, true);
     const o = data?.order;
     if (!o) throw new Error("Order not found");
-    const items = (o.items?.order || []).map(
-      (it) =>
-        `<div class="dash-row"><div class="info"><span>${escapeHTML(it.book?.title || "—")} × ${it.quantity ?? 0}</span></div></div>`,
+    const cartItems = o.cart?.order || [];
+    const items = await Promise.all(
+      cartItems.map(async (it) => ({
+        title: await getBookTitle(it.book),
+        qty: it.quantity ?? 0,
+      })),
     );
+    const itemsHtml = items
+      .map(
+        (it) =>
+          `<div class="dash-row"><div class="info"><h4>${escapeHTML(it.title)}</h4><span>Qty: ${it.qty}</span></div></div>`,
+      )
+      .join("");
     const html = `
       <p><strong>Total:</strong> ${formatPrice(o.total ?? 0)}</p>
       <p><strong>Status:</strong> ${escapeHTML(o.status || "—")} · ${new Date(o.createdAt).toLocaleString()}</p>
+      ${o.customer?.username ? `<p><strong>Customer:</strong> ${escapeHTML(o.customer.username)}</p>` : ""}
       ${o.address ? `<p><strong>Address:</strong> ${escapeHTML(o.address)}</p>` : ""}
       ${o.note ? `<p><strong>Note:</strong> ${escapeHTML(o.note)}</p>` : ""}
-      ${items.length ? `<h4>Items</h4>${items.join("")}` : ""}`;
+      ${items.length ? `<h4>Items (${items.length})</h4>${itemsHtml}` : ""}`;
     showInfoModal("Order Details", html);
   } catch (err) {
     showToast(err.message, "error");
@@ -803,31 +912,6 @@ const openCategoryBooks = async (id) => {
   try {
     const { data } = await apiGet(`/category/books/${id}`);
     showInfoModal("Category Books", bookListHtml(data?.books || []));
-  } catch (err) {
-    showToast(err.message, "error");
-  }
-};
-
-const openCustomerOrders = async (id) => {
-  try {
-    const { data } = await apiGet(`/customer/order/${id}`, true);
-    const orders = data?.order || [];
-    const html = orders.length
-      ? orders
-          .map(
-            (inv) => `
-      <div class="dash-row">
-        <div class="info">
-          <h4>Order ${escapeHTML(inv._id)}</h4>
-          <span>Total: ${formatPrice(inv.total ?? 0)} · Status: ${escapeHTML(inv.status || "—")} · ${new Date(inv.createdAt).toLocaleString()}</span>
-          ${inv.address ? `<span>${escapeHTML(inv.address)}</span>` : ""}
-          ${inv.note ? `<span>${escapeHTML(inv.note)}</span>` : ""}
-        </div>
-      </div>`,
-          )
-          .join("")
-      : '<p class="msg">No orders for this customer.</p>';
-    showInfoModal("Customer Orders", html);
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -1073,12 +1157,13 @@ const posChangeQty = async (bookId, delta) => {
   if (qty <= 0) return posRemove(bookId, item?.quantity || 1);
   try {
     const { data } = await apiPost(
-      `/order/cart/add-item/${bookId}`,
+      `/cart/add-item/${bookId}`,
       { quantity: delta },
       true,
     );
-    state.posCart = data?.cart || state.posCart;
-    state.cart = data?.cart || state.cart;
+    const cart = await enrichCart(data?.cart || state.cart);
+    state.posCart = cart;
+    state.cart = cart;
     renderPosFromCart();
   } catch (err) {
     showToast(err.message, "error");
@@ -1087,24 +1172,30 @@ const posChangeQty = async (bookId, delta) => {
 
 const posRemove = async (bookId, quantity) => {
   if (!state.token) return;
-  let qty = Number(quantity);
-  if (!qty) {
-    const item = (state.posCart?.order || []).find(
-      (i) => String(i.book?._id || i.book) === String(bookId),
-    );
-    qty = item?.quantity || 1;
-  }
+  const bookKey = String(bookId);
   try {
-    const { data } = await apiPost(
-      `/order/cart/remove-item/${bookId}`,
-      { quantity: -Number(qty) },
-      true,
-    );
-    state.posCart = data?.cart || state.posCart;
-    state.cart = data?.cart || state.cart;
+    await apiPost(`/cart/remove-item/${bookId}`, { quantity: -1 }, true);
+    if (state.posCart?.order) {
+      state.posCart.order = state.posCart.order.filter(
+        (i) => String(i.book?._id || i.book) !== bookKey,
+      );
+    }
     renderPosFromCart();
   } catch (err) {
     showToast(err.message, "error");
+  }
+};
+
+const clearCartOnBackend = async (cart) => {
+  if (!cart?.order?.length) return;
+  for (const item of cart.order) {
+    const bookId = item.book?._id || item.book;
+    if (!bookId) continue;
+    try {
+      await apiPost(`/cart/remove-item/${bookId}`, { quantity: -1 }, true);
+    } catch (e) {
+      /* ignore */
+    }
   }
 };
 
@@ -1136,6 +1227,7 @@ const posCheckout = async () => {
     );
     $("pos-msg").className = "msg success";
     $("pos-msg").textContent = "Sale completed!";
+    if (state.posCart) clearCartOnBackend(state.posCart);
     state.posCart = null;
     state.cart = null;
     $("pos-cust-name").value = "";
@@ -1482,6 +1574,12 @@ $("dash-order-search").addEventListener("input", (e) =>
 );
 $("dash-order-status").addEventListener("change", () =>
   loadDashOrders($("dash-order-search").value.trim()),
+);
+$("my-order-search").addEventListener("input", (e) =>
+  debounce(() => loadMyOrders(e.target.value.trim()), 400, "my-orders"),
+);
+$("my-order-status").addEventListener("change", () =>
+  loadMyOrders($("my-order-search").value.trim()),
 );
 $("sort-select").addEventListener("change", () =>
   loadBooks($("search-input").value.trim()),

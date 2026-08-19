@@ -14,6 +14,9 @@
         <button data-view="cart" class="nav-link" id="nav-cart">
           Cart <span class="cart-badge hidden" id="cart-badge">0</span>
         </button>
+        <button data-view="orders" class="nav-link hidden" id="nav-my-orders">
+          My Orders
+        </button>
         <button
           data-view="dashboard"
           class="nav-link hidden"
@@ -55,7 +58,7 @@
         <h2>Your Cart</h2>
         <div id="cart-items" class="cart-items"></div>
         <div id="cart-summary" class="card cart-summary hidden">
-          <p>Total: <strong id="cart-total">$0</strong></p>
+          <p>Total: <strong id="cart-total">0 EGP</strong></p>
           <div id="customer-fields" class="customer-fields hidden">
             <h3>Customer details (sale)</h3>
             <input id="cust-name" type="text" placeholder="Customer name" />
@@ -84,6 +87,26 @@
           <button id="btn-buy" class="btn primary">Buy Now</button>
           <p id="cart-msg" class="msg"></p>
         </div>
+      </section>
+
+      <!-- ============ MY ORDERS (logged-in customers) ============ -->
+      <section id="view-orders" class="view">
+        <h2>My Orders</h2>
+        <div class="pane-toolbar">
+          <input
+            id="my-order-search"
+            type="text"
+            placeholder="Search orders..."
+          />
+          <select id="my-order-status">
+            <option value="">Status: All</option>
+            <option value="new">New</option>
+            <option value="canceled">Canceled</option>
+            <option value="delivered">Delivered</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <div id="my-orders-list" class="dash-list"></div>
       </section>
 
       <!-- ============ DASHBOARD (staff + admin) ============ -->
@@ -224,7 +247,7 @@
             <input id="pos-note" type="text" placeholder="Note (optional)" />
           </div>
           <div class="cart-summary card">
-            <p>Total: <strong id="pos-total">$0</strong></p>
+            <p>Total: <strong id="pos-total">0 EGP</strong></p>
             <button id="pos-checkout" class="btn primary">Checkout Sale</button>
             <p id="pos-msg" class="msg"></p>
           </div>

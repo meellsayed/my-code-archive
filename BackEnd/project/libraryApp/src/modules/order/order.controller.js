@@ -12,8 +12,8 @@ const router = Router();
 //========================= global ===========================
 router.get(
   "",
-  authorization([roleTypes.admin, roleTypes.staff]),
   authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
   globalServices.getAll,
 );
 
@@ -23,7 +23,7 @@ router.get("/online", authentication(), onlineServices.getOrders);
 router.get("/online/:id", authentication(), onlineServices.getOrder); // order id
 //========================= branch ===========================
 router.post(
-  "/branch/buy/:cartId",
+  "/branch/buy/:id",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
   branchServices.buyCart,

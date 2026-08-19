@@ -13,9 +13,11 @@ export const addItem = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { quantity } = req.body;
   const userId = req.user._id;
-  const isStaff = req.user.role == roleTypes.customer ? false : true;
+  const isStaff = req.user.role === roleTypes.customer;
   const book = await dbService.findById({ model: bookModel, id });
-
+  if (!book) {
+    return next(new Error("book not found", { cause: 404 }));
+  }
   if (quantity > book.quantity) {
     return next(new Error(`Quantity in stock:${book.quantity}`));
   }
@@ -80,7 +82,16 @@ export const addItem = asyncHandler(async (req, res, next) => {
   };
 
   cart = await dbService.create({ model: cartModel, data });
-
+  await cart.populate([
+    {
+      path: "user",
+      select: "username",
+    },
+    {
+      path: "order.book",
+      select: "title price quantity",
+    },
+  ]);
   return successResponse({ res, statusCode: 201, data: { cart } });
 });
 export const removeItem = asyncHandler(async (req, res, next) => {
@@ -106,9 +117,9 @@ export const getOne = asyncHandler(async (req, res, next) => {
 
   const cart = await dbService.findOne({
     model: cartModel,
-    filter: { _id: id, isDeleted: false },
+    filter: { _id: id },
   });
-  if (req.user.role != roleTypes.admin || req.user.role != roleTypes.staff) {
+  if (req.user.role === roleTypes.customer) {
     if (req.user._id != cart.user) {
       return next(new Error("that is not your cart", { cause: 403 }));
     }
