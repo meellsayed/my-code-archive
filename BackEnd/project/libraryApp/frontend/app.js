@@ -62,6 +62,27 @@ const stockBadge = (qty, minQty) => {
 const isStaff = () => ["admin", "staff"].includes(state.user?.role);
 const isAdmin = () => state.user?.role === "admin";
 
+const ORDER_STATUS_FLOW = [
+  "new",
+  "in_processing",
+  "ready_to_ship",
+  "shipped",
+  "delivered",
+  "canceled",
+];
+const statusLabel = (status = "") =>
+  ({
+    new: "New",
+    in_processing: "In Processing",
+    ready_to_ship: "Ready to Ship",
+    shipped: "Shipped",
+    delivered: "Delivered",
+    canceled: "Canceled",
+    done: "Done", // legacy orders
+  }[status] || status || "—");
+const statusBadge = (status = "") =>
+  `<span class="status status-${escapeHTML(status || "none")}">${escapeHTML(statusLabel(status))}</span>`;
+
 const authHeaders = () => ({ authorization: `Bearer ${state.token}` });
 
 const api = async (path, opts = {}, useAuth = false, retried = false) => {
@@ -191,7 +212,7 @@ const renderBooks = (books) => {
         ${b.publisher ? `<p class="publisher">${escapeHTML(b.publisher)}</p>` : ""}
         <div class="card-actions">
           <p class="price">${formatPrice(b.price)}</p>
-          ${stockBadge(b.quantity)}
+          ${stockBadge(b.quantity, b.minQuantity)}
           ${b.availableToBorrow ? `<span class="stock borrow">● Borrowable</span>` : ""}
         </div>
         <button class="btn primary small add-to-cart-btn"
@@ -251,7 +272,7 @@ const openBook = async (id, focusBtn = null) => {
       `${book.author?.name || "Unknown author"}${book.pages ? ` · ${book.pages} pages` : ""}${book.publisher ? ` · ${book.publisher}` : ""}`;
     $("book-modal-price").textContent = formatPrice(book.price);
     $("book-modal-stock").innerHTML =
-      stockBadge(book.quantity) +
+      stockBadge(book.quantity, book.minQuantity) +
       (book.availableToBorrow
         ? `<span class="stock borrow">● Borrowable</span>`
         : "");
@@ -408,7 +429,6 @@ const buyCart = async () => {
     await apiPost(path, body, true);
     $("cart-msg").className = "msg success";
     $("cart-msg").textContent = "Purchase complete!";
-    if (isStaff() && state.cart) clearCartOnBackend(state.cart);
     state.cart = null;
     state.posCart = null;
     $("checkout-address").value = "";
@@ -440,9 +460,39 @@ const setDashTab = (tab) => {
   renderDashboardPane();
 };
 
+const loadDashStats = async () => {
+  const wrap = $("dash-stats");
+  if (!wrap) return;
+  try {
+    const [books, orders] = await Promise.all([
+      apiGet("/book").catch(() => ({ data: { books: [] } })),
+      apiGet("/order", true).catch(() => ({ data: { orders: [] } })),
+    ]);
+    const bookList = books.data?.books || [];
+    const orderList = orders.data?.orders || [];
+    const totalStock = bookList.reduce((s, b) => s + (b.quantity || 0), 0);
+    const lowStock = bookList.filter(
+      (b) => b.minQuantity && b.quantity <= b.minQuantity,
+    ).length;
+    const revenue = orderList.reduce(
+      (s, o) => s + (o.status !== "canceled" ? o.total || 0 : 0),
+      0,
+    );
+    wrap.innerHTML = `
+      <div class="stat-card"><span class="stat-label">Books</span><span class="stat-value">${bookList.length}</span></div>
+      <div class="stat-card"><span class="stat-label">Units in stock</span><span class="stat-value">${totalStock}</span></div>
+      <div class="stat-card"><span class="stat-label ${lowStock ? "low" : ""}">Low stock titles</span><span class="stat-value">${lowStock}</span></div>
+      <div class="stat-card"><span class="stat-label">Orders</span><span class="stat-value">${orderList.length}</span></div>
+      <div class="stat-card"><span class="stat-label">Revenue (non-canceled)</span><span class="stat-value">${formatPrice(revenue)}</span></div>`;
+  } catch (e) {
+    wrap.innerHTML = "";
+  }
+};
+
 const renderDashboard = () => {
   $("nav-dashboard").classList.remove("hidden");
   setDashTab(state.dashTab);
+  loadDashStats();
 };
 
 const renderDashboardPane = () => {
@@ -487,7 +537,7 @@ const loadDashBooks = async (search = "") => {
             ${coverImg(b.cover, "dash-cover")}
             <div>
               <h4>${escapeHTML(b.title)}</h4>
-              <span>${escapeHTML(b.author?.name || "Unknown")} · ${formatPrice(b.price)} · ${stockBadge(b.quantity)}</span>
+              <span>${escapeHTML(b.author?.name || "Unknown")} · ${formatPrice(b.price)} · ${stockBadge(b.quantity, b.minQuantity)}</span>
               ${b.publisher ? `<span class="publisher">${escapeHTML(b.publisher)}</span>` : ""}
             </div>
           </div>
@@ -674,11 +724,19 @@ const loadDashCustomers = async (search = "") => {
             <span>${escapeHTML(c.phone || "")} · ${escapeHTML(c.type || "")} · Orders: ${orderCount.get(String(c._id)) || 0}</span>
           </div>
           <div class="actions">
+            <button class="btn ghost small" data-cust-orders="${c._id}">Orders</button>
             ${isAdmin() ? `<button class="btn danger small" data-del-customer="${c._id}">Delete</button>` : ""}
           </div>
         </div>`,
             )
             .join("");
+    wrap
+      .querySelectorAll("[data-cust-orders]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          openCustomerOrders(btn.dataset.custOrders),
+        ),
+      );
     wrap
       .querySelectorAll("[data-del-customer]")
       .forEach((btn) =>
@@ -697,6 +755,31 @@ const delCustomer = async (id) => {
     await apiDelete("/customer/" + id, true);
     showToast("Customer deleted");
     loadDashCustomers($("dash-customer-search").value.trim());
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+};
+
+const openCustomerOrders = async (customerId) => {
+  try {
+    const { data } = await apiGet(`/order/customer/${customerId}`, true);
+    const orders = data?.orders || [];
+    if (!orders.length) {
+      showInfoModal("Customer Orders", '<p class="msg">No orders for this customer.</p>');
+      return;
+    }
+    const html = orders
+      .map(
+        (o) => `
+      <div class="dash-row">
+        <div class="info">
+          <h4>Order ${escapeHTML(o._id)}</h4>
+          <span>${formatPrice(o.total ?? 0)} · ${statusBadge(o.status)} · ${new Date(o.createdAt).toLocaleString()}</span>
+        </div>
+      </div>`,
+      )
+      .join("");
+    showInfoModal(`Customer Orders (${orders.length})`, html);
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -735,25 +818,47 @@ const loadDashOrders = async (search = "") => {
         <div class="dash-row">
           <div class="info">
             <h4>Order ${escapeHTML(o._id)}</h4>
-            <span>Customer: ${escapeHTML(o.customer?.username || "—")} · ${formatPrice(o.total ?? 0)} · Status: ${escapeHTML(o.status || "—")}</span>
+            <span>Customer: ${escapeHTML(o.customer?.username || "—")} · ${formatPrice(o.total ?? 0)} · ${statusBadge(o.status)}</span>
             ${o.address ? `<span>${escapeHTML(o.address)}</span>` : ""}
             <span>${new Date(o.createdAt).toLocaleString()}</span>
           </div>
           <div class="actions">
+            ${ORDER_STATUS_FLOW.includes(o.status) ? `<button class="btn primary small" data-order-status="${o._id}">Advance →</button>` : ""}
             <button class="btn ghost small" data-order-detail="${o._id}">View</button>
           </div>
         </div>`,
             )
             .join("");
     wrap
-      .querySelectorAll("[data-order-detail]")
+      .querySelectorAll("[data-order-status]")
       .forEach((btn) =>
         btn.addEventListener("click", () =>
-          openOrderDetail(btn.dataset.orderDetail),
+          advanceOrderStatus(btn.dataset.orderStatus),
         ),
+      );
+    wrap
+      .querySelectorAll("[data-order-detail]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => {
+          const ord = orders.find(
+            (o) => String(o._id) === String(btn.dataset.orderDetail),
+          );
+          openOrderDetail(btn.dataset.orderDetail, ord);
+        }),
       );
   } catch (err) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
+  }
+};
+
+const advanceOrderStatus = async (id) => {
+  if (!confirm("Advance this order to the next status?")) return;
+  try {
+    const res = await apiPatch(`/order/status/${id}`, {}, true);
+    showToast(res.message || "Status updated");
+    loadDashOrders($("dash-order-search").value.trim());
+  } catch (err) {
+    showToast(err.message, "error");
   }
 };
 
@@ -784,7 +889,7 @@ const loadMyOrders = async (search = "") => {
         <div class="dash-row">
           <div class="info">
             <h4>Order ${escapeHTML(o._id)}</h4>
-            <span>${formatPrice(o.total ?? 0)} · Status: ${escapeHTML(o.status || "—")} · ${new Date(o.createdAt).toLocaleString()}</span>
+            <span>${formatPrice(o.total ?? 0)} · ${statusBadge(o.status)} · ${new Date(o.createdAt).toLocaleString()}</span>
             ${o.address ? `<span>${escapeHTML(o.address)}</span>` : ""}
           </div>
           <div class="actions">
@@ -833,10 +938,9 @@ const enrichCart = async (cart) => {
   return cart;
 };
 
-const openOrderDetail = async (id) => {
+const openOrderDetail = async (id, order = null) => {
   try {
-    const { data } = await apiGet(`/order/online/${id}`, true);
-    const o = data?.order;
+    const o = order || (await apiGet(`/order/online/${id}`, true)).data?.order;
     if (!o) throw new Error("Order not found");
     const map = await getBookMap();
     const cartItems = o.cart?.order || [];
@@ -861,7 +965,7 @@ const openOrderDetail = async (id) => {
       .join("");
     const html = `
       <p><strong>Total:</strong> ${formatPrice(o.total ?? 0)}</p>
-      <p><strong>Status:</strong> ${escapeHTML(o.status || "—")} · ${new Date(o.createdAt).toLocaleString()}</p>
+      <p><strong>Status:</strong> ${statusBadge(o.status)} · ${new Date(o.createdAt).toLocaleString()}</p>
       ${o.customer?.username ? `<p><strong>Customer:</strong> ${escapeHTML(o.customer.username)}</p>` : ""}
       ${o.address ? `<p><strong>Address:</strong> ${escapeHTML(o.address)}</p>` : ""}
       ${o.note ? `<p><strong>Note:</strong> ${escapeHTML(o.note)}</p>` : ""}
@@ -905,7 +1009,7 @@ const bookListHtml = (books) =>
           ${coverImg(b.cover, "dash-cover")}
           <div>
             <h4>${escapeHTML(b.title)}</h4>
-            <span>${escapeHTML(b.author?.name || "Unknown")} · ${formatPrice(b.price ?? 0)} · ${stockBadge(b.quantity)}</span>
+            <span>${escapeHTML(b.author?.name || "Unknown")} · ${formatPrice(b.price ?? 0)} · ${stockBadge(b.quantity, b.minQuantity)}</span>
           </div>
         </div>
       </div>`,
@@ -1202,19 +1306,6 @@ const posRemove = async (bookId, quantity) => {
   }
 };
 
-const clearCartOnBackend = async (cart) => {
-  if (!cart?.order?.length) return;
-  for (const item of cart.order) {
-    const bookId = item.book?._id || item.book;
-    if (!bookId) continue;
-    try {
-      await apiPost(`/cart/remove-item/${bookId}`, { quantity: -1 }, true);
-    } catch (e) {
-      /* ignore */
-    }
-  }
-};
-
 const posCheckout = async () => {
   if (!state.posCart?._id) return;
   const btn = $("pos-checkout");
@@ -1243,7 +1334,6 @@ const posCheckout = async () => {
     );
     $("pos-msg").className = "msg success";
     $("pos-msg").textContent = "Sale completed!";
-    if (state.posCart) clearCartOnBackend(state.posCart);
     state.posCart = null;
     state.cart = null;
     $("pos-cust-name").value = "";
@@ -1643,7 +1733,7 @@ const posSearch = async (search = "") => {
           ${coverImg(b.cover, "pos-cover")}
           <h4>${escapeHTML(b.title)}</h4>
           <p class="price">${formatPrice(b.price ?? 0)}</p>
-          ${stockBadge(b.quantity)}
+          ${stockBadge(b.quantity, b.minQuantity)}
         </div>`,
             )
             .join("");

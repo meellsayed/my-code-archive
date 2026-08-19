@@ -111,3 +111,19 @@ export const getOrders = asyncHandler(async (req, res, next) => {
   });
   return successResponse({ res, data: { orders } });
 });
+export const cancelOrder = asyncHandler(async (req, res, next) => {
+  const { id } = req.params; // order id
+
+  const order = await dbService.findOne({
+    model: orderModel,
+    filter: { _id: id },
+  });
+  const status = order.status
+  if (status === "delivered" || status === "canceled")
+    return next(new Error("Order cannot be canceled", { cause: 400 }));
+
+  order.status = "canceled";
+  await order.save();
+
+  return successResponse({ res, message: "Order canceled" });
+});

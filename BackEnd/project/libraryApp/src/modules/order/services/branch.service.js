@@ -80,14 +80,14 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     total,
     seller: sellerId,
     createdBy: sellerId,
-    status: "done",
+    status: "delivered",
   });
 
   const order = await dbService.create({ model: orderModel, data });
 
   await order.populate(orderPopulate);
-  // cart.order = [];
-  // await cart.save();
+  cart.done = true;
+  await cart.save();
 
   return successResponse({
     res,

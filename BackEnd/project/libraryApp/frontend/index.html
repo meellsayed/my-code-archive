@@ -107,9 +107,11 @@
           <select id="my-order-status">
             <option value="">Status: All</option>
             <option value="new">New</option>
-            <option value="canceled">Canceled</option>
+            <option value="in_processing">In Processing</option>
+            <option value="ready_to_ship">Ready to Ship</option>
+            <option value="shipped">Shipped</option>
             <option value="delivered">Delivered</option>
-            <option value="done">Done</option>
+            <option value="canceled">Canceled</option>
           </select>
         </div>
         <div id="my-orders-list" class="dash-list"></div>
@@ -118,6 +120,7 @@
       <!-- ============ DASHBOARD (staff + admin) ============ -->
       <section id="view-dashboard" class="view">
         <h2>Dashboard</h2>
+        <div id="dash-stats" class="dash-stats"></div>
         <div class="auth-switch" id="dash-nav">
           <button class="auth-tab active" data-dash="books">Books</button>
           <button class="auth-tab" data-dash="authors">Authors</button>
@@ -207,9 +210,11 @@
             <select id="dash-order-status">
               <option value="">Status: All</option>
               <option value="new">New</option>
-              <option value="canceled">Canceled</option>
+              <option value="in_processing">In Processing</option>
+              <option value="ready_to_ship">Ready to Ship</option>
+              <option value="shipped">Shipped</option>
               <option value="delivered">Delivered</option>
-              <option value="done">Done</option>
+              <option value="canceled">Canceled</option>
             </select>
           </div>
           <div id="dash-orders-list" class="dash-list"></div>

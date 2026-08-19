@@ -339,6 +339,87 @@ body {
   color: #dc2626;
 }
 
+.stock.low {
+  color: #d97706;
+}
+
+.status {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.status-new {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-in_processing,
+.status-ready_to_ship {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.status-shipped {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-delivered {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.status-canceled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-done {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stat-label.low {
+  color: #d97706;
+}
+
+.stat-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #111827;
+}
+
 .empty-state {
   text-align: center;
   padding: 2rem 0;

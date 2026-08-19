@@ -125,7 +125,7 @@ export const updateStatus = asyncHandler(async (req, res, next) => {
       order.status = "in_processing";
       break;
     case "in_processing":
-      order.status = "ready_to_Ship";
+      order.status = "ready_to_ship";
       break;
     case "ready_to_ship":
       order.status = "shipped";
@@ -148,3 +148,4 @@ export const updateStatus = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, message: `Now ${order.status}` });
 });
+

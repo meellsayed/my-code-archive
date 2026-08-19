@@ -33,6 +33,11 @@ router.patch(
 router.post("/online/buy/:id", authentication(), onlineServices.buyCart); // cart id
 router.get("/online", authentication(), onlineServices.getOrders);
 router.get("/online/:id", authentication(), onlineServices.getOrder); // order id
+router.patch(
+  "/online/cancel/:id",
+  authentication(),
+  onlineServices.cancelOrder,
+); // order id
 //========================= branch ===========================
 router.post(
   "/branch/buy/:id",

@@ -223,7 +223,7 @@ export const getAll = asyncHandler(async (req, res, next) => {
 
   // Publisher filter
   if (publisher) {
-    query.publisher = publisher;
+    query.publisher = { $regex: publisher, $options: "i" };
   }
 
   query.isDeleted = false;
