@@ -18,7 +18,7 @@ router.post(
   "/cover/:id",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
-  upload.singleUpload("cover"), 
+  upload.singleUpload("cover"),
   bookServices.cover,
 ); // book id
 

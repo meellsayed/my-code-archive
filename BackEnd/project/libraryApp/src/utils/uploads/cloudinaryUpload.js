@@ -51,7 +51,10 @@ export const uploadBuffer = async ({
  * @param {string} [params.folder]
  * @returns {Promise<Array<{secure_url:string, public_id:string}>>}
  */
-export const uploadBuffers = async ({ files = [], folder = "libraryApp" } = {}) =>
+export const uploadBuffers = async ({
+  files = [],
+  folder = "libraryApp",
+} = {}) =>
   Promise.all(
     files.map((file) =>
       uploadBuffer({ buffer: file.buffer, folder, resourceType: "auto" }),
