@@ -148,7 +148,7 @@ const apiDelete = (path, useAuth = false) =>
 // ================= views / nav =================
 const updateCartBadge = () => {
   const badge = $("cart-badge");
-  const items = (state.cart?.order || []).filter((i) => (i.quantity ?? 0) > 0);
+  const items = (state.cart?.items || []).filter((i) => (i.quantity ?? 0) > 0);
   const count = items.reduce((s, i) => s + (i.quantity ?? 0), 0);
   badge.textContent = count;
   badge.classList.toggle("hidden", count === 0);
@@ -174,12 +174,14 @@ const showView = (view) => {
   if (view === "dashboard") renderDashboard();
   if (view === "store") loadBooks();
   if (view === "orders") loadMyOrders("");
+  if (view === "profile") renderProfile();
 };
 
 const updateAuthUI = () => {
   const logged = !!state.token;
   $("nav-dashboard").classList.toggle("hidden", !isStaff());
   $("nav-my-orders").classList.toggle("hidden", !logged);
+  $("nav-profile").classList.toggle("hidden", !logged);
   const chip = $("user-chip");
   if (logged) {
     chip.textContent = "";
@@ -304,7 +306,7 @@ const addToCart = async (bookId, qty, target = "cart") => {
   }
   try {
     const { data } = await apiPost(
-      `/cart/add-item/${bookId}`,
+      `/cart/add/${bookId}`,
       { quantity: qty },
       true,
     );
@@ -326,9 +328,9 @@ const removeCartItem = async (bookId) => {
   if (!state.token) return;
   const bookKey = String(bookId);
   try {
-    await apiPost(`/cart/remove-item/${bookId}`, { quantity: -1 }, true);
-    if (state.cart?.order) {
-      state.cart.order = state.cart.order.filter(
+    await apiPatch(`/cart/remove/${bookId}`, { quantity: -1 }, true);
+    if (state.cart?.items) {
+      state.cart.items = state.cart.items.filter(
         (i) => String(i.book?._id || i.book) !== bookKey,
       );
     }
@@ -341,7 +343,7 @@ const removeCartItem = async (bookId) => {
 const changeCartQty = async (bookId, delta) => {
   try {
     const { data } = await apiPost(
-      `/cart/add-item/${bookId}`,
+      `/cart/add/${bookId}`,
       { quantity: delta },
       true,
     );
@@ -354,7 +356,7 @@ const changeCartQty = async (bookId, delta) => {
 
 const renderCart = () => {
   const wrap = $("cart-items");
-  const items = (state.cart?.order || []).filter((i) => (i.quantity ?? 0) > 0);
+  const items = (state.cart?.items || []).filter((i) => (i.quantity ?? 0) > 0);
   if (!items.length) {
     wrap.innerHTML =
       '<div class="empty-state"><p class="msg">Your cart is empty.</p></div>';
@@ -978,9 +980,9 @@ const getBookTitle = async (id) => {
   return book?.title || `Book (${String(id).slice(-6)})`;
 };
 const enrichCart = async (cart) => {
-  if (!cart?.order?.length) return cart;
+  if (!cart?.items?.length) return cart;
   const map = await getBookMap();
-  cart.order = cart.order.map((it) => {
+  cart.items = cart.items.map((it) => {
     if (it.book && typeof it.book === "object" && it.book.title) return it;
     const book = map.get(String(it.book?._id || it.book));
     if (book) it.book = book;
@@ -1001,7 +1003,7 @@ const openOrderDetail = async (id, order = null) => {
     }
     if (!o) throw new Error("Order not found");
     const map = await getBookMap();
-    const cartItems = o.cart?.order || [];
+    const cartItems = o.cart?.items || [];
     const items = cartItems.map((it) => {
       const book = map.get(String(it.book?._id || it.book)) || {};
       return {
@@ -1330,14 +1332,14 @@ const posAdd = async (bookId) => {
 };
 
 const posChangeQty = async (bookId, delta) => {
-  const item = (state.posCart?.order || []).find(
+  const item = (state.posCart?.items || []).find(
     (i) => String(i.book?._id || i.book) === String(bookId),
   );
   const qty = (item?.quantity ?? 0) + delta;
   if (qty <= 0) return posRemove(bookId, item?.quantity || 1);
   try {
     const { data } = await apiPost(
-      `/cart/add-item/${bookId}`,
+      `/cart/add/${bookId}`,
       { quantity: delta },
       true,
     );
@@ -1354,9 +1356,9 @@ const posRemove = async (bookId, quantity) => {
   if (!state.token) return;
   const bookKey = String(bookId);
   try {
-    await apiPost(`/cart/remove-item/${bookId}`, { quantity: -1 }, true);
-    if (state.posCart?.order) {
-      state.posCart.order = state.posCart.order.filter(
+    await apiPatch(`/cart/remove/${bookId}`, { quantity: -1 }, true);
+    if (state.posCart?.items) {
+      state.posCart.items = state.posCart.items.filter(
         (i) => String(i.book?._id || i.book) !== bookKey,
       );
     }
@@ -1413,7 +1415,7 @@ const posCheckout = async () => {
 
 const renderPosFromCart = () => {
   const wrap = $("pos-cart");
-  const items = (state.posCart?.order || []).filter(
+  const items = (state.posCart?.items || []).filter(
     (i) => (i.quantity ?? 0) > 0,
   );
   if (!items.length) {
@@ -1607,7 +1609,7 @@ const handleForgot = async (e) => {
 // ================= load logged-in user =================
 const loadSession = async () => {
   if (!state.token) return;
-  // The backend has no "get me" route, so restore the user (incl. role) from storage.
+  // Restore the user from storage, then refresh it from the server.
   let saved = null;
   try {
     saved = JSON.parse(localStorage.getItem("user") || "null");
@@ -1615,7 +1617,126 @@ const loadSession = async () => {
     localStorage.removeItem("user");
   }
   if (saved) state.user = saved;
+  try {
+    const { data } = await apiGet("/auth/profile", true);
+    if (data?.user) {
+      state.user = data.user;
+      localStorage.setItem("user", JSON.stringify(state.user));
+    }
+  } catch (e) {
+    /* keep the stored user */
+  }
   updateAuthUI();
+};
+
+// ================= profile =================
+const profileInitials = (name = "") =>
+  String(name)
+    .trim()
+    .split(/\s+/)
+    .map((w) => w[0] || "")
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+const profileAvatarHtml = (u) =>
+  u?.image
+    ? `<img class="profile-avatar-img" src="${escapeHTML(u.image)}" alt="${escapeHTML(u.username || "avatar")}" onerror="this.remove()" />`
+    : `<span class="profile-avatar-initials">${escapeHTML(profileInitials(u?.username))}</span>`;
+
+const renderProfile = async () => {
+  const wrap = $("profile-card");
+  wrap.innerHTML = '<p class="msg">Loading...</p>';
+  let user = state.user || {};
+  try {
+    const { data } = await apiGet("/auth/profile", true);
+    if (data?.user) {
+      user = data.user;
+      state.user = user;
+      localStorage.setItem("user", JSON.stringify(state.user));
+    }
+  } catch (e) {
+    /* keep the stored user */
+  }
+  wrap.innerHTML = `
+    <div class="profile-header">
+      <div class="profile-avatar">${profileAvatarHtml(user)}</div>
+      <div class="profile-heading">
+        <h3>${escapeHTML(user.username || "—")}</h3>
+        <span class="role">${escapeHTML(user.role || "customer")}</span>
+        ${user.confirmEmail ? '<span class="profile-badge ok">Email confirmed</span>' : '<span class="profile-badge warn">Email not confirmed</span>'}
+      </div>
+    </div>
+    <div class="profile-body">
+      <div class="profile-row"><span>Email</span><strong>${escapeHTML(user.email || "—")}</strong></div>
+      <div class="profile-row"><span>Phone</span><strong>${escapeHTML(user.phone || "—")}</strong></div>
+      <div class="profile-row"><span>Gender</span><strong>${escapeHTML(user.gender || "—")}</strong></div>
+      <div class="profile-row"><span>Address</span><strong>${escapeHTML(user.address || "—")}</strong></div>
+      ${user.createdAt ? `<div class="profile-row"><span>Member since</span><strong>${new Date(user.createdAt).toLocaleDateString()}</strong></div>` : ""}
+      ${user._id ? `<div class="profile-row"><span>User ID</span><strong class="mono">${escapeHTML(user._id)}</strong></div>` : ""}
+    </div>
+    <div class="profile-actions">
+      <button class="btn primary" id="btn-edit-profile">Edit Profile</button>
+    </div>
+  `;
+  $("btn-edit-profile").addEventListener("click", () => renderProfileForm(wrap, user));
+};
+
+const renderProfileForm = (wrap, user) => {
+  wrap.innerHTML = `
+    <form id="profile-form" class="entity-form">
+      <label>Username<input name="username" required value="${escapeHTML(user.username || "")}" /></label>
+      <label>Phone<input name="phone" required value="${escapeHTML(user.phone || "")}" /></label>
+      <label>Address<input name="address" value="${escapeHTML(user.address || "")}" /></label>
+      <label>Gender
+        <select name="gender">
+          <option value="male" ${user.gender === "female" ? "" : "selected"}>Male</option>
+          <option value="female" ${user.gender === "female" ? "selected" : ""}>Female</option>
+        </select>
+      </label>
+      <label>Avatar URL<input name="image" placeholder="https://..." value="${escapeHTML(user.image || "")}" /></label>
+      <div class="profile-actions">
+        <button type="submit" class="btn primary">Save Changes</button>
+        <button type="button" class="btn ghost" id="btn-cancel-profile">Cancel</button>
+      </div>
+      <p id="profile-msg" class="msg"></p>
+    </form>
+  `;
+  $("btn-cancel-profile").addEventListener("click", () => renderProfile());
+  $("profile-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = $("profile-msg");
+    msg.className = "msg";
+    msg.textContent = "";
+    const fd = new FormData(e.target);
+    const body = {
+      username: String(fd.get("username") || "").trim(),
+      phone: String(fd.get("phone") || "").trim(),
+      gender: String(fd.get("gender") || "male"),
+      address: String(fd.get("address") || "").trim() || undefined,
+      image: String(fd.get("image") || "").trim() || undefined,
+    };
+    if (!body.username || !body.phone) {
+      msg.textContent = "Username and phone are required";
+      return;
+    }
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    try {
+      const { data } = await apiPatch("/auth/profile", body, true);
+      const saved = data?.user || { ...state.user, ...body };
+      state.user = saved;
+      localStorage.setItem("user", JSON.stringify(state.user));
+      updateAuthUI();
+      showToast("Profile updated successfully");
+      renderProfile();
+    } catch (err) {
+      msg.className = "msg error";
+      msg.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  });
 };
 
 // ================= events =================

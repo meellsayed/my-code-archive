@@ -83,7 +83,10 @@ export const decodedToken = async ({
   if (!user) {
     throw new Error("User not found", { cause: 404 });
   }
-  if (user.changeCredentialsTime?.getTime() >= decoded.iat * 1000) {
+  if (
+    user.changeCredentialsTime &&
+    Math.floor(user.changeCredentialsTime.getTime() / 1000) > decoded.iat
+  ) {
     throw new Error("Invalid login credentials", { cause: 400 });
   }
 
