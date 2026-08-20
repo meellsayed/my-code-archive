@@ -7,6 +7,7 @@ import { filterObject } from "../../../utils/utils.js";
 
 const orderPopulate = [
   { path: "customer", select: "username phone address type gender" },
+  { path: "seller", select: "username phone address type gender" },
   { path: "cart" },
 ];
 
@@ -22,7 +23,7 @@ export const buyCart = asyncHandler(async (req, res, next) => {
   const cart = await dbService.findOne({
     model: cartModel,
     filter: { _id: id, done: false },
-    populate: [{ path: "order.book", select: "price title quantity" }],
+    populate: [{ path: "items.book", select: "price title quantity" }],
   });
   if (!cart) {
     return next(new Error("Cart not found", { cause: 404 }));
@@ -34,9 +35,9 @@ export const buyCart = asyncHandler(async (req, res, next) => {
 
   let ifError = undefined;
 
-  for (const order of cart.order) {
-    if (order.quantity > order.book.quantity || order.book.quantity === 0) {
-      ifError = `Quantity (${order.book.title}) in stock: ${order.book.quantity}`;
+  for (const items of cart.items) {
+    if (items.quantity > items.book.quantity || items.book.quantity === 0) {
+      ifError = `Quantity (${items.book.title}) in stock: ${items.book.quantity}`;
       break;
     }
   }
@@ -45,10 +46,12 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     return next(new Error(ifError));
   }
 
-  for (const order of cart.order) {
-    total += order.book.price * order.quantity;
-    order.book.quantity -= order.quantity;
-    await order.book.save();
+  for (const item of cart.items) {
+    total += item.book.price * item.quantity;
+    item.book.quantity -= item.quantity;
+    item.price = item.book.price;
+    await item.save();
+    await item.book.save();
   }
 
   const data = filterObject({
@@ -66,11 +69,8 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     populate: orderPopulate,
   });
 
-  await dbService.findOneAndUpdate({
-    model: cartModel,
-    filter: { _id: id },
-    data: { done: true },
-  });
+  cart.done = true;
+  await cart.save();
 
   return successResponse({
     res,

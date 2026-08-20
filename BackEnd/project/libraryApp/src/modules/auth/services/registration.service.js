@@ -58,31 +58,16 @@ export const signup = asyncHandler(async (req, res, next) => {
     },
   });
 
-  /*  // Link the new account to a Customer record (reuse by phone if exists)
+  // Link the new account to a Customer record (reuse by phone if exists)
   let customer = await dbService.findOne({
     model: customerModel,
     filter: { phone },
   });
   if (customer) {
-    customer.username = username;
-    customer.address = address || customer.address;
-    customer.gender = gender || customer.gender;
     customer.type = customerTypes.onlineAndBranch;
-    customer.isDeleted = false;
+    let message = "Welcome back branch customer";
     await customer.save();
-  } else {
-    customer = await dbService.create({
-      model: customerModel,
-      data: {
-        username,
-        phone,
-        address,
-        gender,
-        type: customerTypes.online,
-        createdBy: user._id,
-      },
-    });
-  }*/
+  }
 
   sendEmailEvent.emit(sendEmailEventType.confirmEmail, {
     _id: user._id,
@@ -90,7 +75,7 @@ export const signup = asyncHandler(async (req, res, next) => {
     otp,
   });
 
-  return successResponse({ res, data: { user }, statusCode: 201 });
+  return successResponse({ res, message, data: { user }, statusCode: 201 });
 });
 
 export const confirmEmail = asyncHandler(async (req, res, next) => {

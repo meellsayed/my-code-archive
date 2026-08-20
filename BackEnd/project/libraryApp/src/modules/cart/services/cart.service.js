@@ -29,15 +29,15 @@ export const addItem = asyncHandler(async (req, res, next) => {
         select: "username",
       },
       {
-        path: "order.book",
+        path: "items.book",
         select: "title price quantity",
       },
     ],
   });
 
   if (cart != null) {
-    const oldBook = cart.order.find(
-      (order) => order.book._id.toString() === id.toString(),
+    const oldBook = cart.items.find(
+      (items) => items.book._id.toString() === id.toString(),
     );
 
     if (oldBook) {
@@ -47,7 +47,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
 
       oldBook.quantity += quantity;
       if (oldBook.quantity <= 0) {
-        cart.order = cart.order.filter(
+        cart.items = cart.items.filter(
           (o) => String(o._id) != String(oldBook._id),
         );
       }
@@ -56,7 +56,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
         return next(new Error(`Quantity in stock: ${book.quantity}`));
       }
 
-      cart.order.push({
+      cart.items.push({
         book: id,
         quantity,
       });
@@ -73,7 +73,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
   const data = {
     user: userId,
     createdBy: userId,
-    order: [{ book: id, quantity }],
+    items: [{ book: id, quantity }],
     isStaff: isStaffCart,
   };
 
@@ -84,7 +84,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
       select: "username",
     },
     {
-      path: "order.book",
+      path: "items.book",
       select: "title price quantity",
     },
   ]);
@@ -98,19 +98,19 @@ export const removeItem = asyncHandler(async (req, res, next) => {
   const cart = await dbService.findOne({
     model: cartModel,
     filter: { user: userId, done: false },
-    populate: [{ path: "order.book", select: "title price quantity" }],
+    populate: [{ path: "items.book", select: "title price quantity" }],
   });
   if (!cart) {
     return next(new Error("Cart not found", { cause: 404 }));
   }
 
-  const item = cart.order.find((o) => String(o.book._id) === String(id));
+  const item = cart.items.find((o) => String(o.book._id) === String(id));
   if (!item) {
     return next(new Error("Book not found in cart", { cause: 404 }));
   }
 
   if (quantity <= 0 || item.quantity - quantity <= 0) {
-    cart.order = cart.order.filter((o) => String(o.book._id) !== String(id));
+    cart.items = cart.items.filter((o) => String(o.book._id) !== String(id));
   } else {
     item.quantity -= quantity;
   }

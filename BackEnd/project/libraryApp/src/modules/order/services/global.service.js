@@ -7,7 +7,10 @@ import { customerModel } from "../../../DB/models/Customer.model.js";
 
 const orderPopulate = [
   { path: "customer", select: "username phone address type gender" },
+  { path: "seller", select: "username phone address type gender" },
   { path: "cart" },
+
+  // { path: "book" },
 ];
 
 export const getAll = asyncHandler(async (req, res, next) => {
@@ -24,6 +27,7 @@ export const getAll = asyncHandler(async (req, res, next) => {
             { username: { $regex: search, $options: "i" } },
             { email: { $regex: search, $options: "i" } },
             { phone: { $regex: search, $options: "i" } },
+            { address: { $regex: search, $options: "i" } },
           ],
         },
         select: "_id",
@@ -33,6 +37,7 @@ export const getAll = asyncHandler(async (req, res, next) => {
         filter: {
           $or: [
             { username: { $regex: search, $options: "i" } },
+            { address: { $regex: search, $options: "i" } },
             { phone: { $regex: search, $options: "i" } },
           ],
         },
@@ -40,15 +45,7 @@ export const getAll = asyncHandler(async (req, res, next) => {
       }),
     ]);
 
-    if (type == "online") {
-      query.customer = { $in: [...usersId] };
-      query.customerType = "User";
-    } else if (type == "branch") {
-      query.customer = { $in: [...customersId] };
-      query.customerType = "Customer";
-    } else {
-      query.customer = { $in: [...usersId, ...customersId] };
-    }
+    query.customer = { $in: [...usersId, ...customersId] };
   }
   if (seller) {
     const sellersId = await dbService.find({
@@ -58,6 +55,7 @@ export const getAll = asyncHandler(async (req, res, next) => {
           { username: { $regex: seller, $options: "i" } },
           { email: { $regex: seller, $options: "i" } },
           { phone: { $regex: seller, $options: "i" } },
+          { address: { $regex: seller, $options: "i" } },
         ],
       },
       select: "_id",
@@ -79,6 +77,12 @@ export const getAll = asyncHandler(async (req, res, next) => {
       break;
   }
 
+  if (type == "online") {
+    query.customerType = "User";
+  } else if (type == "branch") {
+    query.customerType = "Customer";
+  }
+
   const orders = await dbService.find({
     model: orderModel,
     filter: { ...query },
@@ -86,7 +90,6 @@ export const getAll = asyncHandler(async (req, res, next) => {
   });
   return successResponse({ res, data: { orders } });
 });
-
 export const getOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -101,7 +104,6 @@ export const getOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, data: { order } });
 });
-
 export const getCustomerOrders = asyncHandler(async (req, res, next) => {
   const { id } = req.params; // customer id
 
@@ -113,7 +115,6 @@ export const getCustomerOrders = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, data: { orders } });
 });
-
 export const updateStatus = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 

@@ -70,6 +70,13 @@ const ORDER_STATUS_FLOW = [
   "delivered",
   "canceled",
 ];
+const ADVANCEABLE_STATUSES = [
+  "new",
+  "in_processing",
+  "ready_to_ship",
+  "shipped",
+];
+const CANCELABLE_STATUSES = ["new", "in_processing", "ready_to_ship"];
 const statusLabel = (status = "") =>
   ({
     new: "New",
@@ -429,8 +436,11 @@ const buyCart = async () => {
     }
 
     await apiPost(path, body, true);
+    const doneMsg = isStaff()
+      ? "Sale completed successfully"
+      : "Order placed successfully";
     $("cart-msg").className = "msg success";
-    $("cart-msg").textContent = "Purchase complete!";
+    $("cart-msg").textContent = doneMsg;
     state.cart = null;
     state.posCart = null;
     $("checkout-address").value = "";
@@ -440,7 +450,7 @@ const buyCart = async () => {
     $("cust-address").value = "";
     renderCart();
     loadBooks();
-    showToast("Done!");
+    showToast(doneMsg);
   } catch (err) {
     $("cart-msg").className = "msg error";
     $("cart-msg").textContent = err.message;
@@ -516,6 +526,7 @@ const renderDashboardPane = () => {
       break;
     case "pos":
       renderPosFromCart();
+      if (!$("pos-results").childElementCount) posSearch("");
       break;
   }
 };
@@ -569,8 +580,10 @@ const delBook = async (id) => {
   if (!confirm("Delete this book?")) return;
   try {
     await apiDelete("/book/" + id, true);
-    showToast("Book deleted");
+    showToast("Book deleted successfully");
+    bookCache = null;
     loadDashBooks($("dash-book-search").value.trim());
+    loadBooks();
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -755,7 +768,7 @@ const delCustomer = async (id) => {
   if (!confirm("Delete this customer?")) return;
   try {
     await apiDelete("/customer/" + id, true);
-    showToast("Customer deleted");
+    showToast("Customer deleted successfully");
     loadDashCustomers($("dash-customer-search").value.trim());
   } catch (err) {
     showToast(err.message, "error");
@@ -781,10 +794,23 @@ const openCustomerOrders = async (customerId) => {
           <h4>Order ${escapeHTML(o._id)}</h4>
           <span>${formatPrice(o.total ?? 0)} · ${statusBadge(o.status)} · ${new Date(o.createdAt).toLocaleString()}</span>
         </div>
+        <div class="actions">
+          <button class="btn ghost small" data-cust-order-view="${o._id}">View</button>
+        </div>
       </div>`,
       )
       .join("");
     showInfoModal(`Customer Orders (${orders.length})`, html);
+    $("info-modal-body")
+      .querySelectorAll("[data-cust-order-view]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => {
+          const ord = orders.find(
+            (o) => String(o._id) === String(btn.dataset.custOrderView),
+          );
+          openOrderDetail(btn.dataset.custOrderView, ord);
+        }),
+      );
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -812,6 +838,9 @@ const loadDashOrders = async (search = "") => {
           String(o._id).toLowerCase().includes(term) ||
           String(o.customer?.username || "")
             .toLowerCase()
+            .includes(term) ||
+          String(o.seller?.username || o.seller?.email || "")
+            .toLowerCase()
             .includes(term)),
     );
     wrap.innerHTML =
@@ -828,7 +857,7 @@ const loadDashOrders = async (search = "") => {
             <span>${new Date(o.createdAt).toLocaleString()}</span>
           </div>
           <div class="actions">
-            ${ORDER_STATUS_FLOW.includes(o.status) ? `<button class="btn primary small" data-order-status="${o._id}">Advance →</button>` : ""}
+            ${ADVANCEABLE_STATUSES.includes(o.status) ? `<button class="btn primary small" data-order-status="${o._id}">Advance</button>` : ""}
             <button class="btn ghost small" data-order-detail="${o._id}">View</button>
           </div>
         </div>`,
@@ -897,6 +926,7 @@ const loadMyOrders = async (search = "") => {
           </div>
           <div class="actions">
             <button class="btn ghost small" data-my-order-detail="${o._id}">View</button>
+            ${CANCELABLE_STATUSES.includes(o.status) ? `<button class="btn danger small" data-my-order-cancel="${o._id}">Cancel</button>` : ""}
           </div>
         </div>`,
             )
@@ -908,8 +938,26 @@ const loadMyOrders = async (search = "") => {
           openOrderDetail(btn.dataset.myOrderDetail),
         ),
       );
+    wrap
+      .querySelectorAll("[data-my-order-cancel]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          cancelMyOrder(btn.dataset.myOrderCancel),
+        ),
+      );
   } catch (err) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
+  }
+};
+
+const cancelMyOrder = async (id) => {
+  if (!confirm("Cancel this order?")) return;
+  try {
+    const res = await apiPatch(`/order/online/cancel/${id}`, {}, true);
+    showToast(res.message || "Order canceled");
+    loadMyOrders($("my-order-search").value.trim());
+  } catch (err) {
+    showToast(err.message, "error");
   }
 };
 
@@ -943,7 +991,14 @@ const enrichCart = async (cart) => {
 
 const openOrderDetail = async (id, order = null) => {
   try {
-    const o = order || (await apiGet(`/order/online/${id}`, true)).data?.order;
+    let o = order;
+    if (!o) {
+      try {
+        o = (await apiGet(`/order/online/${id}`, true)).data?.order;
+      } catch (e) {
+        o = (await apiGet(`/order/${id}`, true)).data?.order;
+      }
+    }
     if (!o) throw new Error("Order not found");
     const map = await getBookMap();
     const cartItems = o.cart?.order || [];
@@ -984,7 +1039,7 @@ const delEntity = async (type, id) => {
   if (!confirm(`Delete this ${type}?`)) return;
   try {
     await apiDelete(`/${type}/${id}`, true);
-    showToast(`${capitalize(type)} deleted`);
+    showToast(`${capitalize(type)} deleted successfully`);
     if (type === "author")
       loadDashAuthors($("dash-author-search").value.trim());
     if (type === "category")
@@ -1141,12 +1196,13 @@ const openBookForm = async (id = null) => {
     try {
       if (id) {
         await apiPatch(`/book/${id}`, data, true);
-        showToast("Book updated");
+        showToast("Book updated successfully");
       } else {
         await apiPost("/book/add", data, true);
-        showToast("Book created");
+        showToast("Book created successfully");
       }
       $("entity-modal").classList.add("hidden");
+      bookCache = null;
       loadDashBooks($("dash-book-search").value.trim());
       loadBooks();
     } catch (err) {
@@ -1208,10 +1264,10 @@ const openEntityForm = async (type, id = null) => {
     try {
       if (id) {
         await apiPatch(`/${type}/${id}`, data, true);
-        showToast(`${meta.title} updated`);
+        showToast(`${meta.title} updated successfully`);
       } else {
         await apiPost(`/${type}/add`, data, true);
-        showToast(`${meta.title} created`);
+        showToast(`${meta.title} created successfully`);
       }
       $("entity-modal").classList.add("hidden");
       if (type === "author")
@@ -1258,7 +1314,7 @@ const openCustomerForm = async () => {
     const data = Object.fromEntries(new FormData(form));
     try {
       await apiPost("/customer/add", data, true);
-      showToast("Customer created");
+      showToast("Customer created successfully");
       $("entity-modal").classList.add("hidden");
       loadDashCustomers($("dash-customer-search").value.trim());
     } catch (err) {
@@ -1337,7 +1393,7 @@ const posCheckout = async () => {
       true,
     );
     $("pos-msg").className = "msg success";
-    $("pos-msg").textContent = "Sale completed!";
+    $("pos-msg").textContent = "Sale completed successfully";
     state.posCart = null;
     state.cart = null;
     $("pos-cust-name").value = "";
@@ -1346,7 +1402,7 @@ const posCheckout = async () => {
     $("pos-note").value = "";
     renderPosFromCart();
     loadBooks();
-    showToast("Sale Done!");
+    showToast("Sale completed successfully");
   } catch (err) {
     $("pos-msg").className = "msg error";
     $("pos-msg").textContent = err.message;
@@ -1485,7 +1541,7 @@ const handleSignup = async (e) => {
       return;
     }
     if (password !== $("signup-confirm").value) {
-      msg.textContent = "Passwords do not match!";
+      msg.textContent = "Passwords do not match";
       return;
     }
     await apiPost("/auth/signup", {
@@ -1496,7 +1552,7 @@ const handleSignup = async (e) => {
       confirmationPassword: password,
     });
     msg.className = "msg success";
-    msg.textContent = "Account created! Login with it now.";
+    msg.textContent = "Account created successfully. Login with it now.";
     setTimeout(() => setAuthTab("login"), 700);
     e.target.reset();
   } catch (err) {
@@ -1530,7 +1586,7 @@ const handleForgot = async (e) => {
   msg.textContent = "";
   const newPassword = $("forgot-new").value;
   if (newPassword !== $("forgot-confirm").value) {
-    msg.textContent = "Passwords do not match!";
+    msg.textContent = "Passwords do not match";
     return;
   }
   try {
@@ -1625,7 +1681,7 @@ $("book-modal-add").addEventListener("click", async () => {
   const ok = await addToCart(currentBook._id, qty, "cart");
   if (ok) {
     $("book-modal-msg").className = "msg success";
-    $("book-modal-msg").textContent = "Added to cart!";
+    $("book-modal-msg").textContent = "Added to cart";
     updateCartBadge();
     $("book-modal").classList.add("hidden");
   }

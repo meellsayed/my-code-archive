@@ -21,7 +21,7 @@ router.delete(
 );
 // router.patch(
 //   "/:id",
-//   authentication(),
+//    authentication(),
 //   authorization([roleTypes.admin, roleTypes.staff]),
 //   customerServices.updateOne,
 // );
