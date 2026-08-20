@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as registrationService from "./services/registration.service.js";
 import * as loginService from "./services/login.service.js";
+import * as profileService from "./services/profile.service.js";
 
 import { validation } from "../../middlewares/validation.middleware.js";
 import * as validators from "./auth.validation.js";
@@ -32,5 +33,8 @@ router.get(
   "/forget-password/:forgetPasswordToken",
   loginService.forgetPassword,
 ); // post
+
+router.get("/profile", authentication(), profileService.getProfile);
+router.patch("/profile", authentication(), profileService.updateProfile);
 
 export default router;

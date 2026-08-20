@@ -59,13 +59,14 @@ export const signup = asyncHandler(async (req, res, next) => {
   });
 
   // Link the new account to a Customer record (reuse by phone if exists)
+  let message = "Account created successfully";
   let customer = await dbService.findOne({
     model: customerModel,
     filter: { phone },
   });
   if (customer) {
     customer.type = customerTypes.onlineAndBranch;
-    let message = "Welcome back branch customer";
+    message = "Welcome back branch customer";
     await customer.save();
   }
 

@@ -2,7 +2,7 @@ import mongoose, { model, Schema, Types } from "mongoose";
 
 const orderSchema = new Schema({
   book: { type: Types.ObjectId, ref: "Book", required: true },
-  price: { type: Number, required: true },
+  price: { type: Number },
   quantity: { type: Number, default: 1, min: 1 },
 });
 

@@ -59,6 +59,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
       cart.items.push({
         book: id,
         quantity,
+        price: book.price,
       });
     }
 
@@ -73,7 +74,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
   const data = {
     user: userId,
     createdBy: userId,
-    items: [{ book: id, quantity }],
+    items: [{ book: id, quantity, price: book.price }],
     isStaff: isStaffCart,
   };
 
