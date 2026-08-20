@@ -64,37 +64,59 @@
 
       <!-- ============ CART ============ -->
       <section id="view-cart" class="view">
-        <h2>Your Cart</h2>
-        <div id="cart-items" class="cart-items"></div>
-        <div id="cart-summary" class="card cart-summary hidden">
-          <p>Total: <strong id="cart-total">0 EGP</strong></p>
-          <div id="customer-fields" class="customer-fields hidden">
-            <h3>Customer details (sale)</h3>
-            <input id="cust-name" type="text" placeholder="Customer name" />
-            <input id="cust-phone" type="text" placeholder="Customer phone" />
-            <input
-              id="cust-address"
-              type="text"
-              placeholder="Customer address"
-            />
-            <select id="cust-gender">
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-            <select id="cust-type">
-              <option value="branch">Branch</option>
-              <option value="online">Online</option>
-              <option value="onlineAndBranch">Online & Branch</option>
-            </select>
+        <div class="cart-layout">
+          <div class="cart-left">
+            <div class="section-head">
+              <h2>Your Cart</h2>
+              <span class="section-sub" id="cart-head-sub"></span>
+            </div>
+            <div id="cart-items" class="cart-items"></div>
           </div>
-          <input
-            id="checkout-address"
-            type="text"
-            placeholder="Delivery address"
-          />
-          <input id="checkout-note" type="text" placeholder="Note (optional)" />
-          <button id="btn-buy" class="btn primary">Buy Now</button>
-          <p id="cart-msg" class="msg"></p>
+          <aside class="cart-right">
+            <div id="cart-summary" class="card cart-summary hidden">
+              <h3>Order Summary</h3>
+              <div class="summary-row">
+                <span>Items</span>
+                <strong id="cart-count">0</strong>
+              </div>
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <strong id="cart-subtotal">0 EGP</strong>
+              </div>
+              <hr />
+              <div class="summary-row total">
+                <span>Total</span>
+                <strong id="cart-total">0 EGP</strong>
+              </div>
+              <div id="customer-fields" class="customer-fields hidden">
+                <h3>Customer details (sale)</h3>
+                <input id="cust-name" type="text" placeholder="Customer name" />
+                <input id="cust-phone" type="text" placeholder="Customer phone" />
+                <input
+                  id="cust-address"
+                  type="text"
+                  placeholder="Customer address"
+                />
+                <select id="cust-gender">
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+                <select id="cust-type">
+                  <option value="branch">Branch</option>
+                  <option value="online">Online</option>
+                  <option value="onlineAndBranch">Online & Branch</option>
+                </select>
+              </div>
+              <input
+                id="checkout-address"
+                type="text"
+                placeholder="Delivery address"
+              />
+              <input id="checkout-note" type="text" placeholder="Note (optional)" />
+              <button id="btn-buy" class="btn primary btn-lg">Buy Now</button>
+              <p id="cart-msg" class="msg"></p>
+            </div>
+          </aside>
         </div>
       </section>
 

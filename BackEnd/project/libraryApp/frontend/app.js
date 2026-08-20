@@ -357,26 +357,43 @@ const changeCartQty = async (bookId, delta) => {
 const renderCart = () => {
   const wrap = $("cart-items");
   const items = (state.cart?.items || []).filter((i) => (i.quantity ?? 0) > 0);
-  if (!items.length) {
-    wrap.innerHTML =
-      '<div class="empty-state"><p class="msg">Your cart is empty.</p></div>';
+  $("cart-head-sub").textContent = items.length
+    ? `${items.length} item${items.length > 1 ? "s" : ""} in your cart`
+    : "";
+  $("cart-count").textContent = items.reduce((s, i) => s + (i.quantity ?? 0), 0);
+  if (items.length === 0) {
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+        <p class="msg">Your cart is empty.</p>
+        <button class="btn primary" data-empty-to-store>Browse Books</button>
+      </div>`;
     $("cart-summary").classList.add("hidden");
     updateCartBadge();
+    wrap.querySelector("[data-empty-to-store]")?.addEventListener("click", () =>
+      showView("store"),
+    );
     return;
   }
+  const total = items.reduce(
+    (s, i) => s + (i.book?.price ?? 0) * i.quantity,
+    0,
+  );
   wrap.innerHTML = items
     .map(
       (item) => `
       <div class="cart-item">
+        ${coverImg(item.book?.cover, "cart-cover")}
         <div class="info">
           <h4>${escapeHTML(item.book?.title || "Unknown book")}</h4>
-          <span>${formatPrice(item.book?.price ?? 0)} each</span>
+          <span class="cart-author">${escapeHTML(item.book?.author?.name || "Unknown author")}</span>
+          <span class="cart-unit-price">${formatPrice(item.book?.price ?? 0)} each</span>
         </div>
         <div class="right">
           <div class="stepper">
-            <button data-qty-minus="${item.book?._id}">−</button>
+            <button data-qty-minus="${item.book?._id}" ${item.quantity <= 1 ? "disabled" : ""}>−</button>
             <span>${item.quantity}</span>
-            <button data-qty-plus="${item.book?._id}">+</button>
+            <button data-qty-plus="${item.book?._id}" ${(item.quantity ?? 0) >= (item.book?.quantity ?? 0) ? "disabled" : ""}>+</button>
           </div>
           <span class="line-total">${formatPrice((item.book?.price ?? 0) * item.quantity)}</span>
           <button class="btn ghost small" data-remove-book="${item.book?._id}">Remove</button>
@@ -401,10 +418,7 @@ const renderCart = () => {
     .forEach((b) =>
       b.addEventListener("click", () => changeCartQty(b.dataset.qtyPlus, 1)),
     );
-  const total = items.reduce(
-    (s, i) => s + (i.book?.price ?? 0) * i.quantity,
-    0,
-  );
+  $("cart-subtotal").textContent = formatPrice(total);
   $("cart-total").textContent = formatPrice(total);
   $("cart-summary").classList.remove("hidden");
   $("customer-fields").classList.toggle("hidden", !isStaff());
@@ -982,12 +996,12 @@ const getBookTitle = async (id) => {
 const enrichCart = async (cart) => {
   if (!cart?.items?.length) return cart;
   const map = await getBookMap();
-  cart.items = cart.items.map((it) => {
-    if (it.book && typeof it.book === "object" && it.book.title) return it;
-    const book = map.get(String(it.book?._id || it.book));
-    if (book) it.book = book;
-    return it;
-  });
+  cart.items = cart.items
+    .map((it) => {
+      const book = map.get(String(it.book?._id || it.book));
+      return book ? { ...it, book } : it;
+    })
+    .filter((it) => (it.quantity ?? 0) > 0);
   return cart;
 };
 

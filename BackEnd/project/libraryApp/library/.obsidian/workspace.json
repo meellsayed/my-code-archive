@@ -139,7 +139,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "افكار.md",
+                "file": "تاسكات مشروع.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -154,7 +154,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "افكار"
+              "title": "تاسكات مشروع"
             }
           }
         ],
@@ -358,10 +358,10 @@
       "templater-obsidian:Templater": false
     }
   },
-  "active": "ea9873f1b63cab1b",
+  "active": "77d7bcf6c3372634",
   "lastOpenFiles": [
-    "db/relations in Collections.md",
     "افكار.md",
+    "db/relations in Collections.md",
     "تاسكات مشروع.md",
     "db/models/Publisher  ====.md",
     "db/models/Customer.md",
