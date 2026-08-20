@@ -30,3 +30,8 @@ export const cloudinaryConnect = async () => {
 };
 
 export default cloudinary;
+
+// router.post("/image", authentication(), singleUpload("cover"), asyncHandler(async (req, res) => {
+//   const result = await uploadBuffer({ buffer: req.file.buffer, folder: "libraryApp/books" });
+//   return successResponse({ res, data: result });
+// }));

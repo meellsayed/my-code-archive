@@ -19,14 +19,17 @@ const uploadMemory = multer({
   },
 });
 
+export let upload = {};
+
 // single file under the given field name, e.g. upload.fields({ name: "cover" })
-export const singleUpload = (field = "image") => uploadMemory.single(field);
+upload.singleUpload = (field = "image") => uploadMemory.single(field);
 
 // multiple files under the same field name (max `maxCount`)
-export const multipleUpload = (field = "images", maxCount = 5) =>
+upload.multipleUpload = (field = "images", maxCount = 5) =>
   uploadMemory.array(field, maxCount);
 
 // multiple named fields at once, e.g. multerFields([{ name: "cover", maxCount: 1 }])
-export const multerFields = (fields = []) => uploadMemory.fields(fields);
+upload.multerFields = (fields = []) => uploadMemory.fields(fields);
 
 export const MAX_UPLOAD_SIZE = MAX_FILE_SIZE;
+export default upload
