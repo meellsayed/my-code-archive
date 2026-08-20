@@ -5,6 +5,7 @@ import {
   authorization,
 } from "../../middlewares/auth.middleware.js";
 import { roleTypes } from "../../DB/models/User.model.js";
+import upload from "../../utils/uploads/multerUpload.js";
 const router = Router();
 
 router.post(
@@ -13,6 +14,14 @@ router.post(
   authorization([roleTypes.admin, roleTypes.staff]),
   bookServices.addOne,
 );
+router.post(
+  "/cover/:id",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  upload.singleUpload("cover"), 
+  bookServices.cover,
+); // book id
+
 router.patch(
   "/:id",
   authentication(),

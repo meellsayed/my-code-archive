@@ -95,9 +95,10 @@ const statusBadge = (status = "") =>
 const authHeaders = () => ({ authorization: `Bearer ${state.token}` });
 
 const api = async (path, opts = {}, useAuth = false, retried = false) => {
+  const isForm = opts.body instanceof FormData;
   const res = await fetch(API + path, {
     headers: {
-      "Content-Type": "application/json",
+      ...(isForm ? {} : { "Content-Type": "application/json" }),
       ...(useAuth ? authHeaders() : {}),
     },
     ...opts,
@@ -144,6 +145,8 @@ const apiPatch = (path, body = {}, useAuth = false) =>
   api(path, { method: "PATCH", body: JSON.stringify(body) }, useAuth);
 const apiDelete = (path, useAuth = false) =>
   api(path, { method: "DELETE" }, useAuth);
+const apiUpload = (path, formData, useAuth = false) =>
+  api(path, { method: "POST", body: formData }, useAuth);
 
 // ================= views / nav =================
 const updateCartBadge = () => {
@@ -1708,7 +1711,8 @@ const renderProfileForm = (wrap, user) => {
           <option value="female" ${user.gender === "female" ? "selected" : ""}>Female</option>
         </select>
       </label>
-      <label>Avatar URL<input name="image" placeholder="https://..." value="${escapeHTML(user.image || "")}" /></label>
+      <label>Avatar Image<input type="file" name="avatarFile" accept="image/png,image/jpeg,image/webp,image/gif" /></label>
+      <label>Avatar URL<input name="image" placeholder="https://... (optional)" value="${escapeHTML(user.image || "")}" /></label>
       <div class="profile-actions">
         <button type="submit" class="btn primary">Save Changes</button>
         <button type="button" class="btn ghost" id="btn-cancel-profile">Cancel</button>
@@ -1723,20 +1727,33 @@ const renderProfileForm = (wrap, user) => {
     msg.className = "msg";
     msg.textContent = "";
     const fd = new FormData(e.target);
+    const avatarFile = fd.get("avatarFile");
+    if (avatarFile && avatarFile.size && !avatarFile.type.startsWith("image/")) {
+      msg.className = "msg error";
+      msg.textContent = "Please select an image file";
+      return;
+    }
     const body = {
       username: String(fd.get("username") || "").trim(),
       phone: String(fd.get("phone") || "").trim(),
       gender: String(fd.get("gender") || "male"),
       address: String(fd.get("address") || "").trim() || undefined,
-      image: String(fd.get("image") || "").trim() || undefined,
     };
     if (!body.username || !body.phone) {
+      msg.className = "msg error";
       msg.textContent = "Username and phone are required";
       return;
     }
     const btn = e.target.querySelector('button[type="submit"]');
     btn.disabled = true;
     try {
+      const profileFd = new FormData();
+      if (avatarFile && avatarFile.size) {
+        profileFd.append("image", avatarFile);
+        const uploadRes = await apiUpload("/auth/profile/image", profileFd, true);
+        body.image = uploadRes?.data?.image || uploadRes?.data?.user?.image;
+      }
+      body.image = body.image || String(fd.get("image") || "").trim() || undefined;
       const { data } = await apiPatch("/auth/profile", body, true);
       const saved = data?.user || { ...state.user, ...body };
       state.user = saved;

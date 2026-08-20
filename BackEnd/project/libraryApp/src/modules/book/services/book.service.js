@@ -6,7 +6,11 @@ import { bookModel } from "../../../DB/models/Book.model.js";
 import { authorModel } from "../../../DB/models/Author.model.js";
 import { categoryModel } from "../../../DB/models/Category.model.js";
 import { filterObject } from "../../../utils/utils.js";
-
+import uploadBuffer from "../../../utils/uploads/cloudinaryUpload.js";
+const publicIdFromUrl = (url = "") => {
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+)$/);
+  return match ? match[1].replace(/\.[a-z0-9]+$/i, "") : "";
+};
 export const addOne = asyncHandler(async (req, res, next) => {
   const {
     title,
@@ -66,7 +70,6 @@ export const addOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, statusCode: 201, data: { book: book } });
 });
-
 export const updateOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const {
@@ -123,7 +126,32 @@ export const updateOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, statusCode: 201, data: { book: book } });
 });
+export const cover = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  if (!req.file) return next(new Error("No image uploaded", { cause: 404 }));
+  const book = await dbService.findById({ model: bookModel, id });
+  if (!book) return next(new Error("Book not found", { cause: 404 }));
 
+  if (book.cover) {
+    const oldPublicId = publicIdFromUrl(book.cover);
+    if (oldPublicId) {
+      await deleteUpload(oldPublicId).catch(() => {});
+    }
+  }
+  const uploaded = await uploadBuffer({
+    buffer: req.file.buffer,
+    folder: `${process.env.APP_NAME}/books/${id}`,
+    publicId: "cover",
+  });
+
+  book.cover = uploaded.secure_url;
+  await book.save();
+  return successResponse({
+    res,
+    data: { book, cover: uploaded.secure_url },
+    message: "Cover image updated successfully",
+  });
+});
 // { id } = req.params;
 export const deleteOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
@@ -145,7 +173,6 @@ export const deleteOne = asyncHandler(async (req, res, next) => {
     message: "Book deleted successfully",
   });
 });
-
 // { id } = req.params;
 export const getOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
@@ -175,7 +202,6 @@ export const getOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, data: { book } });
 });
-
 // { search, category, publisher, sort, page = 1, limit = 10 } = req.query
 export const getAll = asyncHandler(async (req, res, next) => {
   const { search, category, publisher, sort, page = 1, limit = 10 } = req.query;

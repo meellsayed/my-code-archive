@@ -32,4 +32,4 @@ upload.multipleUpload = (field = "images", maxCount = 5) =>
 upload.multerFields = (fields = []) => uploadMemory.fields(fields);
 
 export const MAX_UPLOAD_SIZE = MAX_FILE_SIZE;
-export default upload
+export default upload;

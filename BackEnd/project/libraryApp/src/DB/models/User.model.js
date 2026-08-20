@@ -37,12 +37,11 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
   this.password = await generateHash({ plainText: this.password, salt: 10 });
-  next;
 });
 
 export const userModel = mongoose.models.User || model("User", userSchema);

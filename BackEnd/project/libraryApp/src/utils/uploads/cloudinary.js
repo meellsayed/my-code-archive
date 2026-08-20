@@ -1,10 +1,8 @@
 import { v2 as cloudinary } from "cloudinary";
-
-const {
-  CLOUDINARY_CLOUD_NAME,
-  CLOUDINARY_API_KEY,
-  CLOUDINARY_API_SECRET,
-} = process.env;
+import dotenv from "dotenv";
+dotenv.config({ path: "./src/config/.env.dev" });
+const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } =
+  process.env;
 
 cloudinary.config({
   cloud_name: CLOUDINARY_CLOUD_NAME,
@@ -20,6 +18,7 @@ cloudinary.config({
 export const cloudinaryConnect = async () => {
   try {
     const result = await cloudinary.api.ping();
+    // console.log("done");
     return result;
   } catch (error) {
     console.error("Cloudinary connection failed:", error.message);
