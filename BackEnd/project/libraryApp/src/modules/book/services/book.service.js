@@ -1,4 +1,8 @@
-import { userModel } from "../../../DB/models/User.model.js";
+import {
+  roleTypes,
+  userModel,
+  userSelect,
+} from "../../../DB/models/User.model.js";
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { successResponse } from "../../../utils/response/success.response.js";
 import * as dbService from "../../../DB/db.service.js";
@@ -11,6 +15,12 @@ const publicIdFromUrl = (url = "") => {
   const match = url.match(/\/upload\/(?:v\d+\/)?(.+)$/);
   return match ? match[1].replace(/\.[a-z0-9]+$/i, "") : "";
 };
+const bookPopulate = [
+  { path: "categories", select: "name isDeleted" },
+  { path: "author", select: "name image isDeleted" },
+];
+const bookSelect = "-costPrice -quantity -minQuantity -updatedBy -createdBy";
+
 export const addOne = asyncHandler(async (req, res, next) => {
   const {
     title,
@@ -42,17 +52,6 @@ export const addOne = asyncHandler(async (req, res, next) => {
     createdBy: req.user._id,
   };
   bookData = filterObject(bookData);
-  const populate = [
-    {
-      path: "categories",
-      select: "name",
-    },
-    {
-      path: "author",
-      select: "name",
-    },
-  ];
-
   if (
     (await dbService.findOne({
       model: bookModel,
@@ -102,16 +101,6 @@ export const updateOne = asyncHandler(async (req, res, next) => {
     updatedBy: req.user._id,
   };
   data = filterObject(data);
-  const populate = [
-    {
-      path: "categories",
-      select: "name",
-    },
-    {
-      path: "author",
-      select: "name",
-    },
-  ];
 
   const book = await dbService.findOneAndUpdate({
     model: bookModel,
@@ -180,20 +169,8 @@ export const getOne = asyncHandler(async (req, res, next) => {
   const book = await dbService.findById({
     model: bookModel,
     id,
-    populate: [
-      {
-        path: "author",
-        select: "name image",
-      },
-      {
-        path: "categories",
-        select: "name",
-      },
-      {
-        path: "createdBy",
-        select: "username image email",
-      },
-    ],
+    populate: bookPopulate,
+    select: bookSelect,
   });
 
   if (!book || book.isDeleted) {
@@ -275,16 +252,8 @@ export const getAll = asyncHandler(async (req, res, next) => {
     sort: sortQuery,
     skip,
     limit: Number(limit),
-    populate: [
-      {
-        path: "categories",
-        select: "name",
-      },
-      {
-        path: "author",
-        select: "name image",
-      },
-    ],
+    populate: bookPopulate,
+    select: bookSelect,
   });
 
   return successResponse({ res, data: { books } });

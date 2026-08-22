@@ -53,6 +53,7 @@ const coverImg = (url, cls = "book-cover") =>
     : `<div class="${cls} placeholder"></div>`;
 
 const stockBadge = (qty, minQty) => {
+  if (qty == null) return `<span class="stock in">● Available</span>`;
   if (qty <= 0) return `<span class="stock out">● Out of stock</span>`;
   if (minQty && qty <= minQty)
     return `<span class="stock low">● Low stock (${qty})</span>`;
@@ -218,7 +219,7 @@ const renderBooks = (books) => {
   grid.innerHTML = books
     .map(
       (b) => `
-      <div class="book-card ${b.quantity > 0 ? "" : "out-of-stock"}" data-id="${b._id}">
+      <div class="book-card" data-id="${b._id}">
         ${coverImg(b.cover, "book-cover")}
         <h3>${escapeHTML(b.title)}</h3>
         <p class="author">${escapeHTML(b.author?.name || "Unknown author")}</p>
@@ -230,8 +231,8 @@ const renderBooks = (books) => {
           ${b.availableToBorrow ? `<span class="stock borrow">● Borrowable</span>` : ""}
         </div>
         <button class="btn primary small add-to-cart-btn"
-          data-id="${b._id}" data-title="${escapeHTML(b.title)}" ${b.quantity > 0 ? "" : "disabled"}>
-          ${b.quantity > 0 ? "Add to Cart" : "Out of Stock"}
+          data-id="${b._id}" data-title="${escapeHTML(b.title)}">
+          Add to Cart
         </button>
       </div>`,
     )
@@ -293,8 +294,8 @@ const openBook = async (id, focusBtn = null) => {
     $("book-modal-desc").textContent = book.description || "No description.";
     $("book-modal-msg").textContent = "";
     const addBtn = $("book-modal-add");
-    addBtn.disabled = book.quantity <= 0;
-    addBtn.textContent = book.quantity > 0 ? "Add to Cart" : "Out of Stock";
+    addBtn.disabled = false;
+    addBtn.textContent = "Add to Cart";
     $("book-modal").classList.remove("hidden");
     if (focusBtn) focusBtn.focus();
   } catch (err) {
@@ -501,10 +502,14 @@ const loadDashStats = async () => {
     ]);
     const bookList = books.data?.books || [];
     const orderList = orders.data?.orders || [];
-    const totalStock = bookList.reduce((s, b) => s + (b.quantity || 0), 0);
-    const lowStock = bookList.filter(
-      (b) => b.minQuantity && b.quantity <= b.minQuantity,
-    ).length;
+    const hasQty = bookList.some((b) => b.quantity != null);
+    const totalStock = hasQty
+      ? bookList.reduce((s, b) => s + (b.quantity || 0), 0)
+      : "—";
+    const lowStock = hasQty
+      ? bookList.filter((b) => b.minQuantity && b.quantity <= b.minQuantity)
+          .length
+      : "—";
     const revenue = orderList.reduce(
       (s, o) => s + (o.status !== "canceled" ? o.total || 0 : 0),
       0,
@@ -1002,7 +1007,16 @@ const enrichCart = async (cart) => {
   cart.items = cart.items
     .map((it) => {
       const book = map.get(String(it.book?._id || it.book));
-      return book ? { ...it, book } : it;
+      if (!book) return it;
+      const base = typeof it.book === "object" ? it.book : {};
+      return {
+        ...it,
+        book: {
+          ...book,
+          ...base,
+          quantity: base.quantity ?? book.quantity,
+        },
+      };
     })
     .filter((it) => (it.quantity ?? 0) > 0);
   return cart;
@@ -1568,6 +1582,8 @@ const handleSignup = async (e) => {
     const email = $("signup-email").value.trim();
     const phone = $("signup-phone").value.trim();
     const password = $("signup-password").value;
+    const gender = $("signup-gender")?.value || "male";
+    const address = $("signup-address")?.value.trim() || undefined;
     if (!username || !email || !phone || !password) {
       msg.textContent = "All fields are required";
       return;
@@ -1586,6 +1602,8 @@ const handleSignup = async (e) => {
       phone,
       password,
       confirmationPassword: password,
+      gender,
+      address,
     });
     msg.className = "msg success";
     msg.textContent = "Account created successfully. Login with it now.";
@@ -1958,7 +1976,7 @@ const posSearch = async (search = "") => {
         : books
             .map(
               (b) => `
-        <div class="pos-book ${b.quantity > 0 ? "" : "out-of-stock"}" data-id="${b._id}">
+        <div class="pos-book" data-id="${b._id}">
           ${coverImg(b.cover, "pos-cover")}
           <h4>${escapeHTML(b.title)}</h4>
           <p class="price">${formatPrice(b.price ?? 0)}</p>

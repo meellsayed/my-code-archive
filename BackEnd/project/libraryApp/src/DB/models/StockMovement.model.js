@@ -4,6 +4,7 @@ const stockMovementSchema = new Schema(
   {
     book: { type: Types.ObjectId, ref: "Book" },
     seller: { type: Types.ObjectId, ref: "User" },
+    type: { type: String, enum: ["in", "out"] },
     customerType: {
       type: String,
       enum: ["User", "Customer"],

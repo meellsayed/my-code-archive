@@ -10,6 +10,7 @@ import categoryRouter from "./modules/category/category.controller.js";
 import orderRouter from "./modules/order/order.controller.js";
 import customerRouter from "./modules/customer/customer.controller.js";
 import cartRouter from "./modules/cart/cart.controller.js";
+import stockRouter from "./modules/stock/stock.controller.js";
 /**
  * @param {import('express').Application} app
  * @param {typeof import('express')} express
@@ -33,6 +34,7 @@ const bootstrap = (app, express) => {
   app.use("/order", orderRouter);
   app.use("/customer", customerRouter);
   app.use("/cart", cartRouter);
+  app.use("/stock", stockRouter);
 
   app.use(globalErrorHandling);
 };

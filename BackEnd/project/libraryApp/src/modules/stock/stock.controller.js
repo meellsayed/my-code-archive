@@ -1,7 +1,5 @@
 import { Router } from "express";
-import * as branchServices from "./services/branch.service.js";
-import * as onlineServices from "./services/online.service.js";
-import * as globalServices from "./services/global.service.js";
+import * as stockServices from "./services/stock.service.js";
 import {
   authentication,
   authorization,
@@ -14,6 +12,13 @@ router.get(
   "",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
-  globalServices.getAll,
+  stockServices.getBooks,
 );
+router.get (
+   "/book/:id",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  stockServices.getBookMovement,
+
+)
 export default router;
