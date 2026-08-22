@@ -26,6 +26,7 @@ const customerSchema = new Schema(
       enum: Object.values(customerTypes),
       default: customerTypes.branch,
     },
+    user: { type: Types.ObjectId, ref: "User" },
     createdBy: { type: Types.ObjectId, ref: "User" },
   },
   { timestamps: true },

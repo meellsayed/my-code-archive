@@ -1160,6 +1160,9 @@ const openBookForm = async (id = null) => {
     field("Pages", "pages", "number", book.pages, "") +
     field("Publisher", "publisher", "text", book.publisher, "e.g. Nile Books") +
     field("Cover URL", "cover", "text", book.cover, "https://...") +
+    `<label>Cover image
+        <input type="file" name="coverFile" accept="image/png,image/jpeg,image/webp,image/gif" />
+      </label>` +
     `<label>Description
         <textarea name="description">${escapeHTML(book.description || "")}</textarea>
       </label>` +
@@ -1196,6 +1199,7 @@ const openBookForm = async (id = null) => {
   form.onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(form);
+    const coverFile = fd.get("coverFile");
     const data = Object.fromEntries(fd);
     data.categories = fd.getAll("categories");
     data.availableToBorrow = form.elements["availableToBorrow"].checked;
@@ -1212,13 +1216,26 @@ const openBookForm = async (id = null) => {
     if (!data.title) return showToast("Title is required", "error");
     if (!data.author) return showToast("Please select an author", "error");
     if (!data.categories.length) delete data.categories;
+    if (coverFile && coverFile.size) {
+      if (!coverFile.type.startsWith("image/"))
+        return showToast("Please select an image file", "error");
+      data.cover = undefined;
+    }
     try {
+      let bookId = id;
       if (id) {
         await apiPatch(`/book/${id}`, data, true);
         showToast("Book updated successfully");
       } else {
-        await apiPost("/book/add", data, true);
+        const created = await apiPost("/book/add", data, true);
+        bookId = created?.data?.book?._id;
         showToast("Book created successfully");
+      }
+      if (coverFile && coverFile.size) {
+        const cf = new FormData();
+        cf.append("cover", coverFile);
+        await apiUpload(`/book/cover/${bookId}`, cf, true);
+        showToast("Cover uploaded successfully");
       }
       $("entity-modal").classList.add("hidden");
       bookCache = null;

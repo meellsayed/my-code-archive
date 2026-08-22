@@ -87,13 +87,22 @@ export const getAll = asyncHandler(async (req, res, next) => {
     case "online":
       filter.type = customerTypes.online;
       break;
+    case "onlineAndBranch":
+      filter.type = customerTypes.onlineAndBranch;
     default:
       break;
   }
-
+  const populate = () => {
+    if (type == "onlineAndBranch") {
+      return [
+        {path:"user",select :"username email image phone"}
+      ]
+    }
+  };
   const customers = await dbService.find({
     model: customerModel,
     filter,
+    populate: populate(),
   });
   const customerCount = await customerModel.countDocuments(filter);
   //   const users = await dbService.find({

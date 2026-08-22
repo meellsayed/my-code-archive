@@ -12,6 +12,7 @@ import sendEmailEvent, {
 } from "../../../utils/events/sendEmail.event.js";
 import { generateOTP } from "../../../utils/security/otp.js";
 import { compareHash, generateHash } from "../../../utils/security/hash.js";
+import { customerModel } from "../../../DB/models/Customer.model.js";
 
 /**
  * @param {Error & {cause?: number}} error
@@ -27,6 +28,7 @@ export const login = asyncHandler(async (req, res, next) => {
     return next(new Error("Enter email or phone", { cause: 400 }));
 
   let user = undefined;
+  let customer = undefined;
   if (email) {
     user = await dbService.findOne({
       model: userModel,
@@ -37,10 +39,20 @@ export const login = asyncHandler(async (req, res, next) => {
       model: userModel,
       filter: { phone, isDeleted: false },
     });
+    customer = await dbService.findOne({
+      model: customerModel,
+      filter: { phone },
+    });
   }
 
-  if (user == undefined)
+  if (!user) {
+    if (customer) {
+      return next(
+        new Error("You are branch customer please signup", { cause: 400 }),
+      );
+    }
     return next(new Error("Invalid email or phone", { cause: 404 }));
+  }
 
   if (!compareHash({ plainText: password, hashValue: user.password }))
     return next(new Error("Invalid password", { cause: 401 }));

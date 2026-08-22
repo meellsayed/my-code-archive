@@ -6,6 +6,7 @@ import { orderModel } from "../../../DB/models/Order.model.js";
 import { filterObject } from "../../../utils/utils.js";
 import { customerModel } from "../../../DB/models/Customer.model.js";
 import { userModel } from "../../../DB/models/User.model.js";
+import { stockMovementModel } from "../../../DB/models/StockMovement.model.js";
 
 const orderPopulate = [
   { path: "customer", select: "username phone address type gender" },
@@ -74,6 +75,17 @@ export const buyCart = asyncHandler(async (req, res, next) => {
     total += item.book.price * item.quantity;
     item.book.quantity -= item.quantity;
     item.price = item.book.price;
+    await dbService.create({
+      model: stockMovementModel,
+      data: {
+        book: item.book._id,
+        seller: sellerId,
+        customerType: "Customer",
+        customer: customerData._id,
+        quantity: item.quantity,
+        price: item.book.price,
+      },
+    });
     await item.save();
     await item.book.save();
   }

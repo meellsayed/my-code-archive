@@ -66,6 +66,7 @@ export const signup = asyncHandler(async (req, res, next) => {
   });
   if (customer) {
     customer.type = customerTypes.onlineAndBranch;
+    customer.user = user._id
     message = "Welcome back branch customer";
     await customer.save();
   }
