@@ -1,0 +1,8 @@
+node_modules
+frontend
+.git
+dist
+build
+coverage
+*.pdf
+library

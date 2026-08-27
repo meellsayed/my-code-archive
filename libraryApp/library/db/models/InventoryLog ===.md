@@ -1,0 +1,10 @@
+_id
+book
+type
+quantity
+beforeQuantity
+afterQuantity
+reference
+performedBy
+notes
+createdAt
