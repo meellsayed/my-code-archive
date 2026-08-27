@@ -20,6 +20,11 @@ router.get(
   authorization([roleTypes.admin, roleTypes.staff]),
   stockServices.getBookMovement,
 );
-
+router.post(
+  "/books/:id",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  stockServices.adjustStock,
+);
 
 export default router;

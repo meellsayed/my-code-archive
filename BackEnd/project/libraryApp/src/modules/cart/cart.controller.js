@@ -18,13 +18,13 @@ router.get(
   cartServices.getOne,
 );
 router.post(
-  "items/:bookId",
+  "/items/:bookId",
   validation(validators.addItem),
   authentication(),
   cartServices.addItem,
 );
 router.patch(
-  "items/:bookId/decrement",
+  "/items/:bookId/decrement",
   validation(validators.decrementItem),
   authentication(),
   cartServices.decrementItem,

@@ -220,13 +220,12 @@ export const getAll = asyncHandler(async (req, res, next) => {
   query.isDeleted = false;
 
   // Sorting
-  let sortQuery = { createdAt: -1 };
+  let sortQuery = { createdAt: -1, _id: -1 };
 
   if (sort == "price") {
-    sortQuery.price = 1;
-  }
-  if (sort == "-price") {
-    sortQuery.price = -1;
+    sortQuery = { price: 1, _id: 1 };
+  } else if (sort == "-price") {
+    sortQuery = { price: -1, _id: -1 };
   }
 
   // const books = await dbService.find({

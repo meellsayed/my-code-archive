@@ -131,4 +131,42 @@ export const getBookMovement = asyncHandler(async (req, res, next) => {
   return successResponse({ res, data });
 });
 
-// export const ge
+export const adjustStock = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const { quantity, type, note } = req.body;
+
+  const book = await dbService.findOne({
+    model: bookModel,
+    filter: { _id: id, isDeleted: false },
+  });
+  if (!book) return next(new Error("Book not found", { cause: 404 }));
+
+  const qty = Number(quantity);
+  if (!qty || qty <= 0)
+    return next(new Error("Quantity must be greater than 0", { cause: 400 }));
+  if (!["in", "out"].includes(type))
+    return next(new Error("Invalid movement type", { cause: 400 }));
+
+  const delta = type === "in" ? qty : -qty;
+  const newQty = Math.max(0, (book.quantity || 0) + delta);
+
+  const movement = await dbService.create({
+    model: stockMovementModel,
+    data: {
+      book: id,
+      seller: req.user._id,
+      type,
+      quantity: qty,
+      note: note || "",
+      price: book.price || 0,
+    },
+  });
+
+  await dbService.updateOne({
+    model: bookModel,
+    filter: { _id: id },
+    data: { quantity: newQty },
+  });
+
+  return successResponse({ res, statusCode: 201, data: { movement, quantity: newQty } });
+});

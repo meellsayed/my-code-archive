@@ -143,7 +143,7 @@ export const getActive = asyncHandler(async (req, res, next) => {
     model: cartModel,
     filter: { user: req.user._id, done: false },
   });
-  if (!cart) return next(new Error("Cart not found", { cause: 404 }));
+  if (!cart) return successResponse({ res, data: { cart: null } });
 
   if (req.user.role === roleTypes.customer) {
     if (String(req.user._id) != String(cart.user))

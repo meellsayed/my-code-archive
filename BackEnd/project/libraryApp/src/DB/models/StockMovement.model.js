@@ -15,6 +15,7 @@ const stockMovementSchema = new Schema(
     },
     quantity: Number,
     price: Number,
+    note: String,
   },
   { timestamps: true },
 );
