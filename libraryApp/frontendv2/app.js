@@ -5,6 +5,13 @@ const API = "https://my-code-archive.onrender.com";
 
 
 const $ = (id) => document.getElementById(id);
+const debounce = (fn, ms = 300) => {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), ms);
+  };
+};
 const escapeHTML = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
@@ -547,7 +554,7 @@ const openBookForm = async (id = null) => {
       }
       if (coverFile && coverFile.size) {
         const cf = new FormData();
-        cf.append("file", coverFile);
+        cf.append("cover", coverFile);
         await apiUploadPut(`/api/v1/books/${bookId}/cover`, cf, true);
       }
       closeModal("entity-modal");
@@ -809,8 +816,10 @@ const loadStock = async (search = "") => {
   try {
     const res = await apiGet("/api/v1/stock/books?limit=500", true);
     const list = asList(res.data);
-    wrap.innerHTML = list.length
-      ? list
+    const term = search.trim().toLowerCase();
+    const filtered = term ? list.filter((b) => (b.title || "").toLowerCase().includes(term)) : list;
+    wrap.innerHTML = filtered.length
+      ? filtered
           .map(
             (b) => `<div class="dash-row stock-book" data-stock="${b._id}">${coverImg(b.cover)}<div class="info"><h4>${escapeHTML(b.title)}</h4><span>${stockBadge(b.quantity, b.minQuantity)}</span></div></div>`
           )
@@ -899,7 +908,7 @@ const submitProfile = async (e) => {
     const avatar = fd.get("profile-avatar-file");
     if (avatar && avatar.size) {
       const af = new FormData();
-      af.append("file", avatar);
+      af.append("image", avatar);
       await apiUploadPut("/api/v1/users/me/avatar", af, true);
     }
     await apiPatch("/api/v1/users/me", body, true);
@@ -1007,10 +1016,9 @@ const bindEvents = () => {
   };
 
   // store controls
-  let searchTimer;
-  $("search-input").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadBooks(e.target.value.trim()), 350); };
+  $("search-input").oninput = debounce((e) => loadBooks(e.target.value.trim()), 350);
   $("sort-select").onchange = () => loadBooks();
-  $("publisher-filter").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadBooks(), 350); };
+  $("publisher-filter").oninput = debounce(() => loadBooks(), 350);
   $("books-loadmore").onclick = () => loadBooks($("search-input").value.trim(), true);
   $("btn-buy").onclick = buyCart;
   $("profile-form").onsubmit = submitProfile;
@@ -1029,18 +1037,18 @@ const bindEvents = () => {
   $("btn-new-book").onclick = () => openBookForm();
   $("btn-new-author").onclick = () => openEntityForm("author");
   $("btn-new-category").onclick = () => openEntityForm("category");
-  $("dash-book-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashBooks(e.target.value.trim()), 300); };
-  $("dash-author-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashAuthors(e.target.value.trim()), 300); };
-  $("dash-category-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashCategories(e.target.value.trim()), 300); };
-  $("dash-customer-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashCustomers(e.target.value.trim()), 300); };
+  $("dash-book-search").oninput = debounce((e) => loadDashBooks(e.target.value.trim()), 300);
+  $("dash-author-search").oninput = debounce((e) => loadDashAuthors(e.target.value.trim()), 300);
+  $("dash-category-search").oninput = debounce((e) => loadDashCategories(e.target.value.trim()), 300);
+  $("dash-customer-search").oninput = debounce((e) => loadDashCustomers(e.target.value.trim()), 300);
   $("dash-customer-gender").onchange = () => loadDashCustomers();
   $("dash-customer-type").onchange = () => loadDashCustomers();
-  $("dash-order-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashOrders(e.target.value.trim()), 300); };
+  $("dash-order-search").oninput = debounce((e) => loadDashOrders(e.target.value.trim()), 300);
   $("dash-order-status").onchange = () => loadDashOrders();
-  $("dash-stock-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadStock(e.target.value.trim()), 300); };
-  $("pos-search-input").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => posSearch(e.target.value.trim()), 300); };
+  $("dash-stock-search").oninput = debounce((e) => loadStock(e.target.value.trim()), 300);
+  $("pos-search-input").oninput = debounce((e) => posSearch(e.target.value.trim()), 300);
   $("pos-checkout").onclick = posCheckout;
-  $("my-order-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadMyOrders(e.target.value.trim()), 300); };
+  $("my-order-search").oninput = debounce((e) => loadMyOrders(e.target.value.trim()), 300);
   $("my-order-status").onchange = () => loadMyOrders();
 };
 

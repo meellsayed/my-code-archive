@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="حيتان الكتب — متجر الكتب ومكتبة الإدارة" />
     <title>حيتان الكتب • Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -219,8 +223,9 @@
           <input name="email" placeholder="البريد الإلكتروني" />
           <input name="phone" placeholder="التليفون" />
           <input name="password" type="password" placeholder="كلمة المرور" />
+          <input name="confirmationPassword" type="password" placeholder="تأكيد كلمة المرور" />
           <select name="gender"><option value="male">ذكر</option><option value="female">أنثى</option></select>
-          <select name="role"><option value="customer"></select>
+          <input type="hidden" name="role" value="customer" />
           <button class="btn primary" type="submit">تسجيل</button>
           <p class="msg"></p>
         </form>
