@@ -129,6 +129,44 @@ const apiPatch = (p, b = {}, a = false) => api(p, { method: "PATCH", body: JSON.
 const apiDelete = (p, a = false) => api(p, { method: "DELETE" }, a);
 const apiUploadPut = (p, fd, a = false) => api(p, { method: "PUT", body: fd }, a);
 
+/* ===================== client cache (memory + localStorage) ===================== */
+const memCache = new Map();
+function cacheGet(key, ttl = 120000) {
+  const e = memCache.get(key);
+  if (e && Date.now() - e.ts < ttl) return e.val;
+  if (!e) {
+    try {
+      const raw = localStorage.getItem("lib:" + key);
+      if (raw) {
+        const val = JSON.parse(raw);
+        memCache.set(key, { val, ts: Date.now() - (ttl - 20000) });
+        return val;
+      }
+    } catch {}
+  }
+  return null;
+}
+function cacheSet(key, val, persist = false) {
+  memCache.set(key, { val, ts: Date.now() });
+  if (persist) {
+    try { localStorage.setItem("lib:" + key, JSON.stringify(val)); } catch {}
+  }
+}
+function cacheInvalidate(...keys) {
+  keys.forEach((k) => {
+    memCache.delete(k);
+    try { localStorage.removeItem("lib:" + k); } catch {}
+  });
+}
+async function cachedFetch(key, path, { ttl = 120000, persist = false, auth = false } = {}) {
+  const c = cacheGet(key, ttl);
+  if (c) return c;
+  const res = await apiGet(path, auth);
+  const val = asList(res.data);
+  cacheSet(key, val, persist);
+  return val;
+}
+
 /* ===================== toast / modal ===================== */
 const showToast = (msg, type = "") => {
   const t = document.createElement("div");
@@ -219,6 +257,18 @@ const loadBooks = async (search = "", append = false) => {
     state.bookPage = (state.bookPage || 1) + 1;
   }
   const grid = $("books-grid");
+  const isDefault = !append && !search && !state.activeCategory && !$("publisher-filter")?.value?.trim() && !$("sort-select")?.value;
+  if (isDefault) {
+    const cached = cacheGet("books-store", 60000);
+    if (cached) {
+      state.books = cached.items;
+      state.pagination = cached.pagination || {};
+      renderBooksGrid();
+      const lm = $("books-loadmore");
+      if (lm) lm.style.display = state.bookPage < (state.pagination?.totalPages || 1) ? "block" : "none";
+      return;
+    }
+  }
   if (!append) grid.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
   try {
     const params = new URLSearchParams();
@@ -235,6 +285,7 @@ const loadBooks = async (search = "", append = false) => {
     state.pagination = res.pagination;
     if (append) state.books = [...(state.books || []), ...books];
     else state.books = books;
+    if (isDefault) cacheSet("books-store", { items: books, pagination: res.pagination }, true);
     renderBooksGrid();
     const lm = $("books-loadmore");
     if (lm)
@@ -450,13 +501,12 @@ const buyCart = async () => {
 /* ===================== POS ===================== */
 const posSearch = async (q = "") => {
   try {
-    const params = new URLSearchParams();
-    if (q) params.set("search", q);
-    params.set("limit", "30");
-    const res = await apiGet("/api/v1/books?" + params.toString());
-    const books = asList(res.data);
-    $("pos-results").innerHTML = books.length
-      ? books
+    const all = await getBookMap();
+    const term = (q || "").trim().toLowerCase();
+    const books = term ? [...all.values()].filter((b) => (b.title || "").toLowerCase().includes(term)) : [...all.values()];
+    const list = books.slice(0, 30);
+    $("pos-results").innerHTML = list.length
+      ? list
           .map(
             (b) => `<div class="pos-card" data-pos="${b._id}">${coverImg(b.cover)}<h4>${escapeHTML(b.title)}</h4><span>${formatPrice(b.price)}</span></div>`
           )
@@ -490,6 +540,16 @@ const posCheckout = async () => {
 /* ===================== dashboard: books ===================== */
 const loadDashBooks = async (search = "") => {
   const wrap = $("dash-books-list");
+  if (!search) {
+    const cached = cacheGet("books-dash", 60000);
+    if (cached) {
+      wrap.innerHTML = cached.length
+        ? cached.map(dashBookRow).join("")
+        : '<p class="msg">لا كتب.</p>';
+      attachDashBookHandlers(wrap);
+      return;
+    }
+  }
   wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
   try {
     const params = new URLSearchParams();
@@ -497,32 +557,34 @@ const loadDashBooks = async (search = "") => {
     params.set("limit", "100");
     const res = await apiGet("/api/v1/books?" + params.toString());
     const books = asList(res.data);
+    if (!search) cacheSet("books-dash", books, true);
     wrap.innerHTML = books.length
-      ? books
-          .map(
-            (b) => `
-        <div class="dash-row">
-          ${coverImg(b.cover)}
-          <div class="info"><h4>${escapeHTML(b.title)}</h4>
-            <span>${escapeHTML(b.author?.name || "")} · ${formatPrice(b.price)} · ${stockBadge(b.quantity, b.minQuantity)}</span></div>
-          <div class="dash-actions">
-            <button class="btn ghost small" data-edit-book="${b._id}">تعديل</button>
-            ${isAdmin() ? `<button class="btn danger small" data-del-book="${b._id}">حذف</button>` : ""}
-          </div>
-        </div>`
-          )
-          .join("")
+      ? books.map(dashBookRow).join("")
       : '<p class="msg">لا كتب.</p>';
-    wrap.querySelectorAll("[data-edit-book]").forEach((b) => (b.onclick = () => openBookForm(b.dataset.editBook)));
-    wrap.querySelectorAll("[data-del-book]").forEach((b) => (b.onclick = () => delBook(b.dataset.delBook)));
+    attachDashBookHandlers(wrap);
   } catch (e) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
 };
+const dashBookRow = (b) => `
+  <div class="dash-row">
+    ${coverImg(b.cover)}
+    <div class="info"><h4>${escapeHTML(b.title)}</h4>
+      <span>${escapeHTML(b.author?.name || "")} · ${formatPrice(b.price)} · ${stockBadge(b.quantity, b.minQuantity)}</span></div>
+    <div class="dash-actions">
+      <button class="btn ghost small" data-edit-book="${b._id}">تعديل</button>
+      ${isAdmin() ? `<button class="btn danger small" data-del-book="${b._id}">حذف</button>` : ""}
+    </div>
+  </div>`;
+const attachDashBookHandlers = (wrap) => {
+  wrap.querySelectorAll("[data-edit-book]").forEach((b) => (b.onclick = () => openBookForm(b.dataset.editBook)));
+  wrap.querySelectorAll("[data-del-book]").forEach((b) => (b.onclick = () => delBook(b.dataset.delBook)));
+};
 const openBookForm = async (id = null) => {
-  const [authors, categories] = await Promise.all([apiGet("/api/v1/authors?limit=500"), apiGet("/api/v1/categories?limit=500")]);
-  const aList = asList(authors.data);
-  const cList = asList(categories.data);
+  const [aList, cList] = await Promise.all([
+    cachedFetch("authors", "/api/v1/authors?limit=500", { persist: true }),
+    cachedFetch("categories", "/api/v1/categories?limit=500", { persist: true }),
+  ]);
   const b = id ? (await apiGet("/api/v1/books/" + id)).data.book : {};
   const form = $("entity-form");
   form.innerHTML = `
@@ -596,6 +658,7 @@ const openBookForm = async (id = null) => {
       }
       closeModal("entity-modal");
       bookCache = null;
+      cacheInvalidate("books-dash", "books-store", "authors", "categories");
       loadDashBooks($("dash-book-search").value.trim());
       showToast("تم الحفظ", "success");
     } catch (err) {
@@ -608,6 +671,7 @@ const delBook = async (id) => {
   try {
     await apiDelete(`/api/v1/books/${id}`, true);
     bookCache = null;
+    cacheInvalidate("books-dash", "books-store");
     loadDashBooks($("dash-book-search").value.trim());
     showToast("تم الحذف", "success");
   } catch (e) {
@@ -675,6 +739,7 @@ const openEntityForm = async (type, id = null) => {
       if (id) await apiPatch(`${meta.base}/${id}`, data, true);
       else await apiPost(meta.add, data, true);
       closeModal("entity-modal");
+      cacheInvalidate(type === "author" ? "authors" : type === "category" ? "categories" : "customers");
       if (type === "author") loadDashAuthors();
       if (type === "category") loadDashCategories();
       if (type === "customer") loadDashCustomers();
@@ -689,6 +754,7 @@ const delEntity = async (type, id) => {
   const meta = ENTITY[type];
   try {
     await apiDelete(`${meta.base}/${id}`, true);
+    cacheInvalidate(type === "author" ? "authors" : type === "category" ? "categories" : "customers");
     if (type === "author") loadDashAuthors();
     if (type === "category") loadDashCategories();
     if (type === "customer") loadDashCustomers();
@@ -700,10 +766,7 @@ const delEntity = async (type, id) => {
 
 const loadDashAuthors = async (search = "") => {
   const wrap = $("dash-authors-list");
-  wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
-  try {
-    const res = await apiGet("/api/v1/authors?limit=500" + (search ? `&search=${encodeURIComponent(search)}` : ""));
-    const list = asList(res.data);
+  const draw = (list) => {
     wrap.innerHTML = list.length
       ? list
           .map(
@@ -715,16 +778,24 @@ const loadDashAuthors = async (search = "") => {
       : '<p class="msg">لا مؤلفين.</p>';
     wrap.querySelectorAll("[data-edit-author]").forEach((b) => (b.onclick = () => openEntityForm("author", b.dataset.editAuthor)));
     wrap.querySelectorAll("[data-del-author]").forEach((b) => (b.onclick = () => delEntity("author", b.dataset.delAuthor)));
+  };
+  if (!search) {
+    const cached = cacheGet("authors", 120000);
+    if (cached) { draw(cached); return; }
+  }
+  wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
+  try {
+    const res = await apiGet("/api/v1/authors?limit=500" + (search ? `&search=${encodeURIComponent(search)}` : ""));
+    const list = asList(res.data);
+    if (!search) cacheSet("authors", list, true);
+    draw(list);
   } catch (e) {
-    wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
+    if (!wrap.children.length) wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
 };
 const loadDashCategories = async (search = "") => {
   const wrap = $("dash-categories-list");
-  wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
-  try {
-    const res = await apiGet("/api/v1/categories?limit=500" + (search ? `&search=${encodeURIComponent(search)}` : ""));
-    const list = asList(res.data);
+  const draw = (list) => {
     wrap.innerHTML = list.length
       ? list
           .map(
@@ -736,23 +807,35 @@ const loadDashCategories = async (search = "") => {
       : '<p class="msg">لا تصنيفات.</p>';
     wrap.querySelectorAll("[data-edit-category]").forEach((b) => (b.onclick = () => openEntityForm("category", b.dataset.editCategory)));
     wrap.querySelectorAll("[data-del-category]").forEach((b) => (b.onclick = () => delEntity("category", b.dataset.delCategory)));
+  };
+  if (!search) {
+    const cached = cacheGet("categories", 120000);
+    if (cached) { draw(cached); return; }
+  }
+  wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
+  try {
+    const res = await apiGet("/api/v1/categories?limit=500" + (search ? `&search=${encodeURIComponent(search)}` : ""));
+    const list = asList(res.data);
+    if (!search) cacheSet("categories", list, true);
+    draw(list);
   } catch (e) {
-    wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
+    if (!wrap.children.length) wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
 };
 const loadDashCustomers = async (search = "") => {
   const wrap = $("dash-customers-list");
-  wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
   try {
-    const params = new URLSearchParams();
-    if (search) params.set("search", search);
+    const all = await cachedFetch("customers", "/api/v1/customer?limit=500", { auth: true, persist: true });
+    state.customerCount = all.length;
     const g = $("dash-customer-gender")?.value;
     const t = $("dash-customer-type")?.value;
-    if (g) params.set("gender", g);
-    if (t) params.set("type", t);
-    const res = await apiGet("/api/v1/customer?" + params.toString(), true);
-    const list = asList(res.data);
-    state.customerCount = list.length;
+    const term = (search || "").trim().toLowerCase();
+    const list = all.filter(
+      (c) =>
+        (!g || c.gender === g) &&
+        (!t || c.type === t) &&
+        (!term || (c.username || "").toLowerCase().includes(term) || (c.phone || "").toLowerCase().includes(term))
+    );
     wrap.innerHTML = list.length
       ? list
           .map(
@@ -765,7 +848,7 @@ const loadDashCustomers = async (search = "") => {
     wrap.querySelectorAll("[data-cust-orders]").forEach((b) => (b.onclick = () => openCustomerOrders(b.dataset.custOrders)));
     wrap.querySelectorAll("[data-del-customer]").forEach((b) => (b.onclick = () => delEntity("customer", b.dataset.delCustomer)));
   } catch (e) {
-    wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
+    if (!wrap.children.length) wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
 };
 
@@ -776,16 +859,14 @@ const orderDetailHtml = (o) => `
   <p><strong>العميل:</strong> ${escapeHTML(o.customer?.username || "—")}</p>
   <p><strong>الإجمالي:</strong> ${formatPrice(o.total || 0)}</p>
   <p><strong>تاريخ:</strong> ${new Date(o.createdAt).toLocaleString("en-EG")}</p>
-  <div>${(o.cart?.items || []).map((i) => `<div>• ${escapeHTML(i.book?.title || "")} × ${i.quantity} — ${formatPrice((i.book?.price || 0) * i.quantity)}</div>`).join("")}</div>`;
+  <div>${(o.cart?.items || []).map((i) => `<div>• ${escapeHTML(i.book?.title || "كتاب")} × ${i.quantity} — ${formatPrice((i.book?.price ?? i.price ?? 0) * i.quantity)}</div>`).join("")}</div>`;
 const loadDashOrders = async (search = "") => {
   const wrap = $("dash-orders-list");
-  wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
   try {
+    const all = await cachedFetch("orders", "/api/v1/orders?limit=200", { auth: true, persist: true });
     const status = $("dash-order-status")?.value;
-    const res = await apiGet("/api/v1/orders?limit=200", true);
-    let list = asList(res.data);
     const term = search.trim().toLowerCase();
-    list = list.filter(
+    const list = all.filter(
       (o) =>
         (!status || o.status === status) &&
         (!term || String(o._id).toLowerCase().includes(term) || String(o.customer?.username || "").toLowerCase().includes(term))
@@ -814,6 +895,7 @@ const advanceOrder = async (id) => {
   try {
     const res = await apiPatch(`/api/v1/orders/${id}/status`, {}, true);
     showToast(res.message || "تم التقديم", "success");
+    cacheInvalidate("orders");
     loadDashOrders($("dash-order-search").value.trim());
   } catch (e) {
     showToast(e.message, "error");
@@ -823,6 +905,7 @@ const cancelOrder = async (id) => {
   try {
     const res = await apiPatch(`/api/v1/orders/online/${id}/cancel`, {}, true);
     showToast(res.message || "تم الإلغاء", "success");
+    cacheInvalidate("orders");
     loadDashOrders($("dash-order-search").value.trim());
   } catch (e) {
     showToast(e.message, "error");
@@ -854,10 +937,8 @@ const openOrderDetail = async (id) => {
 /* ===================== dashboard: stock ===================== */
 const loadStock = async (search = "") => {
   const wrap = $("dash-stock-list");
-  wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
   try {
-    const res = await apiGet("/api/v1/stock/books?limit=500", true);
-    const list = asList(res.data);
+    const list = await cachedFetch("stock", "/api/v1/stock/books?limit=500", { auth: true, persist: true });
     const term = search.trim().toLowerCase();
     const filtered = term ? list.filter((b) => (b.title || "").toLowerCase().includes(term)) : list;
     wrap.innerHTML = filtered.length
@@ -902,6 +983,7 @@ const loadStockMovements = async (bookId) => {
     try {
       const res = await apiPost(`/api/v1/stock/books/${bookId}`, body, true);
       showToast(res.message || "تم التسجيل", "success");
+      cacheInvalidate("stock");
       loadStockMovements(bookId);
     } catch (err) {
       $("stock-adjust-msg").className = "msg error";

@@ -11,7 +11,7 @@ import { stockEvent } from "../../../utils/events/stock.event.js";
 const orderPopulate = [
   { path: "customer", select: userSelect },
   { path: "seller", select: userSelect },
-  { path: "cart" },
+  { path: "cart", populate: { path: "items.book", select: "title price cover author" } },
 ];
 const bookSelect = "-costPrice -minQuantity -updatedBy -createdBy";
 

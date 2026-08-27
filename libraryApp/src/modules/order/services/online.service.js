@@ -11,7 +11,7 @@ import { userSelect } from "../../../DB/models/User.model.js";
 const orderPopulate = [
   { path: "customer", select: userSelect },
   { path: "seller", select: userSelect },
-  { path: "cart" },
+  { path: "cart", populate: { path: "items.book", select: "title price cover author" } },
 ];
 
 export const buyCart = asyncHandler(async (req, res, next) => {
