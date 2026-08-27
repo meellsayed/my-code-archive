@@ -63,6 +63,8 @@ const state = {
   bookLimit: 12,
   pagination: {},
   dashTab: "books",
+  customerCount: null,
+  reportsCache: null,
 };
 const isStaff = () => state.user && (state.user.role === "admin" || state.user.role === "staff");
 const isAdmin = () => state.user && state.user.role === "admin";
@@ -296,10 +298,13 @@ const addToCart = async (bookId, qty = 1, mode = "store") => {
 };
 const enrichCart = async (cart) => {
   if (!cart?.items?.length) return cart;
-  const map = await getBookMap();
+  const needsMap = cart.items.some((it) => typeof it.book !== "object" || !it.book.title);
+  const map = needsMap ? await getBookMap() : null;
   cart.items = cart.items
     .map((it) => {
-      const book = map.get(String(it.book?._id || it.book)) || (typeof it.book === "object" ? it.book : {});
+      const id = String(it.book?._id || it.book);
+      const book =
+        typeof it.book === "object" && it.book.title ? it.book : map?.get(id) || {};
       return { ...it, book: { ...book, quantity: it.quantity ?? book.quantity } };
     })
     .filter((it) => (it.quantity ?? 0) > 0);
@@ -716,6 +721,7 @@ const loadDashCustomers = async (search = "") => {
     if (t) params.set("type", t);
     const res = await apiGet("/api/v1/customer?" + params.toString(), true);
     const list = asList(res.data);
+    state.customerCount = list.length;
     wrap.innerHTML = list.length
       ? list
           .map(
@@ -889,28 +895,31 @@ const loadStockMovements = async (bookId) => {
 /* ===================== dashboard: reports ===================== */
 const loadReports = async () => {
   const wrap = $("reports-content");
+  const now = Date.now();
+  if (state.reportsCache && now - state.reportsCache.ts < 60000) {
+    wrap.innerHTML = state.reportsCache.html;
+    return;
+  }
   wrap.innerHTML = '<p class="msg">جارٍ تحميل التقارير...</p>';
   try {
-    const [salesRes, ordersRes, booksRes, custRes, stockRes] = await Promise.all([
+    const [salesRes, ordersCountRes, booksCountRes, ordersRes, stockRes] = await Promise.all([
       isAdmin() ? apiGet("/api/v1/report/sales/total", true).catch(() => null) : Promise.resolve(null),
-      apiGet("/api/v1/orders?limit=500", true).catch(() => null),
-      apiGet("/api/v1/books?limit=1000").catch(() => null),
-      apiGet("/api/v1/customer?limit=1", true).catch(() => null),
-      apiGet("/api/v1/stock/books?limit=500", true).catch(() => null),
+      apiGet("/api/v1/orders?limit=1", true).catch(() => null),
+      apiGet("/api/v1/books?limit=1").catch(() => null),
+      apiGet("/api/v1/orders?limit=200", true).catch(() => null),
+      apiGet("/api/v1/stock/books?limit=200", true).catch(() => null),
     ]);
 
     const orders = asList(ordersRes?.data || {});
-    const books = asList(booksRes?.data || {});
-    const customers = asList(custRes?.data || {});
     const stockBooks = asList(stockRes?.data || {});
     const sales = asList(salesRes?.data || {});
 
-    const totalOrders = ordersRes?.pagination?.total ?? orders.length;
-    const totalBooks = booksRes?.pagination?.total ?? books.length;
-    const totalCustomers = custRes?.pagination?.total ?? customers.length;
-    const totalStockPieces = books.reduce((s, b) => s + (Number(b.quantity) || 0), 0);
-    const outOfStock = books.filter((b) => (Number(b.quantity) || 0) === 0).length;
-    const lowStock = books.filter((b) => {
+    const totalOrders = ordersCountRes?.pagination?.total ?? orders.length;
+    const totalBooks = booksCountRes?.pagination?.total ?? 0;
+    const customerCount = state.customerCount ?? "—";
+    const totalStockPieces = stockBooks.reduce((s, b) => s + (Number(b.quantity) || 0), 0);
+    const outOfStock = stockBooks.filter((b) => (Number(b.quantity) || 0) === 0).length;
+    const lowStock = stockBooks.filter((b) => {
       const q = Number(b.quantity) || 0;
       return q > 0 && b.minQuantity && q <= b.minQuantity;
     }).length;
@@ -973,7 +982,7 @@ const loadReports = async () => {
           .join("")
       : '<p class="msg">لا توجد كتب منخفضة المخزون.</p>';
 
-    wrap.innerHTML = `
+    const html = `
       <div class="report-cards">
         ${showRevenue ? `
         <div class="report-card accent"><div class="rc-label">مبيعات اليوم</div><div class="rc-value">${formatPrice(revenue.daySales || 0)}</div></div>
@@ -982,7 +991,7 @@ const loadReports = async () => {
         ` : ""}
         <div class="report-card"><div class="rc-label">إجمالي الطلبات</div><div class="rc-value">${totalOrders}</div></div>
         <div class="report-card"><div class="rc-label">عدد الكتب</div><div class="rc-value">${totalBooks}</div></div>
-        <div class="report-card"><div class="rc-label">العملاء</div><div class="rc-value">${totalCustomers}</div></div>
+        <div class="report-card"><div class="rc-label">العملاء</div><div class="rc-value">${customerCount}</div></div>
         <div class="report-card ${outOfStock ? "danger" : ""}"><div class="rc-label">نفدت من المخزون</div><div class="rc-value">${outOfStock}</div></div>
         <div class="report-card ${lowStock ? "warn" : ""}"><div class="rc-label">منخفضة المخزون</div><div class="rc-value">${lowStock}</div></div>
         <div class="report-card"><div class="rc-label">قطع في المخزون</div><div class="rc-value">${totalStockPieces}</div></div>
@@ -1003,6 +1012,8 @@ const loadReports = async () => {
           <div class="dash-list">${lowStockHtml}</div>
         </div>
       </div>`;
+    wrap.innerHTML = html;
+    state.reportsCache = { ts: now, html };
   } catch (e) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }

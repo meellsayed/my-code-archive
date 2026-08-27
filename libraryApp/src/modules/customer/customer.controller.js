@@ -31,11 +31,11 @@ router.delete(
   authorization([roleTypes.admin]),
   customerServices.deleteOne,
 );
-// router.patch(
-//   "/:id",
-//    authentication(),
-//   authorization([roleTypes.admin, roleTypes.staff]),
-//   customerServices.updateOne,
-// );
+router.patch(
+  "/:id",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  customerServices.updateOne,
+);
 
 export default router;
