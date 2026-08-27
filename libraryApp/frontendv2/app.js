@@ -853,13 +853,24 @@ const loadDashCustomers = async (search = "") => {
 };
 
 /* ===================== dashboard: orders ===================== */
-const orderDetailHtml = (o) => `
+const itemBookInfo = (it, map) => {
+  const id = String(it.book?._id || it.book || "");
+  const fromMap = id && map ? map.get(id) : null;
+  const title = it.book?.title || fromMap?.title || "كتاب";
+  const price = Number(it.book?.price ?? it.price ?? fromMap?.price ?? 0);
+  const cover = it.book?.cover || fromMap?.cover || "";
+  return { title, price, cover, qty: Number(it.quantity) || 0 };
+};
+const orderDetailHtml = (o, map) => {
+  const items = (o.cart?.items || []).map((i) => itemBookInfo(i, map));
+  return `
   <p><strong>رقم الطلب:</strong> ${escapeHTML(o._id)}</p>
   <p><strong>الحالة:</strong> ${statusBadge(o.status)}</p>
   <p><strong>العميل:</strong> ${escapeHTML(o.customer?.username || "—")}</p>
   <p><strong>الإجمالي:</strong> ${formatPrice(o.total || 0)}</p>
   <p><strong>تاريخ:</strong> ${new Date(o.createdAt).toLocaleString("en-EG")}</p>
-  <div>${(o.cart?.items || []).map((i) => `<div>• ${escapeHTML(i.book?.title || "كتاب")} × ${i.quantity} — ${formatPrice((i.book?.price ?? i.price ?? 0) * i.quantity)}</div>`).join("")}</div>`;
+  <div class="order-items">${items.length ? items.map((b) => `<div class="order-line">${coverImg(b.cover, "order-cover")}<div><div>${escapeHTML(b.title)} × ${b.qty}</div><div>${formatPrice(b.price * b.qty)}</div></div></div>`).join("") : '<p class="msg">لا توجد أصناف.</p>'}</div>`;
+};
 const loadDashOrders = async (search = "") => {
   const wrap = $("dash-orders-list");
   try {
@@ -928,7 +939,8 @@ const openOrderDetail = async (id) => {
     try { o = (await apiGet(`/api/v1/orders/online/${id}`, true)).data?.order; } catch {}
     if (!o) o = (await apiGet(`/api/v1/orders/${id}`, true)).data?.order;
     if (!o) throw new Error("الطلب غير موجود");
-    showInfoModal("تفاصيل الطلب", orderDetailHtml(o));
+    const map = await getBookMap();
+    showInfoModal("تفاصيل الطلب", orderDetailHtml(o, map));
   } catch (e) {
     showToast(e.message, "error");
   }
@@ -1022,6 +1034,7 @@ const loadReports = async () => {
       apiGet("/api/v1/orders?limit=200", true).catch(() => null),
       apiGet("/api/v1/stock/books?limit=200", true).catch(() => null),
     ]);
+    const bookMap = await getBookMap();
 
     const orders = asList(ordersRes?.data || {});
     const stockBooks = asList(stockRes?.data || {});
@@ -1060,12 +1073,12 @@ const loadReports = async () => {
     // top selling books (from fetched orders)
     const bookAgg = {};
     orders.forEach((o) => (o.cart?.items || []).forEach((it) => {
-      const id = it.book?._id || it.book;
-      const title = it.book?.title || "كتاب";
-      const q = Number(it.quantity) || 0;
-      if (!bookAgg[id]) bookAgg[id] = { title, qty: 0, revenue: 0 };
+      const id = String(it.book?._id || it.book || "");
+      const info = itemBookInfo(it, bookMap);
+      const q = info.qty;
+      if (!bookAgg[id]) bookAgg[id] = { title: info.title, qty: 0, revenue: 0 };
       bookAgg[id].qty += q;
-      bookAgg[id].revenue += (Number(it.book?.price) || 0) * q;
+      bookAgg[id].revenue += info.price * q;
     }));
     const topBooks = Object.values(bookAgg).sort((a, b) => b.qty - a.qty).slice(0, 6);
     const topBooksHtml = topBooks.length
