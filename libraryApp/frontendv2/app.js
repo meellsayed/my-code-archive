@@ -48,6 +48,9 @@ const PLACEHOLDER =
 const coverImg = (url, cls = "book-cover") =>
   `<img class="${cls}" src="${escapeHTML(url || "")}" alt="" loading="lazy" onerror="this.src='${PLACEHOLDER}'" />`;
 
+const optionLabel = (o) =>
+  ({ male: "ذكر", female: "أنثى", branch: "فرع", online: "أونلاين", onlineAndBranch: "فرع وأونلاين" }[o] || o);
+
 /* ===================== state ===================== */
 const state = {
   token: localStorage.getItem("accessToken") || null,
@@ -517,19 +520,19 @@ const openBookForm = async (id = null) => {
   const b = id ? (await apiGet("/api/v1/books/" + id)).data.book : {};
   const form = $("entity-form");
   form.innerHTML = `
-    <input name="title" placeholder="العنوان" value="${escapeHTML(b.title || "")}" required />
-    <input name="subtitle" placeholder="العنوان الفرعي" value="${escapeHTML(b.subtitle || "")}" />
-    <input name="description" placeholder="الوصف" value="${escapeHTML(b.description || "")}" />
-    <select name="author">${aList.map((a) => `<option value="${a._id}" ${String(b.author?._id) === a._id ? "selected" : ""}>${escapeHTML(a.name)}</option>`).join("")}</select>
-    <select name="categories" multiple size="4">${cList.map((c) => `<option value="${c._id}" ${(b.categories || []).some((x) => String(x._id) === c._id) ? "selected" : ""}>${escapeHTML(c.name)}</option>`).join("")}</select>
-    <input name="pages" type="number" placeholder="عدد الصفحات" value="${b.pages || ""}" />
-    <input name="price" type="number" placeholder="السعر" value="${b.price || ""}" required />
-    <input name="costPrice" type="number" placeholder="سعر التكلفة" value="${b.costPrice || ""}" />
-    <input name="quantity" type="number" placeholder="الكمية" value="${b.quantity || ""}" />
-    <input name="minQuantity" type="number" placeholder="الحد الأدنى" value="${b.minQuantity || ""}" />
-    <label><input type="checkbox" name="availableToBorrow" ${b.availableToBorrow === false ? "" : "checked"} /> متاح للإعارة</label>
-    <input name="coverFile" type="file" accept="image/*" />
-    <button class="btn primary" type="submit">${id ? "حفظ" : "إنشاء"}</button>`;
+    <div class="form-group"><label>العنوان</label><input name="title" value="${escapeHTML(b.title || "")}" required /></div>
+    <div class="form-group"><label>العنوان الفرعي</label><input name="subtitle" value="${escapeHTML(b.subtitle || "")}" /></div>
+    <div class="form-group full"><label>الوصف</label><input name="description" value="${escapeHTML(b.description || "")}" /></div>
+    <div class="form-group"><label>المؤلف</label><select name="author">${aList.map((a) => `<option value="${a._id}" ${String(b.author?._id) === a._id ? "selected" : ""}>${escapeHTML(a.name)}</option>`).join("")}</select></div>
+    <div class="form-group full"><label>التصنيفات</label><select name="categories" multiple size="4">${cList.map((c) => `<option value="${c._id}" ${(b.categories || []).some((x) => String(x._id) === c._id) ? "selected" : ""}>${escapeHTML(c.name)}</option>`).join("")}</select></div>
+    <div class="form-group"><label>عدد الصفحات</label><input name="pages" type="number" value="${b.pages || ""}" /></div>
+    <div class="form-group"><label>السعر</label><input name="price" type="number" value="${b.price || ""}" required /></div>
+    <div class="form-group"><label>سعر التكلفة</label><input name="costPrice" type="number" value="${b.costPrice || ""}" /></div>
+    <div class="form-group"><label>الكمية</label><input name="quantity" type="number" value="${b.quantity || ""}" /></div>
+    <div class="form-group"><label>الحد الأدنى للكمية</label><input name="minQuantity" type="number" value="${b.minQuantity || ""}" /></div>
+    <div class="form-group full"><label class="check-label"><input type="checkbox" name="availableToBorrow" ${b.availableToBorrow === false ? "" : "checked"} /> متاح للإعارة</label></div>
+    <div class="form-group full"><label>غلاف الكتاب</label><input name="coverFile" type="file" accept="image/*" /></div>
+    <button class="btn primary form-submit" type="submit">${id ? "حفظ" : "إنشاء"}</button>`;
   $("entity-modal-heading").textContent = id ? "تعديل كتاب" : "كتاب جديد";
   openModal("entity-modal");
   form.onsubmit = async (e) => {
@@ -614,17 +617,18 @@ const openEntityForm = async (type, id = null) => {
   const form = $("entity-form");
   const fieldsHtml = meta.fields
     .map(([name, kind, label]) => {
-      const val = existing?.[name] != null ? String(existing[name]).slice(0, 10) : "";
+      const lbl = label || name;
       if (kind.startsWith("select:")) {
         const opts = kind.split(":")[1].split("|")
-          .map((o) => `<option value="${o}" ${existing?.[name] === o ? "selected" : ""}>${o}</option>`)
+          .map((o) => `<option value="${o}" ${existing?.[name] === o ? "selected" : ""}>${optionLabel(o)}</option>`)
           .join("");
-        return `<select name="${name}">${opts}</select>`;
+        return `<div class="form-group"><label>${escapeHTML(lbl)}</label><select name="${name}">${opts}</select></div>`;
       }
-      return `<input name="${name}" placeholder="${label || name}" value="${escapeHTML(existing?.[name] ?? "")}" />`;
+      const val = existing?.[name] != null ? String(existing[name]).slice(0, 10) : "";
+      return `<div class="form-group"><label>${escapeHTML(lbl)}</label><input name="${name}" placeholder="${escapeHTML(lbl)}" value="${escapeHTML(val)}" /></div>`;
     })
     .join("");
-  form.innerHTML = fieldsHtml + '<button class="btn primary" type="submit">حفظ</button>';
+  form.innerHTML = fieldsHtml + '<button class="btn primary form-submit" type="submit">حفظ</button>';
   $("entity-modal-heading").textContent = meta.heading(id);
   openModal("entity-modal");
   form.onsubmit = async (e) => {
