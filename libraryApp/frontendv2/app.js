@@ -132,7 +132,7 @@ const apiUploadPut = (p, fd, a = false) => api(p, { method: "PUT", body: fd }, a
 
 /* ===================== client cache (memory + localStorage) ===================== */
 const memCache = new Map();
-function cacheGet(key, ttl = 120000) {
+function cacheGet(key, ttl = 60000) {
   const e = memCache.get(key);
   if (e && Date.now() - e.ts < ttl) return e.val;
   if (!e) {
@@ -159,7 +159,7 @@ function cacheInvalidate(...keys) {
     try { localStorage.removeItem("lib:" + k); } catch {}
   });
 }
-async function cachedFetch(key, path, { ttl = 120000, persist = false, auth = false } = {}) {
+async function cachedFetch(key, path, { ttl = 60000, persist = false, auth = false } = {}) {
   const c = cacheGet(key, ttl);
   if (c) return c;
   const res = await apiGet(path, auth);
@@ -235,6 +235,18 @@ const showView = (view) => {
   if (view === "dashboard") renderDashboardPane();
   if (view === "orders") loadMyOrders();
   if (view === "profile") loadProfile();
+};
+const refreshCurrent = async () => {
+  cacheInvalidate("authors", "categories", "customers", "books-dash", "books-store", "orders", "stock", "reports");
+  invalidateBookMap();
+  state.reportsCache = null;
+  showToast("جارٍ التحديث...", "");
+  if (state.view === "store") await loadBooks();
+  else if (state.view === "dashboard") renderDashboardPane();
+  else if (state.view === "orders") await loadMyOrders();
+  else if (state.view === "profile") await loadProfile();
+  else if (state.view === "cart") await loadCart();
+  showToast("تم التحديث", "success");
 };
 const renderDashboardPane = () => {
   const map = {
@@ -810,7 +822,7 @@ const loadDashAuthors = async (search = "") => {
     wrap.querySelectorAll("[data-del-author]").forEach((b) => (b.onclick = () => delEntity("author", b.dataset.delAuthor)));
   };
   if (!search) {
-    const cached = cacheGet("authors", 120000);
+    const cached = cacheGet("authors", 60000);
     if (cached) { draw(cached); return; }
   }
   wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
@@ -839,7 +851,7 @@ const loadDashCategories = async (search = "") => {
     wrap.querySelectorAll("[data-del-category]").forEach((b) => (b.onclick = () => delEntity("category", b.dataset.delCategory)));
   };
   if (!search) {
-    const cached = cacheGet("categories", 120000);
+    const cached = cacheGet("categories", 60000);
     if (cached) { draw(cached); return; }
   }
   wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
@@ -1268,6 +1280,7 @@ const bindEvents = () => {
     el.onclick = (e) => { e.preventDefault(); showView(view); };
   });
   $("btn-cart").onclick = () => showView("cart");
+  $("btn-refresh").onclick = () => refreshCurrent();
   document.querySelectorAll("[data-close]").forEach((b) => (b.onclick = () => closeModal(b.dataset.close)));
 
   // auth modal tabs
