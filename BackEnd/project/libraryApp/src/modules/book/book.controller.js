@@ -12,8 +12,8 @@ const router = Router();
 
 router.get("", validation(validators.getAll), bookServices.getAll);
 router.post(
-  "",
-  validation(validators.addOne),
+  "", 
+  // validation(validators.addOne),
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
   bookServices.addOne,
@@ -22,7 +22,7 @@ router.get("/:id", validation(validators.getOne), bookServices.getOne);
 
 router.patch(
   "/:id",
-  validation(validators.updateOne),
+  // validation(validators.updateOne),
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
   bookServices.updateOne,

@@ -96,7 +96,7 @@ export const seedBooks = [
     minQuantity: 5,
     availableToBorrow: true,
     publisher: "دار ابن كثير",
-    cover: "/covers/muslim.svg",
+    cover: "https://picsum.photos/seed/muslim/300/420",
   },
   {
     title: "ميراث التنين",
@@ -110,7 +110,7 @@ export const seedBooks = [
     minQuantity: 2,
     availableToBorrow: false,
     publisher: "دار الخيال",
-    cover: "/covers/dragon.svg",
+    cover: "https://picsum.photos/seed/dragon/300/420",
   },
   {
     title: "مصر القديمة من جديد",
@@ -124,7 +124,7 @@ export const seedBooks = [
     minQuantity: 3,
     availableToBorrow: true,
     publisher: "دار التحرير",
-    cover: "/covers/egypt.svg",
+    cover: "https://picsum.photos/seed/egypt/300/420",
   },
   {
     title: "عوالم الكم",
@@ -138,7 +138,7 @@ export const seedBooks = [
     minQuantity: 3,
     availableToBorrow: true,
     publisher: "دار العلوم",
-    cover: "/covers/quantum.svg",
+    cover: "https://picsum.photos/seed/quantum/300/420",
   },
   {
     title: "مدينة الزجاج",
@@ -152,7 +152,7 @@ export const seedBooks = [
     minQuantity: 5,
     availableToBorrow: true,
     publisher: "دار الدلتا",
-    cover: "/covers/glass.svg",
+    cover: "https://picsum.photos/seed/glass/300/420",
   },
   {
     title: "الأربعون النووية",
@@ -166,7 +166,7 @@ export const seedBooks = [
     minQuantity: 5,
     availableToBorrow: true,
     publisher: "دار ابن كثير",
-    cover: "/covers/nawawi.svg",
+    cover: "https://picsum.photos/seed/nawawi/300/420",
   },
   {
     title: "أصداء الماضي",
@@ -180,7 +180,7 @@ export const seedBooks = [
     minQuantity: 4,
     availableToBorrow: true,
     publisher: "دار ابن كثير",
-    cover: "/covers/echoes.svg",
+    cover: "https://picsum.photos/seed/echoes/300/420",
   },
   {
     title: "حضارة الأندلس",
@@ -194,7 +194,7 @@ export const seedBooks = [
     minQuantity: 2,
     availableToBorrow: true,
     publisher: "دار التحرير",
-    cover: "/covers/andalus.svg",
+    cover: "https://picsum.photos/seed/andalus/300/420",
   },
 ];
 

@@ -49,7 +49,7 @@ const formatPrice = (value) => {
 
 const coverImg = (url, cls = "book-cover") =>
   url
-    ? `<img class="${cls}" src="${escapeHTML(url)}" alt="" onerror="this.classList.add('placeholder');this.src=''" loading="lazy" />`
+    ? `<img class="${cls}" src="${escapeHTML(url)}" alt="" onerror="this.onerror=null;this.src='/covers/placeholder.svg'" loading="lazy" />`
     : `<div class="${cls} placeholder"></div>`;
 
 const stockBadge = (qty, minQty) => {
