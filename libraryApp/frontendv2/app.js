@@ -63,6 +63,7 @@ const state = {
   bookLimit: 12,
   pagination: {},
   dashTab: "books",
+  view: "store",
   customerCount: null,
   reportsCache: null,
 };
@@ -226,6 +227,7 @@ const updateAuthUI = () => {
 
 /* ===================== navigation ===================== */
 const showView = (view) => {
+  state.view = view;
   document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
   $(`view-${view}`).classList.add("active");
   document.querySelectorAll(".nav-link").forEach((n) => n.classList.toggle("active", n.dataset.view === view));
@@ -285,7 +287,7 @@ const loadBooks = async (search = "", append = false) => {
     state.pagination = res.pagination;
     if (append) state.books = [...(state.books || []), ...books];
     else state.books = books;
-    if (isDefault) cacheSet("books-store", { items: books, pagination: res.pagination }, true);
+    if (isDefault) cacheSet("books-store", { items: books, pagination: res.pagination });
     renderBooksGrid();
     const lm = $("books-loadmore");
     if (lm)
@@ -585,7 +587,7 @@ const loadDashBooks = async (search = "") => {
     params.set("limit", "100");
     const res = await apiGet("/api/v1/books?" + params.toString());
     const books = asList(res.data);
-    if (!search) cacheSet("books-dash", books, true);
+    if (!search) cacheSet("books-dash", books);
     wrap.innerHTML = books.length
       ? books.map(dashBookRow).join("")
       : '<p class="msg">لا كتب.</p>';
@@ -610,8 +612,8 @@ const attachDashBookHandlers = (wrap) => {
 };
 const openBookForm = async (id = null) => {
   const [aList, cList] = await Promise.all([
-    cachedFetch("authors", "/api/v1/authors?limit=500", { persist: true }),
-    cachedFetch("categories", "/api/v1/categories?limit=500", { persist: true }),
+    cachedFetch("authors", "/api/v1/authors?limit=500", {}),
+    cachedFetch("categories", "/api/v1/categories?limit=500", {}),
   ]);
   const b = id ? (await apiGet("/api/v1/books/" + id)).data.book : {};
   const form = $("entity-form");
@@ -815,7 +817,7 @@ const loadDashAuthors = async (search = "") => {
   try {
     const res = await apiGet("/api/v1/authors?limit=500" + (search ? `&search=${encodeURIComponent(search)}` : ""));
     const list = asList(res.data);
-    if (!search) cacheSet("authors", list, true);
+    if (!search) cacheSet("authors", list);
     draw(list);
   } catch (e) {
     if (!wrap.children.length) wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
@@ -844,7 +846,7 @@ const loadDashCategories = async (search = "") => {
   try {
     const res = await apiGet("/api/v1/categories?limit=500" + (search ? `&search=${encodeURIComponent(search)}` : ""));
     const list = asList(res.data);
-    if (!search) cacheSet("categories", list, true);
+    if (!search) cacheSet("categories", list);
     draw(list);
   } catch (e) {
     if (!wrap.children.length) wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
@@ -853,7 +855,7 @@ const loadDashCategories = async (search = "") => {
 const loadDashCustomers = async (search = "") => {
   const wrap = $("dash-customers-list");
   try {
-    const all = await cachedFetch("customers", "/api/v1/customer?limit=500", { auth: true, persist: true });
+    const all = await cachedFetch("customers", "/api/v1/customer?limit=500", { auth: true });
     state.customerCount = all.length;
     const g = $("dash-customer-gender")?.value;
     const t = $("dash-customer-type")?.value;
@@ -902,7 +904,7 @@ const orderDetailHtml = (o, map) => {
 const loadDashOrders = async (search = "") => {
   const wrap = $("dash-orders-list");
   try {
-    const all = await cachedFetch("orders", "/api/v1/orders?limit=200", { auth: true, persist: true });
+    const all = await cachedFetch("orders", "/api/v1/orders?limit=200", { auth: true });
     const status = $("dash-order-status")?.value;
     const term = search.trim().toLowerCase();
     const list = all.filter(
@@ -978,7 +980,7 @@ const openOrderDetail = async (id) => {
 const loadStock = async (search = "") => {
   const wrap = $("dash-stock-list");
   try {
-    const list = await cachedFetch("stock", "/api/v1/stock/books?limit=500", { auth: true, persist: true });
+    const list = await cachedFetch("stock", "/api/v1/stock/books?limit=500", { auth: true });
     const term = search.trim().toLowerCase();
     const filtered = term ? list.filter((b) => (b.title || "").toLowerCase().includes(term)) : list;
     wrap.innerHTML = filtered.length

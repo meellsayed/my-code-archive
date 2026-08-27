@@ -28,6 +28,7 @@
         >
       </nav>
       <div class="top-actions">
+        <button class="btn ghost" id="btn-refresh" title="تحديث البيانات">🔄</button>
         <button class="btn ghost" id="btn-cart">
           🛒 <span id="cart-count">0</span>
         </button>
@@ -220,17 +221,17 @@
         <form id="profile-form" class="profile-form">
           <div class="avatar-wrap">
             <img id="profile-avatar" class="avatar" alt="avatar" />
-            <input id="profile-avatar-file" type="file" accept="image/*" />
+            <input id="profile-avatar-file" name="profile-avatar-file" type="file" accept="image/*" />
           </div>
-          <label>الاسم<input id="profile-username" /></label>
-          <label>التليفون<input id="profile-phone" /></label>
+          <label>الاسم<input id="profile-username" name="username" /></label>
+          <label>التليفون<input id="profile-phone" name="phone" /></label>
           <label
-            >الجنس<select id="profile-gender">
+            >الجنس<select id="profile-gender" name="gender">
               <option value="male">ذكر</option>
               <option value="female">أنثى</option>
             </select></label
           >
-          <label>العنوان<textarea id="profile-address"></textarea></label>
+          <label>العنوان<textarea id="profile-address" name="address"></textarea></label>
           <button class="btn primary" type="submit">حفظ</button>
           <p id="profile-msg" class="msg"></p>
         </form>
