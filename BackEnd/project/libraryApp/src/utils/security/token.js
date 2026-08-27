@@ -36,7 +36,7 @@ export const generateRefreshToken = (user = {}) => {
 };
 
 export const generateAccessToken = (user = {}) => {
-  const payload = { id: user._id, email: user.email };
+  const payload = { id: user._id, email: user.email, role: user.role };
   const signature = process.env.USER_ACCESS_TOKEN;
   const expiresIn = process.env.MOOD == "DEV" ? 31536000 : 18000;
 

@@ -7,8 +7,20 @@ import {
 import { roleTypes } from "../../DB/models/User.model.js";
 const router = Router();
 
+router.get(
+  "",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  customerServices.getAll,
+);
+router.get(
+  "/:id",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  customerServices.getOne,
+);
 router.post(
-  "/add",
+  "",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
   customerServices.addOne,
@@ -25,18 +37,5 @@ router.delete(
 //   authorization([roleTypes.admin, roleTypes.staff]),
 //   customerServices.updateOne,
 // );
-
-router.get(
-  "",
-  authentication(),
-  authorization([roleTypes.admin, roleTypes.staff]),
-  customerServices.getAll,
-);
-router.get(
-  "/:id",
-  authentication(),
-  authorization([roleTypes.admin, roleTypes.staff]),
-  customerServices.getOne,
-);
 
 export default router;

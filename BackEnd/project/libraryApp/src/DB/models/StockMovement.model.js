@@ -7,7 +7,7 @@ const stockMovementSchema = new Schema(
     type: { type: String, enum: ["in", "out"] },
     customerType: {
       type: String,
-      enum: ["User", "Customer"],
+      enum: ["User", "Customer", "Fast"],
     },
     customer: {
       type: Types.ObjectId,

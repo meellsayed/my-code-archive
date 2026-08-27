@@ -36,8 +36,6 @@ const userSchema = new Schema(
   },
   { timestamps: true },
 );
-export const userSelect =
-  "username email phone address image gender isDeleted role";
 
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
@@ -47,3 +45,5 @@ userSchema.pre("save", async function () {
 });
 
 export const userModel = mongoose.models.User || model("User", userSchema);
+export const userSelect =
+  "username email phone address image gender isDeleted role";

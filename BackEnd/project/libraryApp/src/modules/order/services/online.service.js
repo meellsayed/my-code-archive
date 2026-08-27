@@ -3,13 +3,14 @@ import { successResponse } from "../../../utils/response/success.response.js";
 import * as dbService from "../../../DB/db.service.js";
 import { cartModel } from "../../../DB/models/Cart.model.js";
 import { orderModel } from "../../../DB/models/Order.model.js";
-import { filterObject } from "../../../utils/utils.js";
+import { filterObject, paginate } from "../../../utils/utils.js";
 import { stockMovementModel } from "../../../DB/models/StockMovement.model.js";
 import { stockEvent } from "../../../utils/events/stock.event.js";
+import { userSelect } from "../../../DB/models/User.model.js";
 
 const orderPopulate = [
-  { path: "customer", select: "username phone address type gender" },
-  { path: "seller", select: "username phone address type gender" },
+  { path: "customer", select: userSelect },
+  { path: "seller", select: userSelect },
   { path: "cart" },
 ];
 
@@ -106,12 +107,17 @@ export const getOrder = asyncHandler(async (req, res, next) => {
   return successResponse({ res, data: { order } });
 });
 export const getOrders = asyncHandler(async (req, res, next) => {
-  const orders = await dbService.find({
+  const { sort, page = 1, limit = 10 } = req.query;
+
+  const result = await paginate({
     model: orderModel,
     filter: { customer: req.user._id, isDeleted: false },
     populate: orderPopulate,
+    sort,
+    page,
+    limit,
   });
-  return successResponse({ res, data: { orders } });
+  return successResponse({ res, result });
 });
 export const cancelOrder = asyncHandler(async (req, res, next) => {
   const { id } = req.params;

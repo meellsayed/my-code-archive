@@ -22,7 +22,19 @@ export const generalFields = {
     .string()
     .length(6)
     .pattern(/^[0-9]+$/),
-  token: joi.string().token(),
+  title: joi.string().min(2).max(50),
+  price: joi.number().min(joi.ref("costPrice")),
+  costPrice: joi.number(),
+  quantity: joi.number().min(0),
+  minQuantity: joi.number().min(0),
+  pages: joi.number().min(0),
+  availableToBorrow: joi.boolean(),
+  search: joi.string().min(2),
+  category: joi.string().min(2),
+  publisher: joi.string().min(2),
+  sort: joi.string().min(2),
+  page: joi.number().min(1),
+  limit: joi.number().min(1),
 };
 
 /**

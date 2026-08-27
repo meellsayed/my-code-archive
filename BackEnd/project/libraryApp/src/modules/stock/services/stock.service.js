@@ -13,22 +13,103 @@ import {
 } from "../../../DB/models/Customer.model.js";
 import { orderModel } from "../../../DB/models/Order.model.js";
 import { bookModel } from "../../../DB/models/Book.model.js";
-import { getAll } from "../../book/services/book.service.js";
+import { authorModel } from "../../../DB/models/Author.model.js";
+import { categoryModel } from "../../../DB/models/Category.model.js";
 import { stockMovementModel } from "../../../DB/models/StockMovement.model.js";
 const stockMovementPopulate = [
   { path: "book" },
   { path: "seller", select: "-password" },
   { path: "customer", select: "-password" },
 ];
+const bookPopulate = [
+  { path: "categories" },
+  { path: "author" },
+  { path: "createdBy", select: "-password" },
+  { path: "updatedBy", select: "-password" },
+];
 
-export const getBooks = getAll; // From book service
+export const getBooks = asyncHandler(async (req, res, next) => {
+  const { search, category, publisher, sort, page = 1, limit = 10 } = req.query;
 
+  const query = {};
+
+  // Search
+  if (search) {
+    const authors = await dbService.find({
+      model: authorModel,
+      filter: {
+        name: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+      select: "_id",
+    });
+    const authorIds = authors.map((author) => author._id);
+
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      {
+        author: {
+          $in: authorIds,
+        },
+      },
+    ];
+  }
+
+  // Category filter
+  if (category) {
+    const categoryData = await dbService.findOne({
+      model: categoryModel,
+      filter: { name: { $regex: category, $options: "i" } },
+      select: "_id",
+    });
+
+    if (categoryData) {
+      query.categories = categoryData._id;
+    } else {
+      query.categories = { $in: [] };
+    }
+  }
+
+  // Publisher filter
+  if (publisher) {
+    query.publisher = { $regex: publisher, $options: "i" };
+  }
+
+  query.isDeleted = false;
+
+  // Sorting
+  let sortQuery = {};
+
+  if (sort == "price") {
+    sortQuery.price = -1;
+  }
+  if (sort == "-price") {
+    sortQuery.price = 1;
+  }
+
+  // Pagination
+  const skip = (page - 1) * limit;
+  const total = await bookModel.countDocuments(query);
+  let pages = Math.ceil(total / limit);
+
+  const books = await dbService.find({
+    model: bookModel,
+    filter: query,
+    sort: sortQuery,
+    skip,
+    limit: Number(limit),
+    populate: bookPopulate,
+  });
+
+  return successResponse({ res, data: { books } });
+});
 export const getBookMovement = asyncHandler(async (req, res, next) => {
-  const { author, categories, publisher, sort } = req.query;
   const { id } = req.params;
-//حسب الاكثر ربحا
-  let query = filterObject({ author, categories, publisher });
-  let sortQuery = {}
+  const { sort } = req.query;
+  //حسب الاكثر ربحا
+  let sortQuery = {};
   switch (sort) {
     case "-price":
       sortQuery.price = 1;
@@ -42,8 +123,8 @@ export const getBookMovement = asyncHandler(async (req, res, next) => {
   }
   const data = await dbService.find({
     model: stockMovementModel,
-    filter: { book: id, ...query },
-    populate: stockMovementPopulate,
+    filter: { book: id },
+    // populate: stockMovementPopulate,
     sort: sortQuery,
   });
 

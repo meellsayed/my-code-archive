@@ -6,20 +6,19 @@ import {
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { successResponse } from "../../../utils/response/success.response.js";
 import * as dbService from "../../../DB/db.service.js";
-import { bookModel } from "../../../DB/models/Book.model.js";
+import {
+  bookModel,
+  bookPopulate,
+  bookSelect,
+} from "../../../DB/models/Book.model.js";
 import { authorModel } from "../../../DB/models/Author.model.js";
 import { categoryModel } from "../../../DB/models/Category.model.js";
-import { filterObject } from "../../../utils/utils.js";
+import { filterObject, paginate } from "../../../utils/utils.js";
 import uploadBuffer from "../../../utils/uploads/cloudinaryUpload.js";
 const publicIdFromUrl = (url = "") => {
   const match = url.match(/\/upload\/(?:v\d+\/)?(.+)$/);
   return match ? match[1].replace(/\.[a-z0-9]+$/i, "") : "";
 };
-const bookPopulate = [
-  { path: "categories", select: "name isDeleted" },
-  { path: "author", select: "name image isDeleted" },
-];
-const bookSelect = "-costPrice -quantity -minQuantity -updatedBy -createdBy";
 
 export const addOne = asyncHandler(async (req, res, next) => {
   const {
@@ -27,7 +26,6 @@ export const addOne = asyncHandler(async (req, res, next) => {
     price,
     costPrice,
     subtitle,
-    cover,
     description,
     quantity,
     minQuantity,
@@ -41,7 +39,6 @@ export const addOne = asyncHandler(async (req, res, next) => {
     price,
     costPrice,
     subtitle,
-    cover,
     description,
     quantity,
     minQuantity,
@@ -76,7 +73,6 @@ export const updateOne = asyncHandler(async (req, res, next) => {
     price,
     costPrice,
     subtitle,
-    cover,
     description,
     quantity,
     minQuantity,
@@ -90,7 +86,6 @@ export const updateOne = asyncHandler(async (req, res, next) => {
     price,
     costPrice,
     subtitle,
-    cover,
     description,
     quantity,
     minQuantity,
@@ -141,7 +136,6 @@ export const cover = asyncHandler(async (req, res, next) => {
     message: "Cover image updated successfully",
   });
 });
-// { id } = req.params;
 export const deleteOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -162,7 +156,6 @@ export const deleteOne = asyncHandler(async (req, res, next) => {
     message: "Book deleted successfully",
   });
 });
-// { id } = req.params;
 export const getOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -179,7 +172,6 @@ export const getOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, data: { book } });
 });
-// { search, category, publisher, sort, page = 1, limit = 10 } = req.query
 export const getAll = asyncHandler(async (req, res, next) => {
   const { search, category, publisher, sort, page = 1, limit = 10 } = req.query;
 
@@ -211,17 +203,13 @@ export const getAll = asyncHandler(async (req, res, next) => {
 
   // Category filter
   if (category) {
-    const categoryData = await dbService.findOne({
+    const categoryData = await dbService.find({
       model: categoryModel,
       filter: { name: { $regex: category, $options: "i" } },
       select: "_id",
     });
 
-    if (categoryData) {
-      query.categories = categoryData._id;
-    } else {
-      query.categories = { $in: [] };
-    }
+    query.categories = { $in: (categoryData || []).map((c) => c._id) };
   }
 
   // Publisher filter
@@ -232,29 +220,33 @@ export const getAll = asyncHandler(async (req, res, next) => {
   query.isDeleted = false;
 
   // Sorting
-  let sortQuery = {};
+  let sortQuery = { createdAt: -1 };
 
   if (sort == "price") {
-    sortQuery.price = -1;
-  }
-  if (sort == "-price") {
     sortQuery.price = 1;
   }
+  if (sort == "-price") {
+    sortQuery.price = -1;
+  }
 
-  // Pagination
-  const skip = (page - 1) * limit;
-  const total = await bookModel.countDocuments(query);
-  let pages = Math.ceil(total / limit);
-
-  const books = await dbService.find({
+  // const books = await dbService.find({
+  //   model: bookModel,
+  //   filter: query,
+  //   sort: sortQuery,
+  //   skip,
+  //   limit: Number(limit),
+  //   populate: bookPopulate,
+  //   select: bookSelect,
+  // });
+  const result = await paginate({
     model: bookModel,
     filter: query,
     sort: sortQuery,
-    skip,
-    limit: Number(limit),
     populate: bookPopulate,
     select: bookSelect,
+    limit: Number(limit),
+    page: Number(page),
   });
 
-  return successResponse({ res, data: { books } });
+  return successResponse({ res, result });
 });

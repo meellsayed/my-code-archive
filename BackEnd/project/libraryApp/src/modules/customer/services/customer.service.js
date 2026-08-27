@@ -28,7 +28,6 @@ export const addOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, statusCode: 201, data: { customer } });
 });
-
 export const deleteOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const customer = await dbService.findById({ model: customerModel, id });
@@ -42,7 +41,6 @@ export const deleteOne = asyncHandler(async (req, res, next) => {
     message: "Customer deleted successfully",
   });
 });
-
 export const getOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const customer = await dbService.findById({ model: customerModel, id });
@@ -51,7 +49,6 @@ export const getOne = asyncHandler(async (req, res, next) => {
   }
   return successResponse({ res, data: { customer } });
 });
-
 export const getAll = asyncHandler(async (req, res, next) => {
   const { search, gender, type, sort, page = 1, limit = 10 } = req.query;
 
@@ -94,9 +91,7 @@ export const getAll = asyncHandler(async (req, res, next) => {
   }
   const populate = () => {
     if (type == "onlineAndBranch") {
-      return [
-        {path:"user",select :"username email image phone"}
-      ]
+      return [{ path: "user", select: "username email image phone" }];
     }
   };
   const customers = await dbService.find({

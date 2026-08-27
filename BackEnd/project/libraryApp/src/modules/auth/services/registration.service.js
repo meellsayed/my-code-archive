@@ -66,7 +66,7 @@ export const signup = asyncHandler(async (req, res, next) => {
   });
   if (customer) {
     customer.type = customerTypes.onlineAndBranch;
-    customer.user = user._id
+    customer.user = user._id;
     message = "Welcome back branch customer";
     await customer.save();
   }
@@ -81,10 +81,10 @@ export const signup = asyncHandler(async (req, res, next) => {
 });
 
 export const confirmEmail = asyncHandler(async (req, res, next) => {
-  const { confirmEmailToken } = req.params;
+  const { token } = req.params;
 
   const decoded = verifyToken({
-    token: confirmEmailToken,
+    token: token,
     signature: process.env.CONFIRM_EMAIL_SIGNATURE,
   });
 

@@ -11,6 +11,7 @@ import orderRouter from "./modules/order/order.controller.js";
 import customerRouter from "./modules/customer/customer.controller.js";
 import cartRouter from "./modules/cart/cart.controller.js";
 import stockRouter from "./modules/stock/stock.controller.js";
+import ReportRouter from "./modules/report/report.controller.js";
 /**
  * @param {import('express').Application} app
  * @param {typeof import('express')} express
@@ -20,22 +21,28 @@ const bootstrap = (app, express) => {
   connectDB();
   app.use(cors());
   app.use(express.json());
-  app.use(morgan(process.env.MOOD == "DEV" ? "dev" : "tiny"));
-  app.get("/", (req, res, next) => {
-    return res.json({ message: "Server is running" });
-  });
+  app.use(morgan(process.env.MOOD == "DEV" ? "dev" : "common"));
 
   // app.use("/user", userRouter);
-  app.use("/auth", authRouter);
-  app.use("/book", bookRouter);
-  app.use("/author", authorRouter);
-  app.use("/category", categoryRouter);
+  app.use("/api/v1/auth", authRouter); //* Done
+  app.use("/api/v1/users", userRouter);
 
-  app.use("/order", orderRouter);
+  // Book
+  app.use("/api/v1/books", bookRouter); //* Done
+  app.use("/api/v1/authors", authorRouter); //* Done
+  app.use("/api/v1/categories", categoryRouter); //* Done
+
+  // Order
+  app.use("/api/v1/cart", cartRouter); //* Done
+  app.use("/api/v1/orders", orderRouter);
   app.use("/customer", customerRouter);
-  app.use("/cart", cartRouter);
-  app.use("/stock", stockRouter);
 
+  app.use("/stock", stockRouter); // I well not used it
+
+  app.use("/report", ReportRouter);
+  // app.use("", (req, res, next) => {
+  //   return next(new Error("Page not found", { cause: 404 }));
+  // });
   app.use(globalErrorHandling);
 };
 

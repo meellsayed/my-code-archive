@@ -20,7 +20,6 @@ import { customerModel } from "../../../DB/models/Customer.model.js";
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
  */
-
 export const login = asyncHandler(async (req, res, next) => {
   const { email, phone, password } = req.body;
 
@@ -42,6 +41,7 @@ export const login = asyncHandler(async (req, res, next) => {
     customer = await dbService.findOne({
       model: customerModel,
       filter: { phone },
+      select: "-password",
     });
   }
 
@@ -65,11 +65,9 @@ export const login = asyncHandler(async (req, res, next) => {
     data: {
       refreshToken,
       accessToken,
-      user,
     },
   });
 });
-
 export const forgetPasswordSendOtp = asyncHandler(async (req, res, next) => {
   const { email, newPassword, confirmationNewPassword } = req.body;
 
@@ -97,12 +95,11 @@ export const forgetPasswordSendOtp = asyncHandler(async (req, res, next) => {
   });
   return successResponse({ res, message: "Recovery OTP sent to your email" });
 });
-
 export const forgetPassword = asyncHandler(async (req, res, next) => {
-  const { forgetPasswordToken } = req.params;
+  const { token } = req.params;
 
   const data = await verifyToken({
-    token: forgetPasswordToken,
+    token: token,
     signature: process.env.CONFIRM_FORGET_PASSWORD_SIGNATURE,
   });
   if (
@@ -132,15 +129,20 @@ export const forgetPassword = asyncHandler(async (req, res, next) => {
     message: "Password updated successfully",
   });
 });
-
-export const refreshToken = asyncHandler(async (req, res, next) => {
+//* not have error look into controller
+export const accessToken = asyncHandler(async (req, res, next) => {
   const user = req.user;
 
   const accessToken = generateAccessToken(user);
   return successResponse({
     res,
-    data: { accessToken, userId: user._id, username: user.username },
+    data: { accessToken },
   });
 });
-
+export const resetPassword = asyncHandler(async (req, res, next) => {
+  const { oldPassword, newPassword, confirmationNewPassword } = req.body;
+  if (!compareHash({ plainText: oldPassword, hashValue: req.user.password }))
+    return new Error("Old password error", { cause: 403 });
+  req.user.password = oldPassword;
+});
 //* brach customer login

@@ -1,15 +1,22 @@
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { successResponse } from "../../../utils/response/success.response.js";
-import { filterObject } from "../../../utils/utils.js";
+import {
+  filterObject,
+  paginate,
+  paginateAggregation,
+} from "../../../utils/utils.js";
 import * as dbService from "../../../DB/db.service.js";
-import { bookModel } from "../../../DB/models/Book.model.js";
+import {
+  bookModel,
+  bookPopulate,
+  bookSelect,
+} from "../../../DB/models/Book.model.js";
 import { authorModel } from "../../../DB/models/Author.model.js";
 
 export const addOne = asyncHandler(async (req, res, next) => {
-  const { name, image, bio, birthDate, deathDate } = req.body;
+  const { name, bio, birthDate, deathDate } = req.body;
   let data = {
     name,
-    image,
     bio,
     birthDate,
     deathDate,
@@ -33,13 +40,11 @@ export const addOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, statusCode: 201, data: { author } });
 });
-// { id } = req.params;
 export const updateOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { name, image, bio, birthDate, deathDate } = req.body;
+  const { name, bio, birthDate, deathDate } = req.body;
   let data = {
     name,
-    image,
     bio,
     birthDate,
     deathDate,
@@ -60,7 +65,6 @@ export const updateOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, statusCode: 200, data: { author } });
 });
-// { id } = req.params;
 export const deleteOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -81,7 +85,6 @@ export const deleteOne = asyncHandler(async (req, res, next) => {
     message: "Author deleted successfully",
   });
 });
-// { id } = req.params;
 export const getOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -95,7 +98,6 @@ export const getOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, data: { author } });
 });
-// { search, sort } = req.query;
 export const getAll = asyncHandler(async (req, res, next) => {
   const { search, sort, page = 1, limit = 10 } = req.query;
 
@@ -154,18 +156,17 @@ export const getAll = asyncHandler(async (req, res, next) => {
     });
   }
 
-  pipeline.push({
-    $project: {
-      authorBooks: 0,
-    },
+  pipeline.push({ $sort: { createdAt: -1 } }, { $project: { authorBooks: 0 } });
+
+  // const authors = await authorModel.aggregate(pipeline);
+  const result = await paginateAggregation({
+    model: authorModel,
+    pipeline,
+    limit: Number(limit),
+    page: Number(page),
   });
-
-  const authors = await authorModel.aggregate(pipeline);
-
-  return successResponse({ res, data: { authors } });
+  return successResponse({ res, result });
 });
-// { id } = req.params;
-// { search, sort } = req.query;
 export const getAuthorBooks = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { search, sort, page = 1, limit = 10 } = req.query;
@@ -190,21 +191,23 @@ export const getAuthorBooks = asyncHandler(async (req, res, next) => {
     sortQuery.price = 1;
   }
 
-  const books = await dbService.find({
+  // const books = await dbService.find({
+  //   model: bookModel,
+  //   filter,
+  //   populate: bookPopulate,
+  //   select: bookSelect,
+  //   sort: sortQuery,
+  // });
+
+  const result = await paginate({
     model: bookModel,
     filter,
-    populate: [
-      {
-        path: "author",
-        select: "name image",
-      },
-      {
-        path: "categories",
-        select: "name",
-      },
-    ],
+    populate: bookPopulate,
+    select: bookSelect,
     sort: sortQuery,
+    limit: Number(limit),
+    page: Number(page),
   });
 
-  return successResponse({ res, data: { books } });
+  return successResponse({ res, result });
 });

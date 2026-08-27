@@ -34,32 +34,6 @@
             }
           },
           {
-            "id": "d688616ed7beb6c9",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "db/relations in Collections.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "pinned": true,
-              "icon": "lucide-file",
-              "title": "relations in Collections"
-            }
-          },
-          {
             "id": "897c386f4bbb68f9",
             "type": "leaf",
             "pinned": true,
@@ -86,12 +60,13 @@
             }
           },
           {
-            "id": "ba17c0a756e13cd5",
+            "id": "4629a15afccce492",
             "type": "leaf",
+            "pinned": true,
             "state": {
               "type": "markdown",
               "state": {
-                "file": "db/models/Role.md",
+                "file": "api_desing.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -105,60 +80,13 @@
                   "unlinkedCollapsed": true
                 }
               },
+              "pinned": true,
               "icon": "lucide-file",
-              "title": "Role"
-            }
-          },
-          {
-            "id": "2441d97359ba0930",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "تاسكات مشروع.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "تاسكات مشروع"
-            }
-          },
-          {
-            "id": "ea9873f1b63cab1b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "تاسكات مشروع.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "تاسكات مشروع"
+              "title": "api_desing"
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -358,10 +286,14 @@
       "templater-obsidian:Templater": false
     }
   },
-  "active": "ea9873f1b63cab1b",
+  "active": "4629a15afccce492",
   "lastOpenFiles": [
-    "افكار.md",
     "تاسكات مشروع.md",
+    "api desing.md",
+    "api_desing.md",
+    "book-rest-api-rulebook.md",
+    "tasks-dashboard-backend.md",
+    "افكار.md",
     "db/relations in Collections.md",
     "db/models/Publisher  ====.md",
     "db/models/Customer.md",
@@ -385,10 +317,7 @@
     "db/models/Setting===.md",
     "db/models/Sales.md",
     "db/models/cart.md",
-    "db/models/InventoryLog ===.md",
-    "db/models/Customer  ====.md",
     "erd.canvas",
-    "db/models/Borrowings ====.md",
     "Recording 20260804065228.m4a",
     "module",
     "db",

@@ -150,6 +150,96 @@ body {
   flex-shrink: 0;
 }
 
+/* ---- stock / inventory ---- */
+.stock-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 2fr;
+  gap: 1rem;
+  align-items: start;
+}
+.stock-book {
+  cursor: pointer;
+}
+.stock-book:hover {
+  background: #f1f5f9;
+}
+.dash-detail {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem;
+  min-height: 120px;
+}
+.stock-move-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+.stock-move-row {
+  display: grid;
+  grid-template-columns: 48px 60px 90px 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  background: #f8fafc;
+  border-left: 4px solid #cbd5e1;
+  font-size: 0.88rem;
+}
+.stock-move-row.in {
+  border-left-color: #16a34a;
+}
+.stock-move-row.out {
+  border-left-color: #dc2626;
+}
+.stock-move-row .sm-type {
+  font-weight: 700;
+  color: #475569;
+}
+.stock-move-row.in .sm-type {
+  color: #16a34a;
+}
+.stock-move-row.out .sm-type {
+  color: #dc2626;
+}
+.stock-move-row .sm-meta {
+  color: #64748b;
+}
+.stock-move-row .sm-date {
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+/* ---- stock adjustment form ---- */
+.stock-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.stock-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+}
+.stock-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #475569;
+}
+.stock-form select,
+.stock-form input {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
 .chips {
   display: flex;
   gap: 0.5rem;

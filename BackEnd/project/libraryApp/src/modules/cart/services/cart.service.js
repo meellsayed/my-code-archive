@@ -1,24 +1,27 @@
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { successResponse } from "../../../utils/response/success.response.js";
 import * as dbService from "../../../DB/db.service.js";
-import { bookModel } from "../../../DB/models/Book.model.js";
+import { bookModel, bookPopulate } from "../../../DB/models/Book.model.js";
 import { cartModel } from "../../../DB/models/Cart.model.js";
-import { roleTypes } from "../../../DB/models/User.model.js";
+import { roleTypes, userSelect } from "../../../DB/models/User.model.js";
+import { paginate } from "../../../utils/utils.js";
 
-// { id } = req.params // book id
-// { quantity } = req.body
+const bookSelect = "-costPrice -minQuantity -updatedBy -createdBy";
+
 export const addItem = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
+  const { bookId } = req.params;
   const { quantity } = req.body;
+
   const userId = req.user._id;
-  const isStaffCart = req.user.role !== roleTypes.customer;
-  const book = await dbService.findById({ model: bookModel, id });
-  if (!book) {
-    return next(new Error("Book not found", { cause: 404 }));
-  }
-  if (quantity > book.quantity) {
+  const book = await dbService.findById({ model: bookModel, id: bookId });
+
+  if (!book) return next(new Error("Book not found", { cause: 404 }));
+
+  if (quantity > book.quantity)
     return next(new Error(`Quantity in stock: ${book.quantity}`));
-  }
+
+  if (book.isDeleted == true)
+    return next(new Error("Book is deleted", { cause: 404 }));
 
   let cart = await dbService.findOne({
     model: cartModel,
@@ -26,18 +29,18 @@ export const addItem = asyncHandler(async (req, res, next) => {
     populate: [
       {
         path: "user",
-        select: "username",
+        select: userSelect,
       },
       {
         path: "items.book",
-        select: "title price quantity",
+        select: bookSelect,
       },
     ],
   });
 
-  if (cart != null) {
+  if (cart) {
     const oldBook = cart.items.find(
-      (items) => items.book._id.toString() === id.toString(),
+      (items) => items.book._id.toString() === bookId.toString(),
     );
 
     if (oldBook) {
@@ -57,7 +60,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
       }
 
       cart.items.push({
-        book: id,
+        book: bookId,
         quantity,
         price: book.price,
       });
@@ -74,52 +77,51 @@ export const addItem = asyncHandler(async (req, res, next) => {
   const data = {
     user: userId,
     createdBy: userId,
-    items: [{ book: id, quantity, price: book.price }],
-    isStaff: isStaffCart,
+    items: [{ book: bookId, quantity, price: book.price }],
   };
 
   cart = await dbService.create({ model: cartModel, data });
   await cart.populate([
     {
       path: "user",
-      select: "username",
+      select: userSelect,
     },
     {
       path: "items.book",
-      select: "title price quantity",
+      select: bookSelect,
     },
   ]);
   return successResponse({ res, statusCode: 201, data: { cart } });
 });
-
-export const removeItem = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
+export const decrementItem = asyncHandler(async (req, res, next) => {
+  const { bookId } = req.params;
   const { quantity = 1 } = req.body;
   const userId = req.user._id;
+
   const cart = await dbService.findOne({
     model: cartModel,
     filter: { user: userId, done: false },
-    populate: [{ path: "items.book", select: "title price quantity" }],
+    populate: [{ path: "items.book", select: "quantity " + bookSelect }],
   });
-  if (!cart) {
-    return next(new Error("Cart not found", { cause: 404 }));
-  }
+  if (cart.user.toString() != userId.toString())
+    return next(new Error("This not your Cart", { cause: 403 }));
+  if (!cart) return next(new Error("Cart not found", { cause: 404 }));
 
-  const item = cart.items.find((o) => String(o.book._id) === String(id));
-  if (!item) {
-    return next(new Error("Book not found in cart", { cause: 404 }));
-  }
+  const item = cart.items.find((o) => String(o.book._id) === String(bookId));
+  if (!item) return next(new Error("Book not found in cart", { cause: 404 }));
 
   if (quantity <= 0 || item.quantity - quantity <= 0) {
-    cart.items = cart.items.filter((o) => String(o.book._id) !== String(id));
+    cart.items = cart.items.filter(
+      (o) => String(o.book._id) !== String(bookId),
+    );
   } else {
     item.quantity -= quantity;
   }
 
   await cart.save();
+
   return successResponse({ res, statusCode: 200, data: { cart } });
 });
-
 export const getOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -127,14 +129,47 @@ export const getOne = asyncHandler(async (req, res, next) => {
     model: cartModel,
     filter: { _id: id },
   });
-  if (!cart) {
-    return next(new Error("Cart not found", { cause: 404 }));
-  }
+  if (!cart) return next(new Error("Cart not found", { cause: 404 }));
+
   if (req.user.role === roleTypes.customer) {
-    if (String(req.user._id) != String(cart.user)) {
+    if (String(req.user._id) != String(cart.user))
       return next(new Error("That is not your cart", { cause: 403 }));
-    }
   }
 
   return successResponse({ res, data: { cart } });
+});
+export const getActive = asyncHandler(async (req, res, next) => {
+  const cart = await dbService.findOne({
+    model: cartModel,
+    filter: { user: req.user._id, done: false },
+  });
+  if (!cart) return next(new Error("Cart not found", { cause: 404 }));
+
+  if (req.user.role === roleTypes.customer) {
+    if (String(req.user._id) != String(cart.user))
+      return next(new Error("That is not your cart", { cause: 403 }));
+  }
+
+  return successResponse({ res, data: { cart } });
+});
+export const getAll = asyncHandler(async (req, res, next) => {
+  const { sort, page, limit } = req.query;
+  const carts = await paginate({
+    model: cartModel,
+    filter: { user: user._id },
+    populate: [
+      {
+        path: "user",
+        select: userSelect,
+      },
+      {
+        path: "items.book",
+        select: bookSelect,
+      },
+    ],
+    sort,
+    page,
+    limit,
+  });
+  return successResponse({ res, result });
 });

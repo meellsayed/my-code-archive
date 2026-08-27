@@ -95,9 +95,63 @@ const statusBadge = (status = "") =>
 
 const authHeaders = () => ({ authorization: `Bearer ${state.token}` });
 
+// Map legacy frontend paths to the current /api/v1 backend routes.
+const remapPath = (p) => {
+  const [path, q] = String(p).split("?");
+  const special = {
+    "/auth/profile": "/api/v1/users/me",
+    "/auth/profile/image": "/api/v1/users/me/avatar",
+    "/auth/refresh-token": "/api/v1/auth/access-token",
+    "/auth/forget-password-send": "/api/v1/auth/forgot-password",
+  };
+  let out = path;
+  if (special[out]) {
+    out = special[out];
+  } else if (
+    out.startsWith("/customer") ||
+    out.startsWith("/report")
+  ) {
+    /* prefix-less modules */
+  } else if (out.startsWith("/stock")) {
+    if (out === "/stock") out = "/stock/books";
+    else out = out.replace(/^\/stock\/book\/([^/]+)$/, "/stock/books/$1");
+  } else {
+    out = "/api/v1" + out;
+    out = out
+      .replace(/^\/api\/v1\/cart\/add\/([^/]+)$/, "/api/v1/cart/items/$1")
+      .replace(/^\/api\/v1\/cart\/remove\/([^/]+)$/, "/api/v1/cart/items/$1/decrement")
+      .replace(/^\/api\/v1\/cart\b/, "/api/v1/cart")
+      .replace(/^\/api\/v1\/book\/cover\/([^/]+)$/, "/api/v1/books/$1/cover")
+      .replace(/^\/api\/v1\/book\/add$/, "/api/v1/books")
+      .replace(/^\/api\/v1\/book\b/, "/api/v1/books")
+      .replace(/^\/api\/v1\/author\b/, "/api/v1/authors")
+      .replace(/^\/api\/v1\/category\b/, "/api/v1/categories")
+      .replace(/^\/api\/v1\/order\/online\/buy\/([^/]+)$/, "/api/v1/orders/online/cart/$1/buy")
+      .replace(/^\/api\/v1\/order\/branch\/buy\/([^/]+)$/, "/api/v1/orders/$1/buy")
+      .replace(/^\/api\/v1\/order\/status\/([^/]+)$/, "/api/v1/orders/$1/status")
+      .replace(/^\/api\/v1\/order\/online\/cancel\/([^/]+)$/, "/api/v1/orders/online/$1/cancel")
+      .replace(/^\/api\/v1\/order\b/, "/api/v1/orders");
+  }
+  return out + (q ? "?" + q : "");
+};
+
+// Backend returns paginated lists as indexed objects; also handles
+// {books:[...]}/{orders:[...]} style envelopes. Always returns an array.
+const asList = (data) => {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === "object") {
+    const keys = Object.keys(data);
+    if (keys.length && keys.every((k) => /^\d+$/.test(k)))
+      return Object.values(data);
+    const arr = keys.map((k) => data[k]).find((v) => Array.isArray(v));
+    if (arr) return arr;
+  }
+  return [];
+};
+
 const api = async (path, opts = {}, useAuth = false, retried = false) => {
   const isForm = opts.body instanceof FormData;
-  const res = await fetch(API + path, {
+  const res = await fetch(API + remapPath(path), {
     headers: {
       ...(isForm ? {} : { "Content-Type": "application/json" }),
       ...(useAuth ? authHeaders() : {}),
@@ -108,6 +162,11 @@ const api = async (path, opts = {}, useAuth = false, retried = false) => {
     if (await tryRefreshToken()) return api(path, opts, useAuth, true);
   }
   const json = await res.json().catch(() => ({}));
+  if (json?.data && !Array.isArray(json.data) && typeof json.data === "object") {
+    const keys = Object.keys(json.data);
+    if (keys.length && keys.every((k) => /^\d+$/.test(k)))
+      json.data = Object.values(json.data);
+  }
   if (!res.ok) {
     const err = new Error(json.message || "Request failed");
     err.json = json;
@@ -120,7 +179,7 @@ const tryRefreshToken = async () => {
   const refreshToken = localStorage.getItem("refreshToken");
   if (!refreshToken) return false;
   try {
-    const res = await fetch(API + "/auth/refresh-token", {
+    const res = await fetch(API + remapPath("/auth/refresh-token"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -148,6 +207,8 @@ const apiDelete = (path, useAuth = false) =>
   api(path, { method: "DELETE" }, useAuth);
 const apiUpload = (path, formData, useAuth = false) =>
   api(path, { method: "POST", body: formData }, useAuth);
+const apiUploadPut = (path, formData, useAuth = false) =>
+  api(path, { method: "PUT", body: formData }, useAuth);
 
 // ================= views / nav =================
 const updateCartBadge = () => {
@@ -252,7 +313,7 @@ const loadBooks = async (search = "") => {
     if (publisher) params.set("publisher", publisher);
     const qs = params.toString();
     const { data } = await apiGet("/book" + (qs ? `?${qs}` : ""));
-    renderBooks(data?.books || []);
+    renderBooks(asList(data));
   } catch (err) {
     grid.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
   }
@@ -500,8 +561,8 @@ const loadDashStats = async () => {
       apiGet("/book").catch(() => ({ data: { books: [] } })),
       apiGet("/order", true).catch(() => ({ data: { orders: [] } })),
     ]);
-    const bookList = books.data?.books || [];
-    const orderList = orders.data?.orders || [];
+    const bookList = asList(books.data);
+    const orderList = asList(orders.data);
     const hasQty = bookList.some((b) => b.quantity != null);
     const totalStock = hasQty
       ? bookList.reduce((s, b) => s + (b.quantity || 0), 0)
@@ -548,6 +609,9 @@ const renderDashboardPane = () => {
     case "orders":
       loadDashOrders("");
       break;
+    case "stock":
+      loadStock("");
+      break;
     case "pos":
       renderPosFromCart();
       if (!$("pos-results").childElementCount) posSearch("");
@@ -562,7 +626,7 @@ const loadDashBooks = async (search = "") => {
   try {
     const qs = search ? `?search=${encodeURIComponent(search)}` : "";
     const { data } = await apiGet("/book" + qs);
-    const books = data?.books || [];
+    const books = asList(data);
     wrap.innerHTML =
       books.length === 0
         ? '<p class="msg">No books.</p>'
@@ -620,7 +684,7 @@ const loadDashAuthors = async (search = "") => {
   try {
     const qs = search ? `?search=${encodeURIComponent(search)}` : "";
     const { data } = await apiGet("/author" + qs);
-    const authors = data?.authors || [];
+    const authors = asList(data);
     wrap.innerHTML =
       authors.length === 0
         ? '<p class="msg">No authors.</p>'
@@ -673,7 +737,7 @@ const loadDashCategories = async (search = "") => {
   try {
     const qs = search ? `?search=${encodeURIComponent(search)}` : "";
     const { data } = await apiGet("/category" + qs);
-    const cats = data?.categories || [];
+    const cats = asList(data);
     wrap.innerHTML =
       cats.length === 0
         ? '<p class="msg">No categories.</p>'
@@ -726,7 +790,7 @@ const getCustomerOrderCounts = async () => {
   const map = new Map();
   try {
     const global = await apiGet("/order", true);
-    for (const o of global?.data?.orders || []) {
+    for (const o of asList(global?.data)) {
       const id = String(o.customer?._id || o.customer || "");
       if (!id) continue;
       map.set(id, (map.get(id) || 0) + 1);
@@ -749,7 +813,7 @@ const loadDashCustomers = async (search = "") => {
     if (type) params.set("type", type);
     const qs = params.toString();
     const { data } = await apiGet("/customer" + (qs ? `?${qs}` : ""), true);
-    const customers = data?.customers || [];
+    const customers = asList(data);
     const orderCount = await getCustomerOrderCounts();
     wrap.innerHTML =
       customers.length === 0
@@ -802,7 +866,7 @@ const delCustomer = async (id) => {
 const openCustomerOrders = async (customerId) => {
   try {
     const { data } = await apiGet(`/order/customer/${customerId}`, true);
-    const orders = data?.orders || [];
+    const orders = asList(data);
     if (!orders.length) {
       showInfoModal(
         "Customer Orders",
@@ -849,10 +913,10 @@ const loadDashOrders = async (search = "") => {
     let orders = [];
     try {
       const global = await apiGet("/order", true);
-      orders = global?.data?.orders || [];
+      orders = asList(global?.data);
     } catch (e) {
       const own = await apiGet("/order/online", true);
-      orders = own?.data?.orders || [];
+      orders = asList(own?.data);
     }
     const term = search.trim().toLowerCase();
     const filtered = orders.filter(
@@ -918,6 +982,137 @@ const advanceOrderStatus = async (id) => {
   }
 };
 
+// ---- stock / inventory (dashboard) ----
+const loadStock = async (search = "") => {
+  const wrap = $("dash-stock-list");
+  wrap.innerHTML = '<p class="msg">Loading...</p>';
+  try {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
+    const { data } = await apiGet("/stock" + qs, true);
+    const books = asList(data);
+    wrap.innerHTML =
+      books.length === 0
+        ? '<p class="msg">No books.</p>'
+        : books
+            .map(
+              (b) => `
+        <div class="dash-row stock-book" data-stock-book="${b._id}">
+          <div class="info">
+            ${coverImg(b.cover, "dash-cover")}
+            <div>
+              <h4>${escapeHTML(b.title)}</h4>
+              <span>${escapeHTML(b.author?.name || "Unknown")} · ${formatPrice(b.price)}</span>
+            </div>
+          </div>
+        </div>`,
+            )
+            .join("");
+    wrap
+      .querySelectorAll("[data-stock-book]")
+      .forEach((row) =>
+        row.addEventListener("click", () =>
+          loadStockMovements(row.dataset.stockBook),
+        ),
+      );
+  } catch (err) {
+    wrap.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
+  }
+};
+
+const loadStockMovements = async (bookId) => {
+  const wrap = $("dash-stock-detail");
+  wrap.innerHTML = `
+    <form id="stock-adjust-form" class="stock-form" data-book-id="${bookId}">
+      <h4>Adjust Stock</h4>
+      <div class="stock-form-grid">
+        <label>Type
+          <select name="type">
+            <option value="in">Stock in</option>
+            <option value="out">Stock out</option>
+          </select>
+        </label>
+        <label>Quantity
+          <input name="quantity" type="number" min="1" value="1" />
+        </label>
+        <label>Price (optional)
+          <input name="price" type="number" step="0.01" placeholder="book price" />
+        </label>
+        <label>Customer type
+          <select name="customerType">
+            <option value="">—</option>
+            <option value="Customer">Customer</option>
+            <option value="User">User</option>
+          </select>
+        </label>
+        <label>Customer ID
+          <input name="customer" placeholder="customer _id (optional)" />
+        </label>
+      </div>
+      <button type="submit" class="btn primary">Record Movement</button>
+      <p id="stock-adjust-msg" class="msg"></p>
+    </form>
+    <h4>Stock Movement History</h4>
+    <div id="stock-move-list" class="stock-move-list"><p class="msg">Loading...</p></div>`;
+  $("stock-adjust-form").addEventListener("submit", submitStockAdjustment);
+  await renderStockMovements(bookId);
+};
+
+const renderStockMovements = async (bookId) => {
+  const list = $("stock-move-list");
+  if (!list) return;
+  try {
+    const res = await apiGet("/stock/book/" + bookId, true);
+    const moves = asList(res.data);
+    list.innerHTML = !moves.length
+      ? '<p class="msg">No stock movements recorded for this book.</p>'
+      : moves
+          .map(
+            (m) => `
+          <div class="stock-move-row ${m.type}">
+            <span class="sm-type">${m.type === "in" ? "IN" : "OUT"}</span>
+            <span class="sm-qty">${m.quantity}</span>
+            <span class="sm-price">${formatPrice(m.price || 0)}</span>
+            <span class="sm-meta">${escapeHTML(m.seller?.username || "—")}${m.customer?.username ? " → " + escapeHTML(m.customer.username) : ""}</span>
+            <span class="sm-date">${new Date(m.createdAt).toLocaleDateString()}</span>
+          </div>`,
+          )
+          .join("");
+  } catch (err) {
+    list.innerHTML = `<p class="msg error">${escapeHTML(err.message)}</p>`;
+  }
+};
+
+const submitStockAdjustment = async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const bookId = form.dataset.bookId;
+  const msg = $("stock-adjust-msg");
+  msg.className = "msg";
+  msg.textContent = "";
+  const fd = new FormData(form);
+  const quantity = Number(fd.get("quantity") || 0);
+  if (!quantity || quantity <= 0) {
+    msg.className = "msg error";
+    msg.textContent = "Quantity must be greater than 0";
+    return;
+  }
+  const body = { type: fd.get("type"), quantity };
+  const price = fd.get("price");
+  if (price) body.price = Number(price);
+  const customerType = fd.get("customerType");
+  if (customerType) body.customerType = customerType;
+  const customer = fd.get("customer")?.trim();
+  if (customer) body.customer = customer;
+  try {
+    const res = await apiPost(`/stock/book/${bookId}`, body, true);
+    showToast(res.message || "Stock movement recorded");
+    renderStockMovements(bookId);
+  } catch (err) {
+    msg.className = "msg error";
+    msg.textContent = err.message;
+  }
+};
+
 // ---- my orders (customer's own online orders) ----
 const loadMyOrders = async (search = "") => {
   const wrap = $("my-orders-list");
@@ -925,7 +1120,7 @@ const loadMyOrders = async (search = "") => {
   try {
     const status = $("my-order-status")?.value;
     const { data } = await apiGet("/order/online", true);
-    const all = data?.orders || [];
+    const all = asList(data);
     const term = search.trim().toLowerCase();
     const orders = all.filter(
       (o) =>
@@ -990,7 +1185,7 @@ const getBookMap = async () => {
   if (!bookCache) {
     try {
       const { data } = await apiGet("/book?limit=1000");
-      bookCache = new Map((data?.books || []).map((b) => [String(b._id), b]));
+      bookCache = new Map((asList(data)).map((b) => [String(b._id), b]));
     } catch (e) {
       bookCache = new Map();
     }
@@ -1112,7 +1307,7 @@ const bookListHtml = (books) =>
 const openAuthorBooks = async (id) => {
   try {
     const { data } = await apiGet(`/author/books/${id}`);
-    showInfoModal("Author Books", bookListHtml(data?.books || []));
+    showInfoModal("Author Books", bookListHtml(asList(data)));
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -1121,7 +1316,7 @@ const openAuthorBooks = async (id) => {
 const openCategoryBooks = async (id) => {
   try {
     const { data } = await apiGet(`/category/books/${id}`);
-    showInfoModal("Category Books", bookListHtml(data?.books || []));
+    showInfoModal("Category Books", bookListHtml(asList(data)));
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -1134,8 +1329,8 @@ const loadMeta = async () => {
       apiGet("/author").catch(() => ({ data: { authors: [] } })),
       apiGet("/category").catch(() => ({ data: { categories: [] } })),
     ]);
-    state.authors = a.data?.authors || [];
-    state.categories = c.data?.categories || [];
+    state.authors = asList(a.data);
+    state.categories = asList(c.data);
   } catch (e) {
     state.authors = [];
     state.categories = [];
@@ -1224,8 +1419,6 @@ const openBookForm = async (id = null) => {
     data.minQuantity =
       data.minQuantity !== "" ? Number(data.minQuantity) : undefined;
     data.subtitle = data.subtitle || undefined;
-    data.publisher = data.publisher || undefined;
-    data.cover = data.cover || undefined;
     data.description = data.description || undefined;
     if (!data.title) return showToast("Title is required", "error");
     if (!data.author) return showToast("Please select an author", "error");
@@ -1247,8 +1440,8 @@ const openBookForm = async (id = null) => {
       }
       if (coverFile && coverFile.size) {
         const cf = new FormData();
-        cf.append("cover", coverFile);
-        await apiUpload(`/book/cover/${bookId}`, cf, true);
+        cf.append("file", coverFile);
+        await apiUploadPut(`/book/cover/${bookId}`, cf, true);
         showToast("Cover uploaded successfully");
       }
       $("entity-modal").classList.add("hidden");
@@ -1267,7 +1460,6 @@ const openEntityForm = async (type, id = null) => {
       title: "Author",
       fields: [
         ["name", "Name"],
-        ["image", "Image URL"],
         ["bio", "Bio"],
         ["birthDate", "Birth date (YYYY-MM-DD)"],
         ["deathDate", "Death date (YYYY-MM-DD)"],
@@ -1784,8 +1976,8 @@ const renderProfileForm = (wrap, user) => {
     try {
       const profileFd = new FormData();
       if (avatarFile && avatarFile.size) {
-        profileFd.append("image", avatarFile);
-        const uploadRes = await apiUpload("/auth/profile/image", profileFd, true);
+        profileFd.append("file", avatarFile);
+        const uploadRes = await apiUploadPut("/auth/profile/image", profileFd, true);
         body.image = uploadRes?.data?.image || uploadRes?.data?.user?.image;
       }
       body.image = body.image || String(fd.get("image") || "").trim() || undefined;
@@ -1925,6 +2117,9 @@ $("dash-customer-type").addEventListener("change", () =>
 $("dash-order-search").addEventListener("input", (e) =>
   debounce(() => loadDashOrders(e.target.value.trim()), 400, "orders"),
 );
+$("dash-stock-search").addEventListener("input", (e) =>
+  debounce(() => loadStock(e.target.value.trim()), 400, "stock"),
+);
 $("dash-order-status").addEventListener("change", () =>
   loadDashOrders($("dash-order-search").value.trim()),
 );
@@ -1969,7 +2164,7 @@ const posSearch = async (search = "") => {
   try {
     const qs = search ? `?search=${encodeURIComponent(search)}` : "";
     const { data } = await apiGet("/book" + qs);
-    const books = data?.books || [];
+    const books = asList(data);
     wrap.innerHTML =
       books.length === 0
         ? '<div class="empty-state"><p class="msg">No books.</p></div>'
@@ -2000,7 +2195,7 @@ const posSearch = async (search = "") => {
 const loadCategories = async () => {
   try {
     const { data } = await apiGet("/category");
-    const cats = data?.categories || [];
+    const cats = asList(data);
     const wrap = $("category-filters");
     wrap.innerHTML =
       `<button class="chip ${!state.activeCategory ? "active" : ""}" data-cat="">All</button>` +

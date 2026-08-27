@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import bootstrap from "./src/app.controller.js";
 import dotenv from "dotenv";
 dotenv.config({ path: "./src/config/.env.dev" });
@@ -6,6 +7,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 bootstrap(app, express);
+
+app.use(express.static(path.resolve("frontend")));
 
 app.listen(PORT, (err) => {
   if (err) {

@@ -4,13 +4,12 @@ const orderSchema = new Schema(
   {
     customerType: {
       type: String,
-      enum: ["User", "Customer"],
+      enum: ["User", "Customer", "Fast"],
       required: true,
     },
     customer: {
       type: Types.ObjectId,
       refPath: "customerType",
-      required: true,
     },
     seller: { type: Types.ObjectId, ref: "User" },
     cart: { type: Types.ObjectId, ref: "Cart" },

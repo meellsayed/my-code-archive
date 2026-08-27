@@ -13,11 +13,6 @@ export const signup = joi
     gender: generalFields.gender,
   })
   .required();
-
-// export const confirmEmail = joi.object().keys({
-//   confirmEmailToken: generalFields.token.required(),
-// });
-
 export const login = joi
   .object()
   .keys({
@@ -31,4 +26,12 @@ export const forgetPasswordSendOtp = joi.object().keys({
   email: generalFields.email,
   newPassword: generalFields.password.required(),
   confirmationNewPassword: joi.string().valid(joi.ref("newPassword")),
+});
+export const resetPassword = joi.object().keys({
+  oldPassword: generalFields.password.required(),
+  newPassword: generalFields.password.required(),
+  confirmationNewPassword: joi
+    .string()
+    .valid(joi.ref("newPassword"))
+    .required(),
 });

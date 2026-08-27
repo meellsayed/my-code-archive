@@ -1,77 +1,18 @@
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { successResponse } from "../../../utils/response/success.response.js";
 import * as dbService from "../../../DB/db.service.js";
-import { filterObject } from "../../../utils/utils.js";
-import { bookModel } from "../../../DB/models/Book.model.js";
+import {
+  filterObject,
+  paginate,
+  paginateAggregation,
+} from "../../../utils/utils.js";
+import {
+  bookModel,
+  bookSelect,
+  bookPopulate,
+} from "../../../DB/models/Book.model.js";
 import { categoryModel } from "../../../DB/models/Category.model.js";
 
-export const addOne = asyncHandler(async (req, res, next) => {
-  const { name, description } = req.body;
-  let data = {
-    name,
-    description,
-    createdBy: req.user._id,
-  };
-  data = filterObject(data);
-
-  if (
-    (await dbService.findOne({
-      model: categoryModel,
-      filter: { name, isDeleted: false },
-    })) != null
-  ) {
-    return next(new Error("Category already exists", { cause: 400 }));
-  }
-
-  const category = await dbService.create({
-    model: categoryModel,
-    data: { ...data },
-  });
-
-  return successResponse({ res, statusCode: 201, data: { category } });
-});
-// { id } = req.params;
-export const updateOne = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const { name, description } = req.body;
-  let data = { name, description };
-  data = filterObject(data);
-
-  const category = await dbService.findOneAndUpdate({
-    model: categoryModel,
-    filter: { _id: id, isDeleted: false },
-    data: { ...data },
-    options: { new: true },
-  });
-
-  if (category == null) {
-    return next(new Error("Category not found", { cause: 404 }));
-  }
-
-  return successResponse({ res, statusCode: 200, data: { category } });
-});
-// { id } = req.params;
-export const deleteOne = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-
-  const category = await dbService.findOneAndUpdate({
-    model: categoryModel,
-    filter: { _id: id, isDeleted: false },
-    data: { isDeleted: true },
-    options: { new: true },
-  });
-
-  if (category == null) {
-    return next(new Error("Category not found", { cause: 404 }));
-  }
-
-  return successResponse({
-    res,
-    statusCode: 200,
-    message: "Category deleted successfully",
-  });
-});
-// { id } = req.params;
 export const getOne = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -88,7 +29,6 @@ export const getOne = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, data: { category } });
 });
-// { search, sort } = req.query;
 export const getAll = asyncHandler(async (req, res, next) => {
   const { search, sort, page = 1, limit = 10 } = req.query;
   const pipeline = [];
@@ -147,12 +87,80 @@ export const getAll = asyncHandler(async (req, res, next) => {
     },
   });
 
-  const categories = await categoryModel.aggregate(pipeline);
+  const result = await paginateAggregation({
+    model: categoryModel,
+    pipeline,
+    limit: Number(limit),
+    page: Number(page),
+  });
 
-  return successResponse({ res, data: { categories } });
+  return successResponse({ res, result });
 });
-// { id } = req.params;
-// { search, sort } = req.query;
+export const addOne = asyncHandler(async (req, res, next) => {
+  const { name, description } = req.body;
+  let data = {
+    name,
+    description,
+    createdBy: req.user._id,
+  };
+  data = filterObject(data);
+
+  if (
+    (await dbService.findOne({
+      model: categoryModel,
+      filter: { name, isDeleted: false },
+    })) != null
+  ) {
+    return next(new Error("Category already exists", { cause: 400 }));
+  }
+
+  const category = await dbService.create({
+    model: categoryModel,
+    data: { ...data },
+  });
+
+  return successResponse({ res, statusCode: 201, data: { category } });
+});
+export const updateOne = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const { name, description } = req.body;
+  let data = { name, description };
+  data = filterObject(data);
+
+  const category = await dbService.findOneAndUpdate({
+    model: categoryModel,
+    filter: { _id: id, isDeleted: false },
+    data: { ...data },
+    options: { new: true },
+  });
+
+  if (category == null) {
+    return next(new Error("Category not found", { cause: 404 }));
+  }
+
+  return successResponse({ res, statusCode: 200, data: { category } });
+});
+export const deleteOne = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const category = await dbService.findOneAndUpdate({
+    model: categoryModel,
+    filter: { _id: id, isDeleted: false },
+    data: { isDeleted: true },
+    options: { new: true },
+  });
+
+  if (category == null) {
+    return next(new Error("Category not found", { cause: 404 }));
+  }
+
+  return successResponse({
+    res,
+    statusCode: 200,
+
+    message: "Category deleted successfully",
+  });
+});
 export const getCategoryBooks = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { search, sort, page = 1, limit = 10 } = req.query;
@@ -177,21 +185,23 @@ export const getCategoryBooks = asyncHandler(async (req, res, next) => {
     sortQuery.price = 1;
   }
 
-  const books = await dbService.find({
+  // const books = await dbService.find({
+  //   model: bookModel,
+  //   filter,
+  //   populate: bookPopulate,
+  //   select: bookSelect,
+  //   sort: sortQuery,
+  // });
+
+  const result = await paginate({
     model: bookModel,
     filter,
-    populate: [
-      {
-        path: "author",
-        select: "name image",
-      },
-      {
-        path: "categories",
-        select: "name",
-      },
-    ],
+    populate: bookPopulate,
+    select: bookSelect,
     sort: sortQuery,
+    limit: Number(limit),
+    page: Number(page),
   });
 
-  return successResponse({ res, data: { books } });
+  return successResponse({ res, result });
 });

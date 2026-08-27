@@ -10,9 +10,7 @@ const cartSchema = new Schema(
   {
     user: { type: Types.ObjectId, ref: "User", required: true },
     items: { type: [orderSchema], default: [] },
-    createdBy: { type: Types.ObjectId, ref: "User" },
-    isStaff: { type: Boolean, default: false },
-    done: { type: Boolean, default: false },
+    done: { type: Boolean, default: false }, // will be status
   },
   { timestamps: true },
 );

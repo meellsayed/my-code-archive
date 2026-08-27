@@ -62,7 +62,7 @@ sendEmailEvent.on(
     const payload = { email, otp, newPassword };
     const signature = process.env.CONFIRM_FORGET_PASSWORD_SIGNATURE;
     const token = generateToken({ payload, signature, expiresIn: 60 * 10 });
-    const forgetPasswordLink = `${process.env.FRONT_END_URL}/auth/forget-password/${token}`;
+    const forgetPasswordLink = `${process.env.FRONT_END_URL}/auth/forgot-password/${token}`;
 
     const html = sendEmailForgetOtp({ forgetPasswordLink, otp });
 

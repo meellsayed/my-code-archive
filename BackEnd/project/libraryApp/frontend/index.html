@@ -158,6 +158,7 @@
           <button class="auth-tab" data-dash="categories">Categories</button>
           <button class="auth-tab" data-dash="customers">Customers</button>
           <button class="auth-tab" data-dash="orders">Orders</button>
+          <button class="auth-tab" data-dash="stock">Stock</button>
           <button class="auth-tab" data-dash="pos">New Sale</button>
         </div>
 
@@ -249,6 +250,23 @@
             </select>
           </div>
           <div id="dash-orders-list" class="dash-list"></div>
+        </div>
+
+        <!-- Stock / Inventory -->
+        <div id="dash-stock" class="dash-pane">
+          <div class="pane-toolbar">
+            <input
+              id="dash-stock-search"
+              type="text"
+              placeholder="Search books..."
+            />
+          </div>
+          <div class="stock-layout">
+            <div id="dash-stock-list" class="dash-list"></div>
+            <div id="dash-stock-detail" class="dash-detail">
+              <p class="msg">Select a book to view its stock movement history.</p>
+            </div>
+          </div>
         </div>
 
         <!-- POS (new sale) -->

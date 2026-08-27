@@ -1,7 +1,6 @@
 import { Router } from "express";
-import * as branchServices from "./services/branch.service.js";
 import * as onlineServices from "./services/online.service.js";
-import * as globalServices from "./services/global.service.js";
+import * as staffServices from "./services/staff.service.js";
 import {
   authentication,
   authorization,
@@ -9,48 +8,46 @@ import {
 import { roleTypes } from "../../DB/models/User.model.js";
 const router = Router();
 
+//========================= online ===========================
+router.get("/online", authentication(), onlineServices.getOrders);
+router.get("/online/:id", authentication(), onlineServices.getOrder);
+router.post("/online/cart/:id/buy", authentication(), onlineServices.buyCart);
+router.patch(
+  "/online/:id/cancel",
+  authentication(),
+  onlineServices.cancelOrder,
+);
+
 //========================= global ===========================
 router.get(
   "",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
-  globalServices.getAll,
+  staffServices.getAll,
 );
 router.get(
   "/customer/:id",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
-  globalServices.getCustomerOrders,
+  staffServices.getCustomerOrders,
 );
-router.patch(
-  "/status/:id",
-  authentication(),
-  authorization([roleTypes.admin, roleTypes.staff]),
-  globalServices.updateStatus,
-);
-
-//========================= online ===========================
-router.post("/online/buy/:id", authentication(), onlineServices.buyCart); // cart id
-router.get("/online", authentication(), onlineServices.getOrders);
-router.get("/online/:id", authentication(), onlineServices.getOrder); // order id
-router.patch(
-  "/online/cancel/:id",
-  authentication(),
-  onlineServices.cancelOrder,
-); // order id
-//========================= branch ===========================
-router.post(
-  "/branch/buy/:id",
-  authentication(),
-  authorization([roleTypes.admin, roleTypes.staff]),
-  branchServices.buyCart,
-);
-//================================================================================
 router.get(
   "/:id",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
-  globalServices.getOne,
+  staffServices.getOne,
 );
-
+router.post(
+  "/:id/buy",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  staffServices.buyCart,
+);
+router.patch(
+  "/:id/status",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  staffServices.updateStatus,
+);
+router.patch("/fast/fast", authentication(), staffServices.fastOrder);
 export default router;

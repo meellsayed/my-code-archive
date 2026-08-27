@@ -34,3 +34,9 @@ const bookSchema = new Schema(
 );
 
 export const bookModel = mongoose.models.Book || model("Book", bookSchema);
+export const bookPopulate = [
+  { path: "categories", select: "name isDeleted" },
+  { path: "author", select: "name image isDeleted" },
+];
+export const bookSelect =
+  "-costPrice -quantity -minQuantity -updatedBy -createdBy";

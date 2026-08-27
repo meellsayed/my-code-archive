@@ -5,10 +5,29 @@ import {
   authorization,
 } from "../../middlewares/auth.middleware.js";
 import { roleTypes } from "../../DB/models/User.model.js";
+import { validation } from "../../middlewares/validation.middleware.js";
+import * as validators from "./cart.validation.js";
 const router = Router();
 
-// router.get(""); //get all
-router.post("/add/:id", authentication(), cartServices.addItem);
-router.patch("/remove/:id", authentication(), cartServices.removeItem);
-router.get("/:id", authentication(), cartServices.getOne);
+router.get("", authentication(), cartServices.getAll); //* I Will be added search query
+router.get("/active", authentication(), cartServices.getActive);
+router.get(
+  "/:id",
+  validation(validators.getOne),
+  authentication(),
+  cartServices.getOne,
+);
+router.post(
+  "items/:bookId",
+  validation(validators.addItem),
+  authentication(),
+  cartServices.addItem,
+);
+router.patch(
+  "items/:bookId/decrement",
+  validation(validators.decrementItem),
+  authentication(),
+  cartServices.decrementItem,
+);
+
 export default router;

@@ -7,18 +7,19 @@ import {
 import { roleTypes } from "../../DB/models/User.model.js";
 const router = Router();
 
-//========================= global ===========================
+
 router.get(
-  "",
+  "/books",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
   stockServices.getBooks,
 );
-router.get (
-   "/book/:id",
+router.get(
+  "/books/:id",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
   stockServices.getBookMovement,
+);
 
-)
+
 export default router;
