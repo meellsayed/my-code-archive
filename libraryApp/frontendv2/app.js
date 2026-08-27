@@ -526,19 +526,47 @@ const openBookForm = async (id = null) => {
   const b = id ? (await apiGet("/api/v1/books/" + id)).data.book : {};
   const form = $("entity-form");
   form.innerHTML = `
-    <div class="form-group"><label>العنوان</label><input name="title" value="${escapeHTML(b.title || "")}" required /></div>
-    <div class="form-group"><label>العنوان الفرعي</label><input name="subtitle" value="${escapeHTML(b.subtitle || "")}" /></div>
-    <div class="form-group full"><label>الوصف</label><input name="description" value="${escapeHTML(b.description || "")}" /></div>
-    <div class="form-group"><label>المؤلف</label><select name="author">${aList.map((a) => `<option value="${a._id}" ${String(b.author?._id) === a._id ? "selected" : ""}>${escapeHTML(a.name)}</option>`).join("")}</select></div>
-    <div class="form-group full"><label>التصنيفات</label><select name="categories" multiple size="4">${cList.map((c) => `<option value="${c._id}" ${(b.categories || []).some((x) => String(x._id) === c._id) ? "selected" : ""}>${escapeHTML(c.name)}</option>`).join("")}</select></div>
-    <div class="form-group"><label>عدد الصفحات</label><input name="pages" type="number" value="${b.pages || ""}" /></div>
-    <div class="form-group"><label>السعر</label><input name="price" type="number" value="${b.price || ""}" required /></div>
-    <div class="form-group"><label>سعر التكلفة</label><input name="costPrice" type="number" value="${b.costPrice || ""}" /></div>
-    <div class="form-group"><label>الكمية</label><input name="quantity" type="number" value="${b.quantity || ""}" /></div>
-    <div class="form-group"><label>الحد الأدنى للكمية</label><input name="minQuantity" type="number" value="${b.minQuantity || ""}" /></div>
-    <div class="form-group full"><label class="check-label"><input type="checkbox" name="availableToBorrow" ${b.availableToBorrow === false ? "" : "checked"} /> متاح للإعارة</label></div>
-    <div class="form-group full"><label>غلاف الكتاب</label><input name="coverFile" type="file" accept="image/*" /></div>
+    <div class="form-section">
+      <h4 class="form-section-title">تفاصيل الكتاب</h4>
+      <div class="form-group"><label>العنوان</label><input name="title" value="${escapeHTML(b.title || "")}" required /></div>
+      <div class="form-group"><label>العنوان الفرعي</label><input name="subtitle" value="${escapeHTML(b.subtitle || "")}" /></div>
+      <div class="form-group full"><label>الوصف</label><textarea name="description" rows="3">${escapeHTML(b.description || "")}</textarea></div>
+      <div class="form-group"><label>المؤلف</label><select name="author">${aList.map((a) => `<option value="${a._id}" ${String(b.author?._id) === a._id ? "selected" : ""}>${escapeHTML(a.name)}</option>`).join("")}</select></div>
+      <div class="form-group full"><label>التصنيفات</label><select name="categories" multiple size="5">${cList.map((c) => `<option value="${c._id}" ${(b.categories || []).some((x) => String(x._id) === c._id) ? "selected" : ""}>${escapeHTML(c.name)}</option>`).join("")}</select></div>
+    </div>
+    <div class="form-section">
+      <h4 class="form-section-title">السعر والمخزون</h4>
+      <div class="form-group"><label>عدد الصفحات</label><input name="pages" type="number" value="${b.pages || ""}" /></div>
+      <div class="form-group"><label>السعر</label><input name="price" type="number" value="${b.price || ""}" required /></div>
+      <div class="form-group"><label>سعر التكلفة</label><input name="costPrice" type="number" value="${b.costPrice || ""}" /></div>
+      <div class="form-group"><label>الكمية</label><input name="quantity" type="number" value="${b.quantity || ""}" /></div>
+      <div class="form-group"><label>الحد الأدنى</label><input name="minQuantity" type="number" value="${b.minQuantity || ""}" /></div>
+      <div class="form-group full"><label class="switch-field"><span class="switch-label">متاح للإعارة</span><span class="switch"><input type="checkbox" name="availableToBorrow" ${b.availableToBorrow === false ? "" : "checked"} /><span class="slider"></span></span></label></div>
+    </div>
+    <div class="form-section">
+      <h4 class="form-section-title">صورة الغلاف</h4>
+      <div class="form-group full cover-upload">
+        <label>صورة الغلاف</label>
+        <div class="cover-preview-wrap">
+          <img class="cover-preview" id="cover-preview" src="${escapeHTML(b.cover || PLACEHOLDER)}" alt="معاينة الغلاف" />
+          <div class="cover-file">
+            <input name="coverFile" type="file" accept="image/*" />
+            <span class="cover-hint">اختر صورة جديدة (اختياري)</span>
+          </div>
+        </div>
+      </div>
+    </div>
     <button class="btn primary form-submit" type="submit">${id ? "حفظ" : "إنشاء"}</button>`;
+  const coverInput = form.querySelector('input[name="coverFile"]');
+  if (coverInput)
+    coverInput.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) {
+        const r = new FileReader();
+        r.onload = () => { const p = $("cover-preview"); if (p) p.src = r.result; };
+        r.readAsDataURL(f);
+      }
+    });
   $("entity-modal-heading").textContent = id ? "تعديل كتاب" : "كتاب جديد";
   openModal("entity-modal");
   form.onsubmit = async (e) => {
@@ -631,10 +659,13 @@ const openEntityForm = async (type, id = null) => {
         return `<div class="form-group"><label>${escapeHTML(lbl)}</label><select name="${name}">${opts}</select></div>`;
       }
       const val = existing?.[name] != null ? String(existing[name]).slice(0, 10) : "";
+      if (name === "bio" || name === "description") {
+        return `<div class="form-group full"><label>${escapeHTML(lbl)}</label><textarea name="${name}" rows="3" placeholder="${escapeHTML(lbl)}">${escapeHTML(val)}</textarea></div>`;
+      }
       return `<div class="form-group"><label>${escapeHTML(lbl)}</label><input name="${name}" placeholder="${escapeHTML(lbl)}" value="${escapeHTML(val)}" /></div>`;
     })
     .join("");
-  form.innerHTML = fieldsHtml + '<button class="btn primary form-submit" type="submit">حفظ</button>';
+  form.innerHTML = `<div class="form-section">${fieldsHtml}</div><button class="btn primary form-submit" type="submit">حفظ</button>`;
   $("entity-modal-heading").textContent = meta.heading(id);
   openModal("entity-modal");
   form.onsubmit = async (e) => {
