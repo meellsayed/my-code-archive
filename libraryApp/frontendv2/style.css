@@ -644,14 +644,78 @@ main { min-height: 72vh; padding-bottom: 60px; }
     position: static;
     overflow-x: auto;
     white-space: nowrap;
+    padding: 8px;
   }
-  .dash-tab { text-align: center; }
+  .dash-tab { text-align: center; white-space: nowrap; }
   #book-modal-body img { width: 160px; height: 230px; }
+  .main-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+  .main-nav .nav-link { white-space: nowrap; }
 }
+
 @media (max-width: 560px) {
-  .topbar { flex-wrap: wrap; gap: 10px; }
-  .main-nav { order: 3; width: 100%; justify-content: flex-start; }
-  .books-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .topbar {
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    padding: 10px 14px;
+  }
+  .brand { font-size: 18px; }
+  .top-actions { margin-inline-start: auto; }
+  .main-nav {
+    order: 3;
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+  .main-nav .nav-link { white-space: nowrap; padding: 8px 12px; }
+
+  .view { padding: 14px 12px; }
+  .books-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+
+  .store-controls { padding: 12px; }
+  .store-controls input,
+  .store-controls select { flex: 1 1 100%; min-width: 0; }
+  #search-input { min-width: 0; }
+
+  #books-loadmore { width: 100%; }
+
+  .cart-item { flex-wrap: wrap; }
+  .cart-item > * { min-width: 0; }
+  .cart-item .info { flex: 1 1 auto; }
+  .cart-item .info h4 { overflow: hidden; text-overflow: ellipsis; }
+
+  .dash-row { flex-wrap: wrap; }
+  .dash-row img { width: 48px; height: 66px; }
+  .dash-row .info { flex: 1 1 auto; }
+  .dash-actions { width: 100%; justify-content: flex-start; }
+
   #customer-fields, .pos-checkout, .stock-form-grid { grid-template-columns: 1fr; }
-  .stock-move-row { grid-template-columns: repeat(3, auto); }
+  .stock-move-row { grid-template-columns: repeat(3, auto); gap: 6px; }
+
+  #book-modal-body { flex-direction: column; align-items: center; text-align: center; }
+  #book-modal-body img, .modal-cover { width: 150px; height: 215px; }
+  #book-modal-body .bm-info { text-align: center; }
+
+  .modal { padding: 8px; }
+  .modal-box { padding: 18px; border-radius: 14px; max-height: 92vh; }
+  .modal-box.wide { max-width: 100%; }
+  .modal-close { top: 8px; left: 8px; width: 32px; height: 32px; }
+
+  .entity-form { gap: 12px; }
+
+  .toast { max-width: calc(100vw - 32px); }
+  .toast-container { bottom: 16px; left: 16px; right: 16px; }
+}
+
+@media (max-width: 380px) {
+  .books-grid { grid-template-columns: repeat(2, 1fr); }
+  .topbar .btn { padding: 8px 12px; font-size: 13px; }
 }
