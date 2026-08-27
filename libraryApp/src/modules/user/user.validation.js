@@ -5,4 +5,5 @@ export const updateProfile = joi.object().keys({
   username: generalFields.username,
   phone: generalFields.phone,
   address: generalFields.address,
+  gender: generalFields.gender.valid("male", "female"),
 });

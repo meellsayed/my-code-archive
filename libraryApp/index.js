@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 bootstrap(app, express);
 
-app.use(express.static(path.resolve("frontendv2")));
+app.use(express.static(path.resolve("frontendv2"), { maxAge: "1h", etag: true }));
 app.use("/v2", express.static(path.resolve("frontend")));
 
 app.listen(PORT, (err) => {

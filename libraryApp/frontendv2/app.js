@@ -46,7 +46,7 @@ const PLACEHOLDER =
     '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420"><rect width="300" height="420" fill="#e7ebf0"/></svg>'
   );
 const coverImg = (url, cls = "book-cover") =>
-  `<img class="${cls}" src="${escapeHTML(url || "")}" alt="" loading="lazy" onerror="this.src='${PLACEHOLDER}'" />`;
+  `<img class="${cls}" src="${escapeHTML(url || "")}" alt="" loading="lazy" decoding="async" onerror="this.src='${PLACEHOLDER}'" />`;
 
 const optionLabel = (o) =>
   ({ male: "ذكر", female: "أنثى", branch: "فرع", online: "أونلاين", onlineAndBranch: "فرع وأونلاين" }[o] || o);
@@ -362,15 +362,43 @@ const enrichCart = async (cart) => {
   return cart;
 };
 let bookCache = null;
-const getBookMap = async () => {
-  if (!bookCache) {
-    try {
-      const res = await apiGet("/api/v1/books?limit=1000");
-      bookCache = new Map(asList(res.data).map((b) => [String(b._id), b]));
-    } catch {
-      bookCache = new Map();
-    }
+let bookMapRefreshing = false;
+const fetchBookMap = async () => {
+  const res = await apiGet("/api/v1/books?limit=1000");
+  const arr = asList(res.data);
+  const m = new Map(arr.map((b) => [String(b._id), b]));
+  try { localStorage.setItem("lib:bookmap", JSON.stringify({ ts: Date.now(), items: arr })); } catch {}
+  return m;
+};
+const loadBookMapPersisted = () => {
+  try {
+    const raw = localStorage.getItem("lib:bookmap");
+    if (!raw) return null;
+    const { ts, items } = JSON.parse(raw);
+    return { ts, map: new Map(items.map((b) => [String(b._id), b])) };
+  } catch {
+    return null;
   }
+};
+const invalidateBookMap = () => {
+  bookCache = null;
+  bookMapRefreshing = false;
+  try { localStorage.removeItem("lib:bookmap"); } catch {}
+};
+const getBookMap = async () => {
+  if (bookCache) return bookCache;
+  const persisted = loadBookMapPersisted();
+  if (persisted) {
+    bookCache = persisted.map;
+    if (Date.now() - persisted.ts > 600000 && !bookMapRefreshing) {
+      bookMapRefreshing = true;
+      fetchBookMap()
+        .then((m) => { bookCache = m; bookMapRefreshing = false; })
+        .catch(() => { bookMapRefreshing = false; });
+    }
+    return bookCache;
+  }
+  bookCache = await fetchBookMap();
   return bookCache;
 };
 const changeCartQty = async (bookId, delta) => {
@@ -657,7 +685,7 @@ const openBookForm = async (id = null) => {
         await apiUploadPut(`/api/v1/books/${bookId}/cover`, cf, true);
       }
       closeModal("entity-modal");
-      bookCache = null;
+      invalidateBookMap();
       cacheInvalidate("books-dash", "books-store", "authors", "categories");
       loadDashBooks($("dash-book-search").value.trim());
       showToast("تم الحفظ", "success");
@@ -670,7 +698,7 @@ const delBook = async (id) => {
   if (!confirm("حذف هذا الكتاب؟")) return;
   try {
     await apiDelete(`/api/v1/books/${id}`, true);
-    bookCache = null;
+    invalidateBookMap();
     cacheInvalidate("books-dash", "books-store");
     loadDashBooks($("dash-book-search").value.trim());
     showToast("تم الحذف", "success");

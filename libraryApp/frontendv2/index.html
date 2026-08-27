@@ -1,27 +1,36 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="حيتان الكتب — متجر الكتب ومكتبة الإدارة" />
-    <title>حيتان الكتب • Library</title>
+    <meta name="description" content=" الكتب — متجر الكتب ومكتبة الإدارة" />
+    <title>الكتب • Library</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <!-- ================= NAV ================= -->
     <header class="topbar">
-      <div class="brand" data-view="store">📚حيتان الكتب </div>
+      <div class="brand" data-view="store">📚 الكتب</div>
       <nav class="main-nav">
         <a class="nav-link" data-view="store">المتجر</a>
-        <a class="nav-link hidden" id="nav-dashboard" data-view="dashboard">لوحة التحكم</a>
+        <a class="nav-link hidden" id="nav-dashboard" data-view="dashboard"
+          >لوحة التحكم</a
+        >
         <a class="nav-link hidden" id="nav-orders" data-view="orders">طلباتي</a>
-        <a class="nav-link hidden" id="nav-profile" data-view="profile">حسابي</a>
+        <a class="nav-link hidden" id="nav-profile" data-view="profile"
+          >حسابي</a
+        >
       </nav>
       <div class="top-actions">
-        <button class="btn ghost" id="btn-cart">🛒 <span id="cart-count">0</span></button>
+        <button class="btn ghost" id="btn-cart">
+          🛒 <span id="cart-count">0</span>
+        </button>
         <div id="auth-area">
           <button class="btn primary" id="btn-login">تسجيل الدخول</button>
         </div>
@@ -32,7 +41,11 @@
       <!-- ================= STORE ================= -->
       <section class="view active" id="view-store">
         <div class="store-controls">
-          <input id="search-input" type="search" placeholder="ابحث عن كتاب..." />
+          <input
+            id="search-input"
+            type="search"
+            placeholder="ابحث عن كتاب..."
+          />
           <select id="sort-select">
             <option value="">بدون ترتيب</option>
             <option value="price">السعر (تصاعدي)</option>
@@ -42,7 +55,13 @@
           <div id="category-filters" class="chips"></div>
         </div>
         <div id="books-grid" class="books-grid"></div>
-        <button class="btn ghost" id="books-loadmore" style="display:none;margin:18px auto;">تحميل المزيد</button>
+        <button
+          class="btn ghost"
+          id="books-loadmore"
+          style="display: none; margin: 18px auto"
+        >
+          تحميل المزيد
+        </button>
       </section>
 
       <!-- ================= CART ================= -->
@@ -66,7 +85,10 @@
             </select>
           </div>
           <div id="checkout-fields">
-            <input id="checkout-address" placeholder="عنوان الشحن (للأونلاين)" />
+            <input
+              id="checkout-address"
+              placeholder="عنوان الشحن (للأونلاين)"
+            />
             <input id="checkout-note" placeholder="ملاحظة (اختياري)" />
           </div>
           <button class="btn primary" id="btn-buy">شراء</button>
@@ -106,7 +128,9 @@
         <div class="dash-pane" id="dash-categories">
           <div class="dash-head">
             <input id="dash-category-search" placeholder="بحث..." />
-            <button class="btn primary" id="btn-new-category">تصنيف جديد</button>
+            <button class="btn primary" id="btn-new-category">
+              تصنيف جديد
+            </button>
           </div>
           <div id="dash-categories-list" class="dash-list"></div>
         </div>
@@ -200,7 +224,12 @@
           </div>
           <label>الاسم<input id="profile-username" /></label>
           <label>التليفون<input id="profile-phone" /></label>
-          <label>الجنس<select id="profile-gender"><option value="male">ذكر</option><option value="female">أنثى</option></select></label>
+          <label
+            >الجنس<select id="profile-gender">
+              <option value="male">ذكر</option>
+              <option value="female">أنثى</option>
+            </select></label
+          >
           <label>العنوان<textarea id="profile-address"></textarea></label>
           <button class="btn primary" type="submit">حفظ</button>
           <p id="profile-msg" class="msg"></p>
@@ -228,16 +257,31 @@
           <input name="email" placeholder="البريد الإلكتروني" />
           <input name="phone" placeholder="التليفون" />
           <input name="password" type="password" placeholder="كلمة المرور" />
-          <input name="confirmationPassword" type="password" placeholder="تأكيد كلمة المرور" />
-          <select name="gender"><option value="male">ذكر</option><option value="female">أنثى</option></select>
+          <input
+            name="confirmationPassword"
+            type="password"
+            placeholder="تأكيد كلمة المرور"
+          />
+          <select name="gender">
+            <option value="male">ذكر</option>
+            <option value="female">أنثى</option>
+          </select>
           <input type="hidden" name="role" value="customer" />
           <button class="btn primary" type="submit">تسجيل</button>
           <p class="msg"></p>
         </form>
         <form id="forgot-form" class="auth-form hidden">
           <input name="email" placeholder="البريد الإلكتروني" />
-          <input name="newPassword" type="password" placeholder="كلمة المرور الجديدة" />
-          <input name="confirmationNewPassword" type="password" placeholder="تأكيد كلمة المرور" />
+          <input
+            name="newPassword"
+            type="password"
+            placeholder="كلمة المرور الجديدة"
+          />
+          <input
+            name="confirmationNewPassword"
+            type="password"
+            placeholder="تأكيد كلمة المرور"
+          />
           <button class="btn primary" type="submit">إرسال الرمز</button>
           <p class="msg"></p>
         </form>
@@ -269,6 +313,6 @@
 
     <div id="toast" class="toast-container"></div>
 
-    <script src="app.js"></script>
+    <script src="app.js" defer></script>
   </body>
 </html>
