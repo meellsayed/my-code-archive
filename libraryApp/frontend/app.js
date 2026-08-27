@@ -1,4 +1,4 @@
-const API = "http://localhost:3000";
+const API = "https://my-code-archive.onrender.com";
 
 const state = {
   token: localStorage.getItem("accessToken") || "",

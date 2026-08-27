@@ -17,7 +17,8 @@ import {
 } from "./seed.data.js";
 
 const dbUrl =
-  process.env.DB_URL || `mongodb://localhost:27017/${process.env.APP_NAME}`;
+  process.env.DB_URL ||
+  `mongodb+srv://mohamedeltt1_db_user:1234@cluster0.6ggwblo.mongodb.net//${process.env.APP_NAME}`;
 
 const clear = async () => {
   await Promise.all([

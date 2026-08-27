@@ -1,7 +1,7 @@
 /* ============================================================
    frontendv2/app.js  —  complete SPA for libraryApp backend
    ============================================================ */
-const API = "http://my-code-archive.onrender.com";
+const API = "http://localhost:3000";
 
 const $ = (id) => document.getElementById(id);
 const escapeHTML = (s) =>
