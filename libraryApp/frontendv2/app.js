@@ -203,6 +203,7 @@ const renderDashboardPane = () => {
     orders: () => loadDashOrders(),
     stock: () => loadStock(),
     pos: () => { if (!$("pos-results").childElementCount) posSearch(""); },
+    reports: () => loadReports(),
   };
   map[state.dashTab]?.();
 };
@@ -882,6 +883,128 @@ const loadStockMovements = async (bookId) => {
       : '<p class="msg">لا حركات.</p>';
   } catch (e) {
     $("stock-move-list").innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
+  }
+};
+
+/* ===================== dashboard: reports ===================== */
+const loadReports = async () => {
+  const wrap = $("reports-content");
+  wrap.innerHTML = '<p class="msg">جارٍ تحميل التقارير...</p>';
+  try {
+    const [salesRes, ordersRes, booksRes, custRes, stockRes] = await Promise.all([
+      isAdmin() ? apiGet("/api/v1/report/sales/total", true).catch(() => null) : Promise.resolve(null),
+      apiGet("/api/v1/orders?limit=500", true).catch(() => null),
+      apiGet("/api/v1/books?limit=1000").catch(() => null),
+      apiGet("/api/v1/customer?limit=1", true).catch(() => null),
+      apiGet("/api/v1/stock/books?limit=500", true).catch(() => null),
+    ]);
+
+    const orders = asList(ordersRes?.data || {});
+    const books = asList(booksRes?.data || {});
+    const customers = asList(custRes?.data || {});
+    const stockBooks = asList(stockRes?.data || {});
+    const sales = asList(salesRes?.data || {});
+
+    const totalOrders = ordersRes?.pagination?.total ?? orders.length;
+    const totalBooks = booksRes?.pagination?.total ?? books.length;
+    const totalCustomers = custRes?.pagination?.total ?? customers.length;
+    const totalStockPieces = books.reduce((s, b) => s + (Number(b.quantity) || 0), 0);
+    const outOfStock = books.filter((b) => (Number(b.quantity) || 0) === 0).length;
+    const lowStock = books.filter((b) => {
+      const q = Number(b.quantity) || 0;
+      return q > 0 && b.minQuantity && q <= b.minQuantity;
+    }).length;
+
+    const revenue = sales[0] || {};
+    const showRevenue = isAdmin() && !!salesRes;
+
+    // order status breakdown
+    const statusCounts = {};
+    Object.keys(STATUS_LABELS).forEach((k) => (statusCounts[k] = 0));
+    orders.forEach((o) => { if (statusCounts[o.status] != null) statusCounts[o.status]++; });
+    const maxStatus = Math.max(1, ...Object.values(statusCounts));
+    const statusBars = Object.keys(STATUS_LABELS)
+      .map((k) => {
+        const c = statusCounts[k];
+        const pct = Math.round((c / maxStatus) * 100);
+        return `<div class="status-bar">
+          <span class="sb-label">${escapeHTML(STATUS_LABELS[k])}</span>
+          <span class="sb-track"><span class="sb-fill ${STATUS_BADGE_CLASS[k]}" style="width:${pct}%"></span></span>
+          <span class="sb-count">${c}</span>
+        </div>`;
+      })
+      .join("");
+
+    // top selling books (from fetched orders)
+    const bookAgg = {};
+    orders.forEach((o) => (o.cart?.items || []).forEach((it) => {
+      const id = it.book?._id || it.book;
+      const title = it.book?.title || "كتاب";
+      const q = Number(it.quantity) || 0;
+      if (!bookAgg[id]) bookAgg[id] = { title, qty: 0, revenue: 0 };
+      bookAgg[id].qty += q;
+      bookAgg[id].revenue += (Number(it.book?.price) || 0) * q;
+    }));
+    const topBooks = Object.values(bookAgg).sort((a, b) => b.qty - a.qty).slice(0, 6);
+    const topBooksHtml = topBooks.length
+      ? topBooks
+          .map(
+            (b, i) => `<div class="top-book"><span class="tb-rank">${i + 1}</span>
+            <span class="tb-title">${escapeHTML(b.title)}</span>
+            <span class="tb-qty">${b.qty} نسخة</span>
+            <span class="tb-rev">${formatPrice(b.revenue)}</span></div>`
+          )
+          .join("")
+      : '<p class="msg">لا توجد مبيعات بعد.</p>';
+
+    // low stock alerts
+    const lowStockBooks = stockBooks
+      .filter((b) => {
+        const q = Number(b.quantity) || 0;
+        return b.minQuantity && q <= b.minQuantity;
+      })
+      .slice(0, 8);
+    const lowStockHtml = lowStockBooks.length
+      ? lowStockBooks
+          .map(
+            (b) => `<div class="dash-row"><div class="info"><h4>${escapeHTML(b.title)}</h4>
+            <span>${stockBadge(b.quantity, b.minQuantity)}</span></div></div>`
+          )
+          .join("")
+      : '<p class="msg">لا توجد كتب منخفضة المخزون.</p>';
+
+    wrap.innerHTML = `
+      <div class="report-cards">
+        ${showRevenue ? `
+        <div class="report-card accent"><div class="rc-label">مبيعات اليوم</div><div class="rc-value">${formatPrice(revenue.daySales || 0)}</div></div>
+        <div class="report-card accent"><div class="rc-label">مبيعات الشهر</div><div class="rc-value">${formatPrice(revenue.monthSales || 0)}</div></div>
+        <div class="report-card accent"><div class="rc-label">مبيعات السنة</div><div class="rc-value">${formatPrice(revenue.yearSales || 0)}</div></div>
+        ` : ""}
+        <div class="report-card"><div class="rc-label">إجمالي الطلبات</div><div class="rc-value">${totalOrders}</div></div>
+        <div class="report-card"><div class="rc-label">عدد الكتب</div><div class="rc-value">${totalBooks}</div></div>
+        <div class="report-card"><div class="rc-label">العملاء</div><div class="rc-value">${totalCustomers}</div></div>
+        <div class="report-card ${outOfStock ? "danger" : ""}"><div class="rc-label">نفدت من المخزون</div><div class="rc-value">${outOfStock}</div></div>
+        <div class="report-card ${lowStock ? "warn" : ""}"><div class="rc-label">منخفضة المخزون</div><div class="rc-value">${lowStock}</div></div>
+        <div class="report-card"><div class="rc-label">قطع في المخزون</div><div class="rc-value">${totalStockPieces}</div></div>
+      </div>
+
+      <div class="report-section">
+        <h3>توزيع حالات الطلبات</h3>
+        <div class="status-bars">${statusBars}</div>
+      </div>
+
+      <div class="report-grid">
+        <div class="report-section">
+          <h3>الأكثر مبيعاً</h3>
+          <div class="top-books">${topBooksHtml}</div>
+        </div>
+        <div class="report-section">
+          <h3>تنبيهات المخزون المنخفض</h3>
+          <div class="dash-list">${lowStockHtml}</div>
+        </div>
+      </div>`;
+  } catch (e) {
+    wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
 };
 
