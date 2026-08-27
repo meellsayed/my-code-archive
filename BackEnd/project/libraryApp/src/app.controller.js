@@ -35,11 +35,11 @@ const bootstrap = (app, express) => {
   // Order
   app.use("/api/v1/cart", cartRouter); //* Done
   app.use("/api/v1/orders", orderRouter);
-  app.use("/customer", customerRouter);
+  app.use("/api/v1/customer", customerRouter);
 
-  app.use("/stock", stockRouter); // I well not used it
+  app.use("/api/v1/stock", stockRouter); // I well not used it
 
-  app.use("/report", ReportRouter);
+  app.use("/api/v1/report", ReportRouter);
   // app.use("", (req, res, next) => {
   //   return next(new Error("Page not found", { cause: 404 }));
   // });
