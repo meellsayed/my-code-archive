@@ -4,6 +4,7 @@ import * as dbService from "../../../DB/db.service.js";
 import { filterObject } from "../../../utils/utils.js";
 import { stockMovementModel } from "../../../DB/models/StockMovement.model.js";
 import { orderModel } from "../../../DB/models/Order.model.js";
+import { cartModel } from "../../../DB/models/Cart.model.js";
 
 const stockMovementPopulate = [
   { path: "book" },
@@ -16,8 +17,9 @@ const bookPopulate = [
   { path: "createdBy", select: "-password" },
   { path: "updatedBy", select: "-password" },
 ];
+const cartPopulate = [{ path: "" }];
 
-export const total = asyncHandler(async (req, res, next) => {
+export const sales = asyncHandler(async (req, res, next) => {
   const now = new Date();
 
   const startOfDay = new Date(now);
@@ -86,4 +88,43 @@ export const total = asyncHandler(async (req, res, next) => {
     },
   ]);
   return successResponse({ res, data: sales });
+});
+
+export const topSales = asyncHandler(async (req, res, next) => {
+  const books = await cartModel.aggregate([
+    {
+      $match: {
+        done: true,
+      },
+    },
+    {
+      $unwind: "$items",
+    },
+    {
+      $group: {
+        _id: "$items.book",
+        totalSold: {
+          $sum: "$items.quantity",
+        },
+      },
+    },
+    {
+      $sort: {
+        totalSold: -1,
+      },
+    },
+    {
+      $lookup: {
+        from: "books",
+        localField: "_id",
+        foreignField: "_id",
+        as: "book",
+      },
+    },
+    {
+      $unwind: "$book",
+    },
+  ]);
+
+  return successResponse({ res, data: { books } });
 });

@@ -8,20 +8,11 @@ import { roleTypes } from "../../DB/models/User.model.js";
 const router = Router();
 
 router.get(
-  "/sales/total",
+  "/sales",
   authentication(),
   authorization([roleTypes.admin]),
-  salesServices.total,
+  salesServices.sales,
 );
-// router.get(
-//   "/sales/daily",
-//   authentication(),
-//   authorization([roleTypes.admin]),
-//   salesServices.getBookMovement,
-// );
-// router.get(
-//   "/sales/monthly",
-//   authentication(),
-//   authorization([roleTypes.admin]),
-// );
+router.get("/sales/top",salesServices.topSales)
+
 export default router;
