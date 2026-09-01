@@ -13,6 +13,6 @@ router.get(
   authorization([roleTypes.admin]),
   salesServices.sales,
 );
-router.get("/sales/top",salesServices.topSales)
+router.get("/sales/top", salesServices.topSales);
 
 export default router;

@@ -54,9 +54,9 @@ export const updateOne = asyncHandler(async (req, res, next) => {
 
   const author = await dbService.findOneAndUpdate({
     model: authorModel,
-    filter: { _id: id },
+    filter: { _id: id, isDeleted: false },
     data: { ...data },
-    options: { new: true },
+    options: { $new: true },
   });
 
   if (author == null) {
@@ -70,7 +70,7 @@ export const deleteOne = asyncHandler(async (req, res, next) => {
 
   const author = await dbService.findOneAndUpdate({
     model: authorModel,
-    filter: { _id: id },
+    filter: { _id: id, isDeleted: false },
     data: { updatedBy: req.user._id, isDeleted: true },
     options: { new: true },
   });
@@ -92,9 +92,9 @@ export const getOne = asyncHandler(async (req, res, next) => {
     model: authorModel,
     id,
   });
-  if (!author) {
-    return next(new Error("Author not found", { cause: 404 }));
-  }
+  if (!author) return next(new Error("Author not found", { cause: 404 }));
+  if (author.isDeleted == true)
+    return next(new Error("Author deleted", { cause: 404 }));
 
   return successResponse({ res, data: { author } });
 });
@@ -190,14 +190,6 @@ export const getAuthorBooks = asyncHandler(async (req, res, next) => {
   if (sort === "-price") {
     sortQuery.price = 1;
   }
-
-  // const books = await dbService.find({
-  //   model: bookModel,
-  //   filter,
-  //   populate: bookPopulate,
-  //   select: bookSelect,
-  //   sort: sortQuery,
-  // });
 
   const result = await paginate({
     model: bookModel,

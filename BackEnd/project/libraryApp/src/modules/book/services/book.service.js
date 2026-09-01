@@ -9,6 +9,7 @@ import * as dbService from "../../../DB/db.service.js";
 import {
   bookModel,
   bookPopulate,
+  bookPopulateAdmin,
   bookSelect,
 } from "../../../DB/models/Book.model.js";
 import { authorModel } from "../../../DB/models/Author.model.js";
@@ -237,12 +238,21 @@ export const getAll = asyncHandler(async (req, res, next) => {
   //   populate: bookPopulate,
   //   select: bookSelect,
   // });
+  let role =
+    req.user?.role == roleTypes.admin || req.user?.role == roleTypes.staff
+      ? true
+      : false;
+
+  console.log({ role });
+
+  const select = role ? "" : bookSelect;
+  const populate = role ? bookPopulateAdmin : bookPopulate;
   const result = await paginate({
     model: bookModel,
     filter: query,
     sort: sortQuery,
-    populate: bookPopulate,
-    select: bookSelect,
+    populate,
+    select,
     limit: Number(limit),
     page: Number(page),
   });

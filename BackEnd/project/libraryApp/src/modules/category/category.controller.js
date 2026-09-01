@@ -32,7 +32,6 @@ router.delete(
   authorization([roleTypes.admin]),
   categoryServices.deleteOne,
 );
-
 router.get(
   "/:id/books",
   validation(validators.getCategoryBooks),

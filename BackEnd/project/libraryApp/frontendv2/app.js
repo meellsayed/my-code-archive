@@ -5,8 +5,12 @@ const API = "http://localhost:3000";
 
 const $ = (id) => document.getElementById(id);
 const escapeHTML = (s) =>
-  String(s ?? "").replace(/[&<>"']/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+  String(s ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
   );
 const formatPrice = (n) => `${Number(n || 0).toLocaleString("en-EG")} ج.م`;
 const STATUS_LABELS = {
@@ -35,7 +39,7 @@ const stockBadge = (qty, min) => {
 const PLACEHOLDER =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420"><rect width="300" height="420" fill="#e7ebf0"/></svg>'
+    '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420"><rect width="300" height="420" fill="#e7ebf0"/></svg>',
   );
 const coverImg = (url, cls = "book-cover") =>
   `<img class="${cls}" src="${escapeHTML(url || "")}" alt="" loading="lazy" onerror="this.src='${PLACEHOLDER}'" />`;
@@ -53,7 +57,8 @@ const state = {
   pagination: {},
   dashTab: "books",
 };
-const isStaff = () => state.user && (state.user.role === "admin" || state.user.role === "staff");
+const isStaff = () =>
+  state.user && (state.user.role === "admin" || state.user.role === "staff");
 const isAdmin = () => state.user && state.user.role === "admin";
 
 /* ===================== api layer ===================== */
@@ -63,7 +68,8 @@ const asList = (data) => {
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {
     const keys = Object.keys(data);
-    if (keys.length && keys.every((k) => /^\d+$/.test(k))) return Object.values(data);
+    if (keys.length && keys.every((k) => /^\d+$/.test(k)))
+      return Object.values(data);
     const arr = keys.map((k) => data[k]).find((v) => Array.isArray(v));
     if (arr) return arr;
   }
@@ -83,9 +89,14 @@ const api = async (path, opts = {}, useAuth = false, retried = false) => {
     if (await tryRefreshToken()) return api(path, opts, useAuth, true);
   }
   const json = await res.json().catch(() => ({}));
-  if (json?.data && !Array.isArray(json.data) && typeof json.data === "object") {
+  if (
+    json?.data &&
+    !Array.isArray(json.data) &&
+    typeof json.data === "object"
+  ) {
     const keys = Object.keys(json.data);
-    if (keys.length && keys.every((k) => /^\d+$/.test(k))) json.data = Object.values(json.data);
+    if (keys.length && keys.every((k) => /^\d+$/.test(k)))
+      json.data = Object.values(json.data);
   }
   if (!res.ok) {
     const err = new Error(json.message || "Request failed");
@@ -99,7 +110,10 @@ const tryRefreshToken = async () => {
   try {
     const res = await fetch(API + "/api/v1/auth/access-token", {
       method: "POST",
-      headers: { "Content-Type": "application/json", authorization: `Bearer ${state.refreshToken}` },
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${state.refreshToken}`,
+      },
     });
     const json = await res.json().catch(() => ({}));
     if (!res.ok || !json?.data?.accessToken) return false;
@@ -111,10 +125,13 @@ const tryRefreshToken = async () => {
   }
 };
 const apiGet = (p, a = false) => api(p, { method: "GET" }, a);
-const apiPost = (p, b = {}, a = false) => api(p, { method: "POST", body: JSON.stringify(b) }, a);
-const apiPatch = (p, b = {}, a = false) => api(p, { method: "PATCH", body: JSON.stringify(b) }, a);
+const apiPost = (p, b = {}, a = false) =>
+  api(p, { method: "POST", body: JSON.stringify(b) }, a);
+const apiPatch = (p, b = {}, a = false) =>
+  api(p, { method: "PATCH", body: JSON.stringify(b) }, a);
 const apiDelete = (p, a = false) => api(p, { method: "DELETE" }, a);
-const apiUploadPut = (p, fd, a = false) => api(p, { method: "PUT", body: fd }, a);
+const apiUploadPut = (p, fd, a = false) =>
+  api(p, { method: "PUT", body: fd }, a);
 
 /* ===================== toast / modal ===================== */
 const showToast = (msg, type = "") => {
@@ -154,7 +171,9 @@ const fetchMe = async () => {
 };
 const logout = () => {
   state.token = state.refreshToken = state.user = state.cart = null;
-  ["accessToken", "refreshToken", "user"].forEach((k) => localStorage.removeItem(k));
+  ["accessToken", "refreshToken", "user"].forEach((k) =>
+    localStorage.removeItem(k),
+  );
   updateAuthUI();
   showView("store");
   showToast("تم تسجيل الخروج");
@@ -175,9 +194,13 @@ const updateAuthUI = () => {
 
 /* ===================== navigation ===================== */
 const showView = (view) => {
-  document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
+  document
+    .querySelectorAll(".view")
+    .forEach((v) => v.classList.remove("active"));
   $(`view-${view}`).classList.add("active");
-  document.querySelectorAll(".nav-link").forEach((n) => n.classList.toggle("active", n.dataset.view === view));
+  document
+    .querySelectorAll(".nav-link")
+    .forEach((n) => n.classList.toggle("active", n.dataset.view === view));
   if (view === "store") loadBooks();
   if (view === "dashboard") renderDashboardPane();
   if (view === "orders") loadMyOrders();
@@ -191,7 +214,9 @@ const renderDashboardPane = () => {
     customers: () => loadDashCustomers(),
     orders: () => loadDashOrders(),
     stock: () => loadStock(),
-    pos: () => { if (!$("pos-results").childElementCount) posSearch(""); },
+    pos: () => {
+      if (!$("pos-results").childElementCount) posSearch("");
+    },
   };
   map[state.dashTab]?.();
 };
@@ -239,7 +264,9 @@ const renderBooksGrid = () => {
     : '<p class="msg">لا توجد كتب.</p>';
   grid
     .querySelectorAll("[data-book]")
-    .forEach((c) => c.addEventListener("click", () => openBook(c.dataset.book)));
+    .forEach((c) =>
+      c.addEventListener("click", () => openBook(c.dataset.book)),
+    );
 };
 const bookCard = (b) => `
   <div class="book-card" data-book="${b._id}">
@@ -273,7 +300,11 @@ const openBook = async (id) => {
 const addToCart = async (bookId, qty = 1, mode = "store") => {
   if (!state.token) return openModal("auth-modal");
   try {
-    const res = await apiPost(`/api/v1/cart/items/${bookId}`, { quantity: qty }, true);
+    const res = await apiPost(
+      `/api/v1/cart/items/${bookId}`,
+      { quantity: qty },
+      true,
+    );
     state.cart = await enrichCart(res.data?.cart || state.cart);
     updateCartBadge();
     renderCart();
@@ -287,8 +318,13 @@ const enrichCart = async (cart) => {
   const map = await getBookMap();
   cart.items = cart.items
     .map((it) => {
-      const book = map.get(String(it.book?._id || it.book)) || (typeof it.book === "object" ? it.book : {});
-      return { ...it, book: { ...book, quantity: it.quantity ?? book.quantity } };
+      const book =
+        map.get(String(it.book?._id || it.book)) ||
+        (typeof it.book === "object" ? it.book : {});
+      return {
+        ...it,
+        book: { ...book, quantity: it.quantity ?? book.quantity },
+      };
     })
     .filter((it) => (it.quantity ?? 0) > 0);
   return cart;
@@ -307,7 +343,11 @@ const getBookMap = async () => {
 };
 const changeCartQty = async (bookId, delta) => {
   try {
-    const res = await apiPost(`/api/v1/cart/items/${bookId}`, { quantity: delta }, true);
+    const res = await apiPost(
+      `/api/v1/cart/items/${bookId}`,
+      { quantity: delta },
+      true,
+    );
     state.cart = await enrichCart(res.data?.cart || state.cart);
     updateCartBadge();
     renderCart();
@@ -317,13 +357,18 @@ const changeCartQty = async (bookId, delta) => {
 };
 const removeCartItem = async (bookId) => changeCartQty(bookId, -1);
 const updateCartBadge = () => {
-  const n = (state.cart?.items || []).reduce((s, i) => s + (i.quantity ?? 0), 0);
+  const n = (state.cart?.items || []).reduce(
+    (s, i) => s + (i.quantity ?? 0),
+    0,
+  );
   $("cart-count").textContent = n;
 };
 const loadCart = async () => {
   if (!state.token) return;
   try {
-    const res = await apiGet("/api/v1/cart/active", true).catch(() => apiGet("/api/v1/cart", true));
+    const res = await apiGet("/api/v1/cart/active", true).catch(() =>
+      apiGet("/api/v1/cart", true),
+    );
     state.cart = await enrichCart(res.data?.cart || res.data);
   } catch {
     state.cart = null;
@@ -334,7 +379,10 @@ const loadCart = async () => {
 const renderCart = () => {
   const wrap = $("cart-items");
   const items = (state.cart?.items || []).filter((i) => (i.quantity ?? 0) > 0);
-  $("cart-count").textContent = items.reduce((s, i) => s + (i.quantity ?? 0), 0);
+  $("cart-count").textContent = items.reduce(
+    (s, i) => s + (i.quantity ?? 0),
+    0,
+  );
   if (!items.length) {
     wrap.innerHTML = '<div class="empty-state">سلة المشتريات فارغة.</div>';
     $("cart-summary").classList.add("hidden");
@@ -355,13 +403,22 @@ const renderCart = () => {
         </div>
       </div>
       <button class="btn ghost small" data-remove="${i.book?._id}">حذف</button>
-    </div>`
+    </div>`,
     )
     .join("");
-  wrap.querySelectorAll("[data-remove]").forEach((b) => (b.onclick = () => removeCartItem(b.dataset.remove)));
-  wrap.querySelectorAll("[data-qty-minus]").forEach((b) => (b.onclick = () => changeCartQty(b.dataset.qtyMinus, -1)));
-  wrap.querySelectorAll("[data-qty-plus]").forEach((b) => (b.onclick = () => changeCartQty(b.dataset.qtyPlus, 1)));
-  const total = items.reduce((sum, i) => sum + (Number(i.book?.price) || 0) * (i.quantity ?? 0), 0);
+  wrap
+    .querySelectorAll("[data-remove]")
+    .forEach((b) => (b.onclick = () => removeCartItem(b.dataset.remove)));
+  wrap
+    .querySelectorAll("[data-qty-minus]")
+    .forEach((b) => (b.onclick = () => changeCartQty(b.dataset.qtyMinus, -1)));
+  wrap
+    .querySelectorAll("[data-qty-plus]")
+    .forEach((b) => (b.onclick = () => changeCartQty(b.dataset.qtyPlus, 1)));
+  const total = items.reduce(
+    (sum, i) => sum + (Number(i.book?.price) || 0) * (i.quantity ?? 0),
+    0,
+  );
   $("cart-total").textContent = formatPrice(total);
   $("cart-summary").classList.remove("hidden");
   renderPosCart();
@@ -391,12 +448,18 @@ const renderPosCart = () => {
         </div>
       </div>
       <button class="btn ghost small" data-pos-remove="${i.book?._id}">حذف</button>
-    </div>`
+    </div>`,
     )
     .join("");
-  wrap.querySelectorAll("[data-pos-remove]").forEach((b) => (b.onclick = () => removeCartItem(b.dataset.posRemove)));
-  wrap.querySelectorAll("[data-pos-minus]").forEach((b) => (b.onclick = () => changeCartQty(b.dataset.posMinus, -1)));
-  wrap.querySelectorAll("[data-pos-plus]").forEach((b) => (b.onclick = () => changeCartQty(b.dataset.posPlus, 1)));
+  wrap
+    .querySelectorAll("[data-pos-remove]")
+    .forEach((b) => (b.onclick = () => removeCartItem(b.dataset.posRemove)));
+  wrap
+    .querySelectorAll("[data-pos-minus]")
+    .forEach((b) => (b.onclick = () => changeCartQty(b.dataset.posMinus, -1)));
+  wrap
+    .querySelectorAll("[data-pos-plus]")
+    .forEach((b) => (b.onclick = () => changeCartQty(b.dataset.posPlus, 1)));
 };
 const buyCart = async () => {
   if (!state.cart?._id) return;
@@ -414,10 +477,19 @@ const buyCart = async () => {
         gender: $("cust-gender").value,
         type: $("cust-type").value,
       };
-      if (!customer.username || !customer.phone) throw new Error("اسم العميل وتليفونه مطلوبان");
-      res = await apiPost(`/api/v1/orders/${state.cart._id}/buy`, { customer }, true);
+      if (!customer.username || !customer.phone)
+        throw new Error("اسم العميل وتليفونه مطلوبان");
+      res = await apiPost(
+        `/api/v1/orders/${state.cart._id}/buy`,
+        { customer },
+        true,
+      );
     } else {
-      res = await apiPost(`/api/v1/orders/online/cart/${state.cart._id}/buy`, { address, note }, true);
+      res = await apiPost(
+        `/api/v1/orders/online/cart/${state.cart._id}/buy`,
+        { address, note },
+        true,
+      );
     }
     state.cart = null;
     renderCart();
@@ -441,11 +513,14 @@ const posSearch = async (q = "") => {
     $("pos-results").innerHTML = books.length
       ? books
           .map(
-            (b) => `<div class="pos-card" data-pos="${b._id}">${coverImg(b.cover)}<h4>${escapeHTML(b.title)}</h4><span>${formatPrice(b.price)}</span></div>`
+            (b) =>
+              `<div class="pos-card" data-pos="${b._id}">${coverImg(b.cover)}<h4>${escapeHTML(b.title)}</h4><span>${formatPrice(b.price)}</span></div>`,
           )
           .join("")
       : '<p class="msg">لا نتائج</p>';
-    $("pos-results").querySelectorAll("[data-pos]").forEach((c) => (c.onclick = () => addToCart(c.dataset.pos, 1, "pos")));
+    $("pos-results")
+      .querySelectorAll("[data-pos]")
+      .forEach((c) => (c.onclick = () => addToCart(c.dataset.pos, 1, "pos")));
   } catch (e) {
     showToast(e.message, "error");
   }
@@ -458,8 +533,16 @@ const posCheckout = async () => {
   try {
     const res = await apiPost(
       `/api/v1/orders/${state.cart._id}/buy`,
-      { customer: { username: name, phone, address: $("pos-cust-address").value.trim(), gender: "male", type: "branch" } },
-      true
+      {
+        customer: {
+          username: name,
+          phone,
+          address: $("pos-cust-address").value.trim(),
+          gender: "male",
+          type: "branch",
+        },
+      },
+      true,
     );
     state.cart = null;
     renderCart();
@@ -492,18 +575,25 @@ const loadDashBooks = async (search = "") => {
             <button class="btn ghost small" data-edit-book="${b._id}">تعديل</button>
             ${isAdmin() ? `<button class="btn danger small" data-del-book="${b._id}">حذف</button>` : ""}
           </div>
-        </div>`
+        </div>`,
           )
           .join("")
       : '<p class="msg">لا كتب.</p>';
-    wrap.querySelectorAll("[data-edit-book]").forEach((b) => (b.onclick = () => openBookForm(b.dataset.editBook)));
-    wrap.querySelectorAll("[data-del-book]").forEach((b) => (b.onclick = () => delBook(b.dataset.delBook)));
+    wrap
+      .querySelectorAll("[data-edit-book]")
+      .forEach((b) => (b.onclick = () => openBookForm(b.dataset.editBook)));
+    wrap
+      .querySelectorAll("[data-del-book]")
+      .forEach((b) => (b.onclick = () => delBook(b.dataset.delBook)));
   } catch (e) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
 };
 const openBookForm = async (id = null) => {
-  const [authors, categories] = await Promise.all([apiGet("/api/v1/authors?limit=500"), apiGet("/api/v1/categories?limit=500")]);
+  const [authors, categories] = await Promise.all([
+    apiGet("/api/v1/authors?limit=500"),
+    apiGet("/api/v1/categories?limit=500"),
+  ]);
   const aList = asList(authors.data);
   const cList = asList(categories.data);
   const b = id ? (await apiGet("/api/v1/books/" + id)).data.book : {};
@@ -574,14 +664,22 @@ const delBook = async (id) => {
 const ENTITY = {
   author: {
     heading: (id) => (id ? "تعديل مؤلف" : "مؤلف جديد"),
-    fields: [["name", "الاسم"], ["bio", "نبذة"], ["birthDate", "تاريخ الميلاد (YYYY-MM-DD)"], ["deathDate", "تاريخ الوفاة (اختياري)"]],
+    fields: [
+      ["name", "الاسم"],
+      ["bio", "نبذة"],
+      ["birthDate", "تاريخ الميلاد (YYYY-MM-DD)"],
+      ["deathDate", "تاريخ الوفاة (اختياري)"],
+    ],
     base: "/api/v1/authors",
     add: "/api/v1/authors",
     isCustomer: false,
   },
   category: {
     heading: (id) => (id ? "تعديل تصنيف" : "تصنيف جديد"),
-    fields: [["name", "الاسم"], ["description", "وصف"]],
+    fields: [
+      ["name", "الاسم"],
+      ["description", "وصف"],
+    ],
     base: "/api/v1/categories",
     add: "/api/v1/categories",
     isCustomer: false,
@@ -602,21 +700,30 @@ const ENTITY = {
 };
 const openEntityForm = async (type, id = null) => {
   const meta = ENTITY[type];
-  const existing = id ? (await apiGet(`${meta.base}/${id}`, true)).data?.[type] : null;
+  const existing = id
+    ? (await apiGet(`${meta.base}/${id}`, true)).data?.[type]
+    : null;
   const form = $("entity-form");
   const fieldsHtml = meta.fields
     .map(([name, kind, label]) => {
-      const val = existing?.[name] != null ? String(existing[name]).slice(0, 10) : "";
+      const val =
+        existing?.[name] != null ? String(existing[name]).slice(0, 10) : "";
       if (kind.startsWith("select:")) {
-        const opts = kind.split(":")[1].split("|")
-          .map((o) => `<option value="${o}" ${existing?.[name] === o ? "selected" : ""}>${o}</option>`)
+        const opts = kind
+          .split(":")[1]
+          .split("|")
+          .map(
+            (o) =>
+              `<option value="${o}" ${existing?.[name] === o ? "selected" : ""}>${o}</option>`,
+          )
           .join("");
         return `<select name="${name}">${opts}</select>`;
       }
       return `<input name="${name}" placeholder="${label || name}" value="${escapeHTML(existing?.[name] ?? "")}" />`;
     })
     .join("");
-  form.innerHTML = fieldsHtml + '<button class="btn primary" type="submit">حفظ</button>';
+  form.innerHTML =
+    fieldsHtml + '<button class="btn primary" type="submit">حفظ</button>';
   $("entity-modal-heading").textContent = meta.heading(id);
   openModal("entity-modal");
   form.onsubmit = async (e) => {
@@ -653,19 +760,33 @@ const loadDashAuthors = async (search = "") => {
   const wrap = $("dash-authors-list");
   wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
   try {
-    const res = await apiGet("/api/v1/authors?limit=500" + (search ? `&search=${encodeURIComponent(search)}` : ""));
+    const res = await apiGet(
+      "/api/v1/authors?limit=500" +
+        (search ? `&search=${encodeURIComponent(search)}` : ""),
+    );
     const list = asList(res.data);
     wrap.innerHTML = list.length
       ? list
           .map(
-            (a) => `<div class="dash-row"><div class="info"><h4>${escapeHTML(a.name)}</h4><span>كتب: ${a.booksCount ?? 0}</span></div>
+            (
+              a,
+            ) => `<div class="dash-row"><div class="info"><h4>${escapeHTML(a.name)}</h4><span>كتب: ${a.booksCount ?? 0}</span></div>
         <div class="dash-actions"><button class="btn ghost small" data-edit-author="${a._id}">تعديل</button>
-        ${isAdmin() ? `<button class="btn danger small" data-del-author="${a._id}">حذف</button>` : ""}</div></div>`
+        ${isAdmin() ? `<button class="btn danger small" data-del-author="${a._id}">حذف</button>` : ""}</div></div>`,
           )
           .join("")
       : '<p class="msg">لا مؤلفين.</p>';
-    wrap.querySelectorAll("[data-edit-author]").forEach((b) => (b.onclick = () => openEntityForm("author", b.dataset.editAuthor)));
-    wrap.querySelectorAll("[data-del-author]").forEach((b) => (b.onclick = () => delEntity("author", b.dataset.delAuthor)));
+    wrap
+      .querySelectorAll("[data-edit-author]")
+      .forEach(
+        (b) =>
+          (b.onclick = () => openEntityForm("author", b.dataset.editAuthor)),
+      );
+    wrap
+      .querySelectorAll("[data-del-author]")
+      .forEach(
+        (b) => (b.onclick = () => delEntity("author", b.dataset.delAuthor)),
+      );
   } catch (e) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
@@ -674,19 +795,34 @@ const loadDashCategories = async (search = "") => {
   const wrap = $("dash-categories-list");
   wrap.innerHTML = '<p class="msg">جارٍ التحميل...</p>';
   try {
-    const res = await apiGet("/api/v1/categories?limit=500" + (search ? `&search=${encodeURIComponent(search)}` : ""));
+    const res = await apiGet(
+      "/api/v1/categories?limit=500" +
+        (search ? `&search=${encodeURIComponent(search)}` : ""),
+    );
     const list = asList(res.data);
     wrap.innerHTML = list.length
       ? list
           .map(
-            (c) => `<div class="dash-row"><div class="info"><h4>${escapeHTML(c.name)}</h4><span>${escapeHTML(c.description || "")}</span></div>
+            (
+              c,
+            ) => `<div class="dash-row"><div class="info"><h4>${escapeHTML(c.name)}</h4><span>${escapeHTML(c.description || "")}</span></div>
         <div class="dash-actions"><button class="btn ghost small" data-edit-category="${c._id}">تعديل</button>
-        ${isAdmin() ? `<button class="btn danger small" data-del-category="${c._id}">حذف</button>` : ""}</div></div>`
+        ${isAdmin() ? `<button class="btn danger small" data-del-category="${c._id}">حذف</button>` : ""}</div></div>`,
           )
           .join("")
       : '<p class="msg">لا تصنيفات.</p>';
-    wrap.querySelectorAll("[data-edit-category]").forEach((b) => (b.onclick = () => openEntityForm("category", b.dataset.editCategory)));
-    wrap.querySelectorAll("[data-del-category]").forEach((b) => (b.onclick = () => delEntity("category", b.dataset.delCategory)));
+    wrap
+      .querySelectorAll("[data-edit-category]")
+      .forEach(
+        (b) =>
+          (b.onclick = () =>
+            openEntityForm("category", b.dataset.editCategory)),
+      );
+    wrap
+      .querySelectorAll("[data-del-category]")
+      .forEach(
+        (b) => (b.onclick = () => delEntity("category", b.dataset.delCategory)),
+      );
   } catch (e) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
@@ -706,14 +842,24 @@ const loadDashCustomers = async (search = "") => {
     wrap.innerHTML = list.length
       ? list
           .map(
-            (c) => `<div class="dash-row"><div class="info"><h4>${escapeHTML(c.username || "")}</h4><span>${escapeHTML(c.phone || "")} · ${escapeHTML(c.type || "")}</span></div>
+            (
+              c,
+            ) => `<div class="dash-row"><div class="info"><h4>${escapeHTML(c.username || "")}</h4><span>${escapeHTML(c.phone || "")} · ${escapeHTML(c.type || "")}</span></div>
         <div class="dash-actions"><button class="btn ghost small" data-cust-orders="${c._id}">طلبات</button>
-        ${isAdmin() ? `<button class="btn danger small" data-del-customer="${c._id}">حذف</button>` : ""}</div></div>`
+        ${isAdmin() ? `<button class="btn danger small" data-del-customer="${c._id}">حذف</button>` : ""}</div></div>`,
           )
           .join("")
       : '<p class="msg">لا عملاء.</p>';
-    wrap.querySelectorAll("[data-cust-orders]").forEach((b) => (b.onclick = () => openCustomerOrders(b.dataset.custOrders)));
-    wrap.querySelectorAll("[data-del-customer]").forEach((b) => (b.onclick = () => delEntity("customer", b.dataset.delCustomer)));
+    wrap
+      .querySelectorAll("[data-cust-orders]")
+      .forEach(
+        (b) => (b.onclick = () => openCustomerOrders(b.dataset.custOrders)),
+      );
+    wrap
+      .querySelectorAll("[data-del-customer]")
+      .forEach(
+        (b) => (b.onclick = () => delEntity("customer", b.dataset.delCustomer)),
+      );
   } catch (e) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
@@ -738,24 +884,36 @@ const loadDashOrders = async (search = "") => {
     list = list.filter(
       (o) =>
         (!status || o.status === status) &&
-        (!term || String(o._id).toLowerCase().includes(term) || String(o.customer?.username || "").toLowerCase().includes(term))
+        (!term ||
+          String(o._id).toLowerCase().includes(term) ||
+          String(o.customer?.username || "")
+            .toLowerCase()
+            .includes(term)),
     );
     wrap.innerHTML = list.length
       ? list
           .map(
-            (o) => `<div class="dash-row"><div class="info"><h4>طلب ${escapeHTML(o._id)}</h4>
+            (
+              o,
+            ) => `<div class="dash-row"><div class="info"><h4>طلب ${escapeHTML(o._id)}</h4>
         <span>${escapeHTML(o.customer?.username || "—")} · ${formatPrice(o.total || 0)} · ${statusBadge(o.status)}</span></div>
         <div class="dash-actions">
           ${["new", "in_processing", "ready_to_ship", "shipped"].includes(o.status) ? `<button class="btn primary small" data-advance="${o._id}">تقديم</button>` : ""}
           ${["new", "in_processing", "ready_to_ship", "shipped"].includes(o.status) ? `<button class="btn danger small" data-cancel="${o._id}">إلغاء</button>` : ""}
           <button class="btn ghost small" data-view-order="${o._id}">عرض</button>
-        </div></div>`
+        </div></div>`,
           )
           .join("")
       : '<p class="msg">لا طلبات.</p>';
-    wrap.querySelectorAll("[data-advance]").forEach((b) => (b.onclick = () => advanceOrder(b.dataset.advance)));
-    wrap.querySelectorAll("[data-cancel]").forEach((b) => (b.onclick = () => cancelOrder(b.dataset.cancel)));
-    wrap.querySelectorAll("[data-view-order]").forEach((b) => (b.onclick = () => openOrderDetail(b.dataset.viewOrder)));
+    wrap
+      .querySelectorAll("[data-advance]")
+      .forEach((b) => (b.onclick = () => advanceOrder(b.dataset.advance)));
+    wrap
+      .querySelectorAll("[data-cancel]")
+      .forEach((b) => (b.onclick = () => cancelOrder(b.dataset.cancel)));
+    wrap
+      .querySelectorAll("[data-view-order]")
+      .forEach((b) => (b.onclick = () => openOrderDetail(b.dataset.viewOrder)));
   } catch (e) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
@@ -782,9 +940,20 @@ const openCustomerOrders = async (cid) => {
   try {
     const res = await apiGet(`/api/v1/orders/customer/${cid}`, true);
     const list = asList(res.data);
-    showInfoModal(`طلبات العميل (${list.length})`,
-      list.length ? list.map((o) => `<div class="dash-row"><div class="info"><h4>طلب ${escapeHTML(o._id)}</h4><span>${formatPrice(o.total || 0)} · ${statusBadge(o.status)}</span></div><button class="btn ghost small" data-o="${o._id}">عرض</button></div>`).join("") : '<p class="msg">لا طلبات.</p>');
-    $("info-modal-body").querySelectorAll("[data-o]").forEach((b) => (b.onclick = () => openOrderDetail(b.dataset.o)));
+    showInfoModal(
+      `طلبات العميل (${list.length})`,
+      list.length
+        ? list
+            .map(
+              (o) =>
+                `<div class="dash-row"><div class="info"><h4>طلب ${escapeHTML(o._id)}</h4><span>${formatPrice(o.total || 0)} · ${statusBadge(o.status)}</span></div><button class="btn ghost small" data-o="${o._id}">عرض</button></div>`,
+            )
+            .join("")
+        : '<p class="msg">لا طلبات.</p>',
+    );
+    $("info-modal-body")
+      .querySelectorAll("[data-o]")
+      .forEach((b) => (b.onclick = () => openOrderDetail(b.dataset.o)));
   } catch (e) {
     showToast(e.message, "error");
   }
@@ -792,7 +961,9 @@ const openCustomerOrders = async (cid) => {
 const openOrderDetail = async (id) => {
   try {
     let o = null;
-    try { o = (await apiGet(`/api/v1/orders/online/${id}`, true)).data?.order; } catch {}
+    try {
+      o = (await apiGet(`/api/v1/orders/online/${id}`, true)).data?.order;
+    } catch {}
     if (!o) o = (await apiGet(`/api/v1/orders/${id}`, true)).data?.order;
     if (!o) throw new Error("الطلب غير موجود");
     showInfoModal("تفاصيل الطلب", orderDetailHtml(o));
@@ -811,11 +982,14 @@ const loadStock = async (search = "") => {
     wrap.innerHTML = list.length
       ? list
           .map(
-            (b) => `<div class="dash-row stock-book" data-stock="${b._id}">${coverImg(b.cover)}<div class="info"><h4>${escapeHTML(b.title)}</h4><span>${stockBadge(b.quantity, b.minQuantity)}</span></div></div>`
+            (b) =>
+              `<div class="dash-row stock-book" data-stock="${b._id}">${coverImg(b.cover)}<div class="info"><h4>${escapeHTML(b.title)}</h4><span>${stockBadge(b.quantity, b.minQuantity)}</span></div></div>`,
           )
           .join("")
       : '<p class="msg">لا كتب.</p>';
-    wrap.querySelectorAll("[data-stock]").forEach((r) => (r.onclick = () => loadStockMovements(r.dataset.stock)));
+    wrap
+      .querySelectorAll("[data-stock]")
+      .forEach((r) => (r.onclick = () => loadStockMovements(r.dataset.stock)));
   } catch (e) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
@@ -840,7 +1014,10 @@ const loadStockMovements = async (bookId) => {
   $("stock-adjust-form").onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const body = { type: fd.get("type"), quantity: Number(fd.get("quantity") || 0) };
+    const body = {
+      type: fd.get("type"),
+      quantity: Number(fd.get("quantity") || 0),
+    };
     const price = fd.get("price");
     if (price) body.price = Number(price);
     const ct = fd.get("customerType");
@@ -862,12 +1039,14 @@ const loadStockMovements = async (bookId) => {
     $("stock-move-list").innerHTML = moves.length
       ? moves
           .map(
-            (m) => `<div class="stock-move-row ${m.type}"><span>${m.type === "in" ? "وارد" : "صادر"}</span><span>${m.quantity}</span><span>${formatPrice(m.price || 0)}</span><span>${escapeHTML(m.seller?.username || "—")}</span><span>${new Date(m.createdAt).toLocaleDateString("en-EG")}</span></div>`
+            (m) =>
+              `<div class="stock-move-row ${m.type}"><span>${m.type === "in" ? "وارد" : "صادر"}</span><span>${m.quantity}</span><span>${formatPrice(m.price || 0)}</span><span>${escapeHTML(m.seller?.username || "—")}</span><span>${new Date(m.createdAt).toLocaleDateString("en-EG")}</span></div>`,
           )
           .join("")
       : '<p class="msg">لا حركات.</p>';
   } catch (e) {
-    $("stock-move-list").innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
+    $("stock-move-list").innerHTML =
+      `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
 };
 
@@ -920,20 +1099,28 @@ const loadMyOrders = async (search = "") => {
     let list = asList(res.data);
     const term = search.trim().toLowerCase();
     list = list.filter(
-      (o) => (!status || o.status === status) && (!term || String(o._id).toLowerCase().includes(term))
+      (o) =>
+        (!status || o.status === status) &&
+        (!term || String(o._id).toLowerCase().includes(term)),
     );
     wrap.innerHTML = list.length
       ? list
           .map(
-            (o) => `<div class="dash-row"><div class="info"><h4>طلب ${escapeHTML(o._id)}</h4>
+            (
+              o,
+            ) => `<div class="dash-row"><div class="info"><h4>طلب ${escapeHTML(o._id)}</h4>
         <span>${formatPrice(o.total || 0)} · ${statusBadge(o.status)}</span></div>
         <div class="dash-actions">${["new", "in_processing", "ready_to_ship", "shipped"].includes(o.status) ? `<button class="btn danger small" data-my-cancel="${o._id}">إلغاء</button>` : ""}
-        <button class="btn ghost small" data-my-view="${o._id}">عرض</button></div></div>`
+        <button class="btn ghost small" data-my-view="${o._id}">عرض</button></div></div>`,
           )
           .join("")
       : '<p class="msg">لا طلبات.</p>';
-    wrap.querySelectorAll("[data-my-cancel]").forEach((b) => (b.onclick = () => cancelOrder(b.dataset.myCancel)));
-    wrap.querySelectorAll("[data-my-view]").forEach((b) => (b.onclick = () => openOrderDetail(b.dataset.myView)));
+    wrap
+      .querySelectorAll("[data-my-cancel]")
+      .forEach((b) => (b.onclick = () => cancelOrder(b.dataset.myCancel)));
+    wrap
+      .querySelectorAll("[data-my-view]")
+      .forEach((b) => (b.onclick = () => openOrderDetail(b.dataset.myView)));
   } catch (e) {
     wrap.innerHTML = `<p class="msg error">${escapeHTML(e.message)}</p>`;
   }
@@ -946,14 +1133,21 @@ const loadCategoryChips = async () => {
     const list = asList(res.data);
     $("category-filters").innerHTML =
       `<button class="chip ${!state.activeCategory ? "active" : ""}" data-cat="">الكل</button>` +
-      list.map((c) => `<button class="chip ${state.activeCategory === c.name ? "active" : ""}" data-cat="${escapeHTML(c.name)}">${escapeHTML(c.name)}</button>`).join("");
-    $("category-filters").querySelectorAll("[data-cat]").forEach((chip) => {
-      chip.onclick = () => {
-        state.activeCategory = chip.dataset.cat;
-        loadCategoryChips();
-        loadBooks();
-      };
-    });
+      list
+        .map(
+          (c) =>
+            `<button class="chip ${state.activeCategory === c.name ? "active" : ""}" data-cat="${escapeHTML(c.name)}">${escapeHTML(c.name)}</button>`,
+        )
+        .join("");
+    $("category-filters")
+      .querySelectorAll("[data-cat]")
+      .forEach((chip) => {
+        chip.onclick = () => {
+          state.activeCategory = chip.dataset.cat;
+          loadCategoryChips();
+          loadBooks();
+        };
+      });
   } catch {}
 };
 
@@ -961,15 +1155,22 @@ const loadCategoryChips = async () => {
 const bindEvents = () => {
   document.querySelectorAll(".nav-link, .brand").forEach((el) => {
     const view = el.dataset.view || "store";
-    el.onclick = (e) => { e.preventDefault(); showView(view); };
+    el.onclick = (e) => {
+      e.preventDefault();
+      showView(view);
+    };
   });
   $("btn-cart").onclick = () => showView("cart");
-  document.querySelectorAll("[data-close]").forEach((b) => (b.onclick = () => closeModal(b.dataset.close)));
+  document
+    .querySelectorAll("[data-close]")
+    .forEach((b) => (b.onclick = () => closeModal(b.dataset.close)));
 
   // auth modal tabs
   document.querySelectorAll(".auth-tab").forEach((t) => {
     t.onclick = () => {
-      document.querySelectorAll(".auth-tab").forEach((x) => x.classList.remove("active"));
+      document
+        .querySelectorAll(".auth-tab")
+        .forEach((x) => x.classList.remove("active"));
       t.classList.add("active");
       const which = t.dataset.auth;
       $("login-form").classList.toggle("hidden", which !== "login");
@@ -984,7 +1185,10 @@ const bindEvents = () => {
       await login(fd.get("email"), fd.get("password"));
       closeModal("auth-modal");
       showToast("أهلاً بك", "success");
-    } catch (err) { e.target.querySelector(".msg").textContent = err.message; e.target.querySelector(".msg").className = "msg error"; }
+    } catch (err) {
+      e.target.querySelector(".msg").textContent = err.message;
+      e.target.querySelector(".msg").className = "msg error";
+    }
   };
   $("register-form").onsubmit = async (e) => {
     e.preventDefault();
@@ -993,34 +1197,54 @@ const bindEvents = () => {
       await register(Object.fromEntries(fd));
       closeModal("auth-modal");
       showToast("تم التسجيل بنجاح", "success");
-    } catch (err) { e.target.querySelector(".msg").textContent = err.message; e.target.querySelector(".msg").className = "msg error"; }
+    } catch (err) {
+      e.target.querySelector(".msg").textContent = err.message;
+      e.target.querySelector(".msg").className = "msg error";
+    }
   };
   $("forgot-form").onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
     try {
-      const res = await apiPost("/api/v1/auth/forgot-password", Object.fromEntries(fd));
+      const res = await apiPost(
+        "/api/v1/auth/forgot-password",
+        Object.fromEntries(fd),
+      );
       closeModal("auth-modal");
       showToast(res.message || "تم الإرسال", "success");
-    } catch (err) { e.target.querySelector(".msg").textContent = err.message; e.target.querySelector(".msg").className = "msg error"; }
+    } catch (err) {
+      e.target.querySelector(".msg").textContent = err.message;
+      e.target.querySelector(".msg").className = "msg error";
+    }
   };
 
   // store controls
   let searchTimer;
-  $("search-input").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadBooks(e.target.value.trim()), 350); };
+  $("search-input").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadBooks(e.target.value.trim()), 350);
+  };
   $("sort-select").onchange = () => loadBooks();
-  $("publisher-filter").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadBooks(), 350); };
-  $("books-loadmore").onclick = () => loadBooks($("search-input").value.trim(), true);
+  $("publisher-filter").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadBooks(), 350);
+  };
+  $("books-loadmore").onclick = () =>
+    loadBooks($("search-input").value.trim(), true);
   $("btn-buy").onclick = buyCart;
   $("profile-form").onsubmit = submitProfile;
 
   // dashboard nav
   document.querySelectorAll(".dash-tab").forEach((t) => {
     t.onclick = () => {
-      document.querySelectorAll(".dash-tab").forEach((x) => x.classList.remove("active"));
+      document
+        .querySelectorAll(".dash-tab")
+        .forEach((x) => x.classList.remove("active"));
       t.classList.add("active");
       state.dashTab = t.dataset.dash;
-      document.querySelectorAll(".dash-pane").forEach((p) => p.classList.remove("active"));
+      document
+        .querySelectorAll(".dash-pane")
+        .forEach((p) => p.classList.remove("active"));
       $(`dash-${state.dashTab}`).classList.add("active");
       renderDashboardPane();
     };
@@ -1028,18 +1252,48 @@ const bindEvents = () => {
   $("btn-new-book").onclick = () => openBookForm();
   $("btn-new-author").onclick = () => openEntityForm("author");
   $("btn-new-category").onclick = () => openEntityForm("category");
-  $("dash-book-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashBooks(e.target.value.trim()), 300); };
-  $("dash-author-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashAuthors(e.target.value.trim()), 300); };
-  $("dash-category-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashCategories(e.target.value.trim()), 300); };
-  $("dash-customer-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashCustomers(e.target.value.trim()), 300); };
+  $("dash-book-search").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadDashBooks(e.target.value.trim()), 300);
+  };
+  $("dash-author-search").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadDashAuthors(e.target.value.trim()), 300);
+  };
+  $("dash-category-search").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(
+      () => loadDashCategories(e.target.value.trim()),
+      300,
+    );
+  };
+  $("dash-customer-search").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(
+      () => loadDashCustomers(e.target.value.trim()),
+      300,
+    );
+  };
   $("dash-customer-gender").onchange = () => loadDashCustomers();
   $("dash-customer-type").onchange = () => loadDashCustomers();
-  $("dash-order-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadDashOrders(e.target.value.trim()), 300); };
+  $("dash-order-search").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadDashOrders(e.target.value.trim()), 300);
+  };
   $("dash-order-status").onchange = () => loadDashOrders();
-  $("dash-stock-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadStock(e.target.value.trim()), 300); };
-  $("pos-search-input").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => posSearch(e.target.value.trim()), 300); };
+  $("dash-stock-search").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadStock(e.target.value.trim()), 300);
+  };
+  $("pos-search-input").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => posSearch(e.target.value.trim()), 300);
+  };
   $("pos-checkout").onclick = posCheckout;
-  $("my-order-search").oninput = (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => loadMyOrders(e.target.value.trim()), 300); };
+  $("my-order-search").oninput = (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadMyOrders(e.target.value.trim()), 300);
+  };
   $("my-order-status").onchange = () => loadMyOrders();
 };
 
@@ -1049,7 +1303,11 @@ const bindEvents = () => {
   updateAuthUI();
   await loadCategoryChips();
   if (state.token) {
-    try { await fetchMe(); } catch { /* keep */ }
+    try {
+      await fetchMe();
+    } catch {
+      /* keep */
+    }
   }
   showView("store");
 })();

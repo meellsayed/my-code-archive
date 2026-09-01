@@ -168,5 +168,9 @@ export const adjustStock = asyncHandler(async (req, res, next) => {
     data: { quantity: newQty },
   });
 
-  return successResponse({ res, statusCode: 201, data: { movement, quantity: newQty } });
+  return successResponse({
+    res,
+    statusCode: 201,
+    data: { movement, quantity: newQty },
+  });
 });

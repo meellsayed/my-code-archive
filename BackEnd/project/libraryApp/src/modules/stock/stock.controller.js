@@ -7,7 +7,6 @@ import {
 import { roleTypes } from "../../DB/models/User.model.js";
 const router = Router();
 
-
 router.get(
   "/books",
   authentication(),

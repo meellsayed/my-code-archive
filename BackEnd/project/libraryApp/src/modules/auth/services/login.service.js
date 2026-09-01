@@ -125,7 +125,6 @@ export const forgetPassword = asyncHandler(async (req, res, next) => {
   await user.save();
   return successResponse({
     res,
-    data: { user },
     message: "Password updated successfully",
   });
 });

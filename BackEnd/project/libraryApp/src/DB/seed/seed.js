@@ -15,6 +15,9 @@ import {
   seedBooks,
   seedCustomers,
 } from "./seed.data.js";
+import { stockMovementModel } from "../models/StockMovement.model.js";
+import { orderModel } from "../models/Order.model.js";
+import { cartModel } from "../models/Cart.model.js";
 
 const dbUrl =
   process.env.DB_URL || `mongodb://localhost:27017/${process.env.APP_NAME}`;
@@ -26,6 +29,9 @@ const clear = async () => {
     authorModel.deleteMany({}),
     bookModel.deleteMany({}),
     customerModel.deleteMany({}),
+    stockMovementModel.deleteMany({}),
+    orderModel.deleteMany({}),
+    cartModel.deleteMany({}),
   ]);
 };
 

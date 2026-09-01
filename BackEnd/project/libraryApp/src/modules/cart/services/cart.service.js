@@ -6,14 +6,15 @@ import { cartModel } from "../../../DB/models/Cart.model.js";
 import { roleTypes, userSelect } from "../../../DB/models/User.model.js";
 import { paginate } from "../../../utils/utils.js";
 
-const bookSelect = "-costPrice -minQuantity -updatedBy -createdBy";
+const bookSelect =
+  "-costPrice -minQuantity -updatedBy -createdBy -updatedAt -createdAt";
 
 export const addItem = asyncHandler(async (req, res, next) => {
-  const { bookId } = req.params;
+  const { id } = req.params;
   const { quantity } = req.body;
 
   const userId = req.user._id;
-  const book = await dbService.findById({ model: bookModel, id: bookId });
+  const book = await dbService.findById({ model: bookModel, id: id });
 
   if (!book) return next(new Error("Book not found", { cause: 404 }));
 
@@ -28,10 +29,6 @@ export const addItem = asyncHandler(async (req, res, next) => {
     filter: { user: userId, done: false },
     populate: [
       {
-        path: "user",
-        select: userSelect,
-      },
-      {
         path: "items.book",
         select: bookSelect,
       },
@@ -40,7 +37,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
 
   if (cart) {
     const oldBook = cart.items.find(
-      (items) => items.book._id.toString() === bookId.toString(),
+      (items) => items.book._id.toString() === id.toString(),
     );
 
     if (oldBook) {
@@ -60,7 +57,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
       }
 
       cart.items.push({
-        book: bookId,
+        book: id,
         quantity,
         price: book.price,
       });
@@ -77,15 +74,11 @@ export const addItem = asyncHandler(async (req, res, next) => {
   const data = {
     user: userId,
     createdBy: userId,
-    items: [{ book: bookId, quantity, price: book.price }],
+    items: [{ book: id, quantity, price: book.price }],
   };
 
   cart = await dbService.create({ model: cartModel, data });
   await cart.populate([
-    {
-      path: "user",
-      select: userSelect,
-    },
     {
       path: "items.book",
       select: bookSelect,
@@ -94,7 +87,7 @@ export const addItem = asyncHandler(async (req, res, next) => {
   return successResponse({ res, statusCode: 201, data: { cart } });
 });
 export const decrementItem = asyncHandler(async (req, res, next) => {
-  const { bookId } = req.params;
+  const { id } = req.params;
   const { quantity = 1 } = req.body;
   const userId = req.user._id;
 
@@ -107,13 +100,11 @@ export const decrementItem = asyncHandler(async (req, res, next) => {
     return next(new Error("This not your Cart", { cause: 403 }));
   if (!cart) return next(new Error("Cart not found", { cause: 404 }));
 
-  const item = cart.items.find((o) => String(o.book._id) === String(bookId));
+  const item = cart.items.find((o) => String(o.book._id) === String(id));
   if (!item) return next(new Error("Book not found in cart", { cause: 404 }));
 
   if (quantity <= 0 || item.quantity - quantity <= 0) {
-    cart.items = cart.items.filter(
-      (o) => String(o.book._id) !== String(bookId),
-    );
+    cart.items = cart.items.filter((o) => String(o.book._id) !== String(id));
   } else {
     item.quantity -= quantity;
   }
@@ -152,22 +143,58 @@ export const getActive = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, data: { cart } });
 });
-export const getAll = asyncHandler(async (req, res, next) => {
+export const getAllMe = asyncHandler(async (req, res, next) => {
   const { sort, page, limit } = req.query;
-  const carts = await paginate({
+  const result = await paginate({
     model: cartModel,
-    filter: { user: user._id },
+    filter: { user: req.user._id },
     populate: [
-      {
-        path: "user",
-        select: userSelect,
-      },
       {
         path: "items.book",
         select: bookSelect,
       },
     ],
     sort,
+    page,
+    limit,
+  });
+  return successResponse({ res, result });
+});
+export const getAll = asyncHandler(async (req, res, next) => {
+  const { done = "", sort = "", page, limit } = req.query;
+  let filter = {};
+  if (done == "true") filter.done = true;
+  else if (done == "false") filter.done = false;
+  else filter = {};
+
+  let sortQuery = {};
+  switch (sort) {
+    case "price":
+      sortQuery.items.price = 1;
+      break;
+    case "-price":
+      sortQuery.items.price = -1;
+      break;
+    case "quantity":
+      sortQuery.items.quantity = 1;
+      break;
+    case "-quantity":
+      sortQuery.items.quantity = -1;
+      break;
+    default:
+      break;
+  }
+
+  const result = await paginate({
+    model: cartModel,
+    filter,
+    populate: [
+      {
+        path: "items.book",
+        select: bookSelect,
+      },
+    ],
+    sort: sortQuery,
     page,
     limit,
   });

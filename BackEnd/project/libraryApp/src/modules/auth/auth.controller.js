@@ -12,18 +12,16 @@ const router = Router();
 // Registration services
 router.post(
   "/signup",
-  // validation(validators.signup),
+  validation(validators.signup),
   registrationService.signup,
 );
 router.get("/confirm-email/:token", registrationService.confirmEmail);
 
 // Login services
-router.post("/login",
-  //  validation(validators.login),
-    loginService.login);
+router.post("/login", validation(validators.login), loginService.login);
 router.post(
   "/access-token",
-  authentication("refresh"),
+  authentication({ tokenType: "refresh" }),
   loginService.accessToken,
 );
 router.post("/reset-password", authentication(), loginService.resetPassword);

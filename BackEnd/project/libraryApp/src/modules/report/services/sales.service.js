@@ -35,6 +35,7 @@ export const sales = asyncHandler(async (req, res, next) => {
   const startOfYear = new Date(now.getFullYear(), 0, 1);
 
   const startOfNextYear = new Date(now.getFullYear() + 1, 0, 1);
+
   const sales = await orderModel.aggregate([
     {
       $group: {

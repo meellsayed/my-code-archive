@@ -38,5 +38,6 @@ export const bookPopulate = [
   { path: "categories", select: "name isDeleted" },
   { path: "author", select: "name image isDeleted" },
 ];
+export const bookPopulateAdmin = [{ path: "categories" }, { path: "author" }];
 export const bookSelect =
-  "-costPrice -quantity -minQuantity -updatedBy -createdBy";
+  "-costPrice -quantity -minQuantity -updatedBy -createdBy -updatedAt -createdAt";

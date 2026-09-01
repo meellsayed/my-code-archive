@@ -105,5 +105,5 @@ export const getAll = asyncHandler(async (req, res, next) => {
     filter: { ...filter, role: roleTypes.customer },
   });
 
-  return successResponse({ res,data:{users} });
+  return successResponse({ res, data: { users } });
 });

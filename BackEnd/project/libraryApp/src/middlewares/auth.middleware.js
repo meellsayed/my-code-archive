@@ -5,9 +5,11 @@ import { decodedToken, tokenTypes } from "../utils/security/token.js";
  * @param {string} tokenType
  * @returns {(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) => Promise<void>}
  */
-export const authentication = (tokenType = "access") => {
+export const authentication = ({ tokenType = "access", type = "" } = {}) => {
   return asyncHandler(async (req, res, next) => {
     const { authorization } = req.headers;
+    if (type == "get" && !authorization) return next();
+
     req.user = await decodedToken({
       authorization,
       tokenType: tokenType == "access" ? tokenTypes.access : tokenTypes.refresh,

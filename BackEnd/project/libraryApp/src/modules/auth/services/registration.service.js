@@ -1,7 +1,7 @@
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { successResponse } from "../../../utils/response/success.response.js";
 import * as dbService from "../../../DB/db.service.js";
-import { userModel } from "../../../DB/models/User.model.js";
+import { userModel, userSelect } from "../../../DB/models/User.model.js";
 import sendEmailEvent, {
   sendEmailEventType,
 } from "../../../utils/events/sendEmail.event.js";
@@ -76,10 +76,19 @@ export const signup = asyncHandler(async (req, res, next) => {
     email,
     otp,
   });
+  const refreshToken = generateRefreshToken(user);
+  const accessToken = generateAccessToken(user);
 
-  return successResponse({ res, message, data: { user }, statusCode: 201 });
+  return successResponse({
+    res,
+    message,
+    data: {
+      refreshToken,
+      accessToken,
+    },
+    statusCode: 201,
+  });
 });
-
 export const confirmEmail = asyncHandler(async (req, res, next) => {
   const { token } = req.params;
 

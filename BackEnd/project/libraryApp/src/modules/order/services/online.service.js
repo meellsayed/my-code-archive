@@ -107,13 +107,12 @@ export const getOrder = asyncHandler(async (req, res, next) => {
   return successResponse({ res, data: { order } });
 });
 export const getOrders = asyncHandler(async (req, res, next) => {
-  const { sort, page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10 } = req.query;
 
   const result = await paginate({
     model: orderModel,
     filter: { customer: req.user._id, isDeleted: false },
     populate: orderPopulate,
-    sort,
     page,
     limit,
   });

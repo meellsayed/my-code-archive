@@ -19,13 +19,14 @@ router.patch(
 );
 
 //========================= global ===========================
-router.patch("/pos", authentication(), staffServices.posOrder);
+
 router.get(
   "",
   authentication(),
   authorization([roleTypes.admin, roleTypes.staff]),
-  staffServices.getAll,
+  staffServices.posOrder,
 );
+
 router.get(
   "/customer/:id",
   authentication(),
@@ -44,6 +45,7 @@ router.post(
   authorization([roleTypes.admin, roleTypes.staff]),
   staffServices.buyCart,
 );
+router.patch("/pos", authentication(), staffServices.posOrder);
 router.patch(
   "/:id/status",
   authentication(),

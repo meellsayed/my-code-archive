@@ -9,7 +9,13 @@ import { validation } from "../../middlewares/validation.middleware.js";
 import * as validators from "./cart.validation.js";
 const router = Router();
 
-router.get("", authentication(), cartServices.getAll); //* I Will be added search query
+router.get(
+  "",
+  authentication(),
+  authorization([roleTypes.admin, roleTypes.staff]),
+  cartServices.getAll,
+); //* I Will be added search query
+router.get("/me", authentication(), cartServices.getAllMe); //* I Will be added search query
 router.get("/active", authentication(), cartServices.getActive);
 router.get(
   "/:id",
@@ -18,13 +24,13 @@ router.get(
   cartServices.getOne,
 );
 router.post(
-  "/items/:bookId",
+  "/items/:id",
   validation(validators.addItem),
   authentication(),
   cartServices.addItem,
 );
 router.patch(
-  "/items/:bookId/decrement",
+  "/items/:id/decrement",
   validation(validators.decrementItem),
   authentication(),
   cartServices.decrementItem,
