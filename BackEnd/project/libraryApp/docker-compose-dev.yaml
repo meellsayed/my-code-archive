@@ -1,0 +1,9 @@
+services:
+  web-dev:
+    build:
+      context: .
+      target: dev
+    container_name: con-one-dev
+    ports: ["4000:3000"]
+    volumes: [./:/app:ro]
+    env_file: [./src/config/.env.dev]

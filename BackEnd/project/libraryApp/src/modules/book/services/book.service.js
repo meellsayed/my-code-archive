@@ -243,7 +243,6 @@ export const getAll = asyncHandler(async (req, res, next) => {
       ? true
       : false;
 
-  console.log({ role });
 
   const select = role ? "" : bookSelect;
   const populate = role ? bookPopulateAdmin : bookPopulate;

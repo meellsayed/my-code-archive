@@ -4,5 +4,6 @@ npm-debug.log
 .env
 *.md
 frontend
+frontendv2
 /tmp
 library

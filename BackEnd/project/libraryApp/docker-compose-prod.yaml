@@ -1,0 +1,9 @@
+services:
+  web-prod:
+    build:
+      context: .
+      target: prod
+    container_name: con-prod
+    ports: ["4000:3000"]
+    volumes: [./:/app:ro]
+    env_file: [./src/config/.env.prod]

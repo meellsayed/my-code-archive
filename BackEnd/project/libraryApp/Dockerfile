@@ -1,13 +1,14 @@
-FROM node:22.22.2
-
+FROM node:22.22.2 AS base
 WORKDIR /app
+COPY package.json .
 
-COPY package.json package-lock.json ./
-
-RUN npm ci
-
+FROM base AS dev
+RUN npm i
 COPY . .
+CMD [ "npm" , "run" , "start:dev" ]
 
-EXPOSE 3000
+FROM base AS prod
+RUN npm i --only=production
+COPY . .
+CMD [ "npm" , "run" , "start" ]
 
-CMD [ "npm", "run","start:dev" ]
