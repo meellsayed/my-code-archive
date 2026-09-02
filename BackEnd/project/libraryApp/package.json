@@ -32,10 +32,10 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^9.0.1",
     "nodemon": "^3.1.14",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "morgan": "^1.11.0"
   },
   "devDependencies": {
-    "morgan": "^1.11.0",
     "prettier": "^3.9.6"
   }
 }
