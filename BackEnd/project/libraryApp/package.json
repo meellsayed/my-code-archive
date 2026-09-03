@@ -2,14 +2,13 @@
   "name": "libraryApp",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "start:dev": "nodemon --watch src --legacy-watch index.js",
-    "dev": "node --watch index.js",
-    "dev2": "node --watch --no-warnings index.js",
-    "dev4": "pm2 start index.js --watch --name libraryApp",
+    "start": "node ./src/index.js",
+    "start:dev": "nodemon --watch src --legacy-watch ./src/index.js",
+    "dev": "node --watch ./src/index.js",
+    "dev4": "pm2 start ./src/index.js --watch --name libraryApp",
     "log": "pm2 logs libraryApp",
     "stop": "pm2 stop libraryApp",
     "seed": "node src/DB/seed/seed.js"
@@ -28,14 +27,14 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "7.2",
     "mongoose": "^9.7.1",
+    "morgan": "^1.11.0",
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^9.0.1",
-    "nodemon": "^3.1.14",
-    "socket.io": "^4.8.3",
-    "morgan": "^1.11.0"
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
+    "nodemon": "^3.1.14",
     "prettier": "^3.9.6"
   }
 }

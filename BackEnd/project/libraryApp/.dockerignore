@@ -1,9 +1,4 @@
 node_modules
-npm-debug.log
-.git
-.env
-*.md
-frontend
-frontendv2
-/tmp
+/src/config
+docker-compose*
 library

@@ -1,8 +1,7 @@
 import express from "express";
 import path from "path";
-import bootstrap from "./src/app.controller.js";
-import dotenv from "dotenv";
-dotenv.config({ path: "./src/config/.env.dev" });
+import bootstrap from "./app.controller.js";
+// import dotenv from "do
 const app = express();
 const PORT = process.env.PORT || 3000;
 
